@@ -121,7 +121,7 @@ export const useBeneficiaryData = (
         console.log('✅ Beneficiary data loaded:', result.data);
         
         // Load related data - documents, photos, etc.
-        loadRelatedData(result.data.id);
+        await loadRelatedData(result.data.id);
       }
       
       onLoadEnd?.(true);

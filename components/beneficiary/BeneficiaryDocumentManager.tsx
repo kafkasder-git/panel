@@ -24,7 +24,7 @@ import { Button } from '../ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Input } from '../ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { fileStorageService } from '../../services';
+// fileStorageService removed as it's not actively used
 
 export interface DocumentFile {
   id: string;

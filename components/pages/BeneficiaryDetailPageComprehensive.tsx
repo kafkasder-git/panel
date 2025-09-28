@@ -537,21 +537,7 @@ export function BeneficiaryDetailPageComprehensive({
         donor.email.toLowerCase().includes(donorSearchTerm.toLowerCase()),
     ) || [];
 
-  // Bağlı kişiler filtreleme
-  const filteredDependents = existingDependents.filter((person) => {
-    if (!dependentSearchTerm) return true;
-    const searchLower = dependentSearchTerm.toLowerCase();
-    return (
-      person.ad_soyad?.toLowerCase().includes(searchLower) ||
-      person.kimlik_no?.toLowerCase().includes(searchLower) ||
-      person.Kimlik_No?.toLowerCase().includes(searchLower) ||
-      person.telefon_no?.toLowerCase().includes(searchLower) ||
-      person.Telefon_No?.toLowerCase().includes(searchLower) ||
-      person.sehri?.toLowerCase().includes(searchLower) ||
-      person.uyruk?.toLowerCase().includes(searchLower) ||
-      person.Uyruk?.toLowerCase().includes(searchLower)
-    );
-  });
+
 
   const handleHealthConditionChange = useCallback((condition: string, checked: boolean) => {
     setHealthConditionsState((prev) => ({
@@ -638,9 +624,8 @@ export function BeneficiaryDetailPageComprehensive({
 
   // Dependent Person Modal Handlers
   const handleOpenDependentPersonModal = async () => {
-    setModalMode('list'); // Önce bağlı kişiler listesini göster
-    await ensureFamilyRelationshipsPolicies(); // Policy'leri kontrol et
-    loadConnectedDependents(); // Bu kişiye bağlı olanları yükle
+    // Make sure policies exist before opening modal
+    await ensureFamilyRelationshipsPolicies();
     setIsDependentPersonModalOpen(true);
   };
 
@@ -678,375 +663,17 @@ export function BeneficiaryDetailPageComprehensive({
   };
 
   // Bu kişiye bağlı olanları yükle - şimdilik boş liste
-  const loadConnectedDependents = async () => {
-    if (!beneficiaryId) {
-      setConnectedDependents([]);
-      return;
-    }
-
-    try {
-      logger.info('🔄 Loading connected dependents for beneficiary:', beneficiaryId);
-
-      // Integer ID'yi UUID'ye çevir ve family_relationships tablosundan çek
-      const primaryUuid = `00000000-0000-0000-0000-${beneficiaryId.toString().padStart(12, '0')}`;
-
-      logger.info('🔄 Searching relationships for UUID:', primaryUuid);
-
-      const { data: relationships, error } = await supabaseAdmin
-        .from('family_relationships')
-        .select('*')
-        .eq('primary_beneficiary_id', primaryUuid);
-
-      if (error) {
-        logger.error('❌ Error loading relationships:', error);
-        setConnectedDependents([]);
-        return;
-      }
-
-      if (relationships && relationships.length > 0) {
-        const connectedData = [];
-
-        // Her ilişki için kişi detaylarını çek
-        for (const rel of relationships) {
-          // UUID'yi integer'a çevir
-          const memberId = parseInt(rel.family_member_id.split('-').pop() || '0');
-          const personResult = await ihtiyacSahipleriService.getIhtiyacSahibi(memberId);
-
-          if (personResult.data) {
-            // Enum değerlerini Türkçe'ye çevir
-            const relationshipMap: Record<string, string> = {
-              parent: 'Anne/Baba',
-              spouse: 'Eş',
-              child: 'Çocuk',
-              sibling: 'Kardeş',
-              grandparent: 'Büyükanne/Büyükbaba',
-              grandchild: 'Torun',
-              other: 'Diğer',
-            };
-
-            connectedData.push({
-              id: personResult.data.id.toString(),
-              name: personResult.data.ad_soyad ?? '',
-              relationship:
-                (relationshipMap[rel.relationship_type] || rel.relationship_type) ?? 'Belirtilmemiş',
-              phone: personResult.data.telefon_no ?? personResult.data.Telefon_No ?? undefined,
-              ad_soyad: personResult.data.ad_soyad ?? '',
-              tur: personResult.data.tur ?? personResult.data.Tur ?? undefined,
-              yakinlik:
-                (relationshipMap[rel.relationship_type] || rel.relationship_type) ?? 'Belirtilmemiş',
-              kimlik_no: personResult.data.kimlik_no ?? personResult.data.Kimlik_No ?? undefined,
-              telefon_no: personResult.data.telefon_no ?? personResult.data.Telefon_No ?? undefined,
-              baglanti_tarihi: rel.created_at?.split('T')[0] || '2024-01-01',
-              relationship_id: rel.id ?? '',
-              sehri: personResult.data.sehri ?? undefined,
-              uyruk: personResult.data.uyruk ?? personResult.data.Uyruk ?? undefined,
-              Uyruk: personResult.data.Uyruk ?? undefined,
-              kategori: personResult.data.kategori ?? personResult.data.Kategori ?? undefined,
-              Kategori: personResult.data.Kategori ?? undefined,
-              Kimlik_No: personResult.data.Kimlik_No ?? undefined,
-              Telefon_No: personResult.data.Telefon_No ?? undefined,
-              Tur: personResult.data.Tur ?? undefined,
-            });
-          }
-        }
-
-        logger.info('✅ Found connected dependents:', connectedData);
-        setConnectedDependents(connectedData);
-      } else {
-        logger.info('ℹ️ No connected dependents found');
-        setConnectedDependents([]);
-      }
-    } catch (error: any) {
-      logger.error('❌ Unexpected error loading connected dependents:', error);
-      setConnectedDependents([]);
-    }
-  };
-
-  // Mevcut bağlı kişileri yükle - Bakmakla Yükümlü Olunan Kişi türündeki kayıtlar
-  const loadExistingDependents = async () => {
-    setIsLoadingDependents(true);
-    try {
-      // Tüm kişileri getir (bağlantı kurabilmek için)
-      const result = await ihtiyacSahipleriService.getIhtiyacSahipleri(
-        1, // page
-        500, // pageSize - çok daha fazla kayıt getir
-        {}, // Tür filtresi yok - tüm kişiler
-      );
-
-      if (result.data) {
-        logger.info('✅ Loaded existing dependents:', result.data);
-        setExistingDependents(
-          result.data.map((person: any) => ({
-            ...person,
-            yakinlik: 'Belirtilmemiş', // Varsayılan yakınlık
-            durum: 'Aktif', // Varsayılan durum
-          })),
-        );
-      } else if (result.error) {
-        logger.error('❌ Error loading dependents:', result.error);
-        toast.error(`Bağlı kişiler yüklenirken hata: ${  result.error}`);
-        setExistingDependents([]);
-      }
-    } catch (error: any) {
-      logger.error('❌ Unexpected error loading dependents:', error);
-      toast.error('Bağlı kişiler yüklenirken beklenmeyen hata oluştu');
-      setExistingDependents([]);
-    } finally {
-      setIsLoadingDependents(false);
-    }
-  };
+  // Dependent person data is now managed by the useBeneficiaryData hook
 
   const handleCloseDependentPersonModal = () => {
     setIsDependentPersonModalOpen(false);
-    setModalMode('list'); // Liste moduna dön
-    setSelectedDependentId(null);
-    setSelectedRelationshipType('');
-    setDependentSearchTerm('');
-    setDependentPersonData({
-      name: '',
-      surname: '',
-      id_number: '',
-      phone: '',
-      relationship: '',
-      birth_date: '',
-      gender: '',
-      address: '',
-    });
   };
 
-  const validateTcNumber = (tc: string): boolean => {
-    const cleanTc = tc.replace(/\s/g, '');
-    return /^\d{11}$/.test(cleanTc);
-  };
+  // Dependent person management has been moved to BeneficiaryDependentManager component
 
-  const validatePhoneNumber = (phone: string): boolean => {
-    const cleanPhone = phone.replace(/[\s()-]/g, '');
-    return /^(05\d{9}|\+905\d{9})$/.test(cleanPhone);
-  };
+  // Dependent relationship management has been moved to BeneficiaryDependentManager component
 
-  const handleSaveDependent = async () => {
-    // Validation
-    if (!dependentPersonData.name.trim()) {
-      toast.error('Ad alanı zorunludur');
-      return;
-    }
-
-    if (!dependentPersonData.surname.trim()) {
-      toast.error('Soyad alanı zorunludur');
-      return;
-    }
-
-    if (!dependentPersonData.id_number.trim()) {
-      toast.error('TC Kimlik No alanı zorunludur');
-      return;
-    }
-
-    if (!validateTcNumber(dependentPersonData.id_number)) {
-      toast.error('TC Kimlik No 11 haneli olmalıdır');
-      return;
-    }
-
-    if (dependentPersonData.phone && !validatePhoneNumber(dependentPersonData.phone)) {
-      toast.error('Geçerli bir telefon numarası giriniz');
-      return;
-    }
-
-    if (!dependentPersonData.relationship) {
-      toast.error('Yakınlık derecesi seçiniz');
-      return;
-    }
-
-    try {
-      setIsSavingDependent(true);
-
-      // Here you would typically save to database
-      // For now, we'll simulate the save operation
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      toast.success('Bakmakla yükümlü kişi başarıyla kaydedildi');
-      handleCloseDependentPersonModal();
-    } catch (error) {
-      logger.error('Error saving dependent person:', error);
-      toast.error('Kayıt sırasında hata oluştu');
-    } finally {
-      setIsSavingDependent(false);
-    }
-  };
-
-  const handleSaveAndGoToDetail = async () => {
-    await handleSaveDependent();
-    // Navigate to the new dependent person's detail page
-    // This would typically use router navigation
-    toast.info('Detay sayfasına yönlendiriliyor...');
-  };
-
-  // Mevcut kişiyi bağla - family_relationships tablosuna kaydet
-  const handleLinkExistingPerson = async () => {
-    if (!selectedDependentId || !beneficiaryId) {
-      toast.error('Lütfen bağlanacak kişiyi seçiniz');
-      return;
-    }
-
-    if (!selectedRelationshipType) {
-      toast.error('Lütfen yakınlık derecesi seçiniz');
-      return;
-    }
-
-    try {
-      setIsSavingDependent(true);
-
-      const selectedPerson = existingDependents.find((p) => p.id === selectedDependentId);
-      logger.info(
-        '🔄 Linking person:',
-        selectedPerson?.ad_soyad,
-        'to beneficiary:',
-        beneficiaryId,
-        'relationship:',
-        selectedRelationshipType,
-      );
-
-      // Integer ID'leri UUID'ye çevir ve family_relationships tablosuna kaydet
-      const primaryUuid = `00000000-0000-0000-0000-${beneficiaryId.toString().padStart(12, '0')}`;
-      const memberUuid = `00000000-0000-0000-0000-${selectedDependentId
-        .toString()
-        .padStart(12, '0')}`;
-
-      logger.info('🔄 Converting IDs:', {
-        beneficiaryId,
-        selectedDependentId,
-        primaryUuid,
-        memberUuid,
-      });
-
-      const { data, error } = await supabaseAdmin
-        .from('family_relationships')
-        .insert({
-          primary_beneficiary_id: primaryUuid,
-          family_member_id: memberUuid,
-          relationship_type: selectedRelationshipType,
-          is_dependent: true,
-        })
-        .select()
-        .single();
-
-      if (error) {
-        logger.error('❌ Error creating relationship:', error);
-        toast.error(`Bağlantı kaydedilirken hata: ${  error.message}`);
-        return;
-      }
-
-      logger.info('✅ Relationship created:', data);
-      toast.success(`${selectedPerson?.ad_soyad} başarıyla bağlandı`);
-
-      // Bağlı kişiler listesini yenile
-      await loadConnectedDependents();
-
-      // Liste moduna dön
-      setModalMode('list');
-      setSelectedDependentId(null);
-    } catch (error: any) {
-      logger.error('❌ Unexpected error linking person:', error);
-      toast.error('Bağlantı sırasında beklenmeyen hata oluştu');
-    } finally {
-      setIsSavingDependent(false);
-    }
-  };
-
-  // Bağlantıyı kaldır - localStorage'dan
-  const handleRemoveConnection = async (relationshipId: string, personName: string) => {
-    try {
-      logger.info('🔄 Removing relationship:', relationshipId);
-
-      const { error } = await supabaseAdmin
-        .from('family_relationships')
-        .delete()
-        .eq('id', relationshipId);
-
-      if (error) {
-        logger.error('❌ Error removing relationship:', error);
-        toast.error(`Bağlantı kaldırılırken hata: ${  error.message}`);
-        return;
-      }
-
-      logger.info('✅ Relationship removed:', relationshipId);
-      toast.success(`${personName} ile bağlantı kaldırıldı`);
-
-      // Bağlı kişiler listesini yenile
-      await loadConnectedDependents();
-    } catch (error: any) {
-      logger.error('❌ Unexpected error removing relationship:', error);
-      toast.error('Bağlantı kaldırılırken beklenmeyen hata oluştu');
-    }
-  };
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const {files} = event.target;
-    if (!files) return;
-
-    setIsUploading(true);
-    setUploadProgress(0);
-
-    // Simulate upload progress
-    const interval = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsUploading(false);
-
-          // Add uploaded files to the list
-          const newFiles = Array.from(files).map((file, index) => ({
-            id: (Date.now() + index).toString(),
-            name: file.name,
-            size: `${(file.size / (1024 * 1024)).toFixed(1)  } MB`,
-            type: file.type,
-            uploadDate: new Date().toISOString().split('T')[0],
-            url: URL.createObjectURL(file),
-          }));
-
-          setUploadedFiles((prev) => [...(prev || []), ...newFiles]);
-          toast.success(`${files.length} dosya başarıyla yüklendi`);
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 200);
-  };
-
-  const handleDeleteFile = (fileId: string) => {
-    setUploadedFiles((prev) => (prev || []).filter((file) => file.id !== fileId));
-    toast.success('Dosya başarıyla silindi');
-  };
-
-  const handlePreviewFile = (file: any) => {
-    setPreviewFile(file);
-    setIsPreviewOpen(true);
-  };
-
-  const handleDownloadFile = (file: any) => {
-    // Simulate download
-    toast.success(`${file.name} indiriliyor...`);
-  };
-
-  const getFileIcon = (fileType: string) => {
-    if (fileType.startsWith('image/')) return <ImageIcon className="w-4 h-4" />;
-    if (fileType.includes('pdf')) return <FileIcon className="w-4 h-4" />;
-    if (fileType.includes('spreadsheet') || fileType.includes('excel'))
-      return <FileSpreadsheet className="w-4 h-4" />;
-    return <File className="w-4 h-4" />;
-  };
-
-  const filteredFiles =
-    uploadedFiles?.filter((file) => {
-      const matchesSearch = file.name.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesType =
-        selectedFileType === 'all' ||
-        (selectedFileType === 'image' && file.type.startsWith('image/')) ||
-        (selectedFileType === 'pdf' && file.type.includes('pdf')) ||
-        (selectedFileType === 'document' &&
-          !file.type.startsWith('image/') &&
-          !file.type.includes('pdf'));
-      return matchesSearch && matchesType;
-    }) || [];
+  // Document management is now handled by BeneficiaryDocumentManager component
 
   // Show loading state
   if (loading) {
@@ -1091,8 +718,8 @@ export function BeneficiaryDetailPageComprehensive({
                   {/* Türüne göre dinamik başlık */}
                   {(() => {
                     const tur =
-                      (beneficiaryData.tur as string) ||
-                      (beneficiaryData.Tur as string) ||
+                      (beneficiaryData['tur'] as string) ||
+                      (beneficiaryData['Tur'] as string) ||
                       'İhtiyaç Sahibi';
                     const displayType = tur.includes('Bakmakla Yükümlü')
                       ? 'Bakmakla Yükümlü Olunan Kişi'
@@ -2515,17 +2142,15 @@ export function BeneficiaryDetailPageComprehensive({
         beneficiaryId={beneficiaryId || ''} 
         isOpen={isDocumentModalOpen}
         onOpenChange={setIsDocumentModalOpen}
-        initialFiles={uploadedFiles.map(file => ({
-          id: file.id,
-          name: file.name,
-          type: file.type,
-          size: file.size,
-          uploadDate: file.uploadDate,
-          url: file.url || '#'
+        initialFiles={documents.map(doc => ({
+          id: doc.id,
+          name: doc.name || doc.filename || 'Belge',
+          type: doc.type || doc.mime_type || 'application/pdf',
+          size: doc.size || 0,
+          uploadDate: doc.upload_date || doc.created_at || new Date().toISOString().split('T')[0],
+          url: doc.url || doc.file_url || '#'
         }))}
-        onFilesChange={(files) => {
-          setUploadedFiles(files);
-        }}
+        onFilesChange={updateDocuments}
       />
 
       {/* File Preview Modal - Removed as it's now handled by BeneficiaryDocumentManager */}
@@ -2535,9 +2160,9 @@ export function BeneficiaryDetailPageComprehensive({
         beneficiaryId={beneficiaryId || ''}
         isOpen={isDependentPersonModalOpen}
         onOpenChange={setIsDependentPersonModalOpen}
-        initialDependents={connectedDependents}
+        initialConnectedDependents={connectedDependents}
         onDependentsChange={(newDependents) => {
-          setConnectedDependents(newDependents);
+          updateDependents(newDependents);
         }}
       />
 
@@ -2547,9 +2172,7 @@ export function BeneficiaryDetailPageComprehensive({
         isOpen={isPhotosModalOpen}
         onOpenChange={setIsPhotosModalOpen}
         initialPhotos={photos}
-        onPhotosChange={(newPhotos) => {
-          setPhotos(newPhotos);
-        }}
+        onPhotosChange={updatePhotos}
       />
 
       {/* Donors Modal */}
