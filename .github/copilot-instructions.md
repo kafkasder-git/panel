@@ -37,7 +37,7 @@ members, donations, beneficiaries, campaigns, and more.
 
 - **Client Setup**: Main client in `lib/supabase.ts` with auth config and RLS
 - **Admin Client**: `supabaseAdmin` for RLS bypass operations
-- **Table Constants**: Use `TABLES` constant for table names
+- **Table Constants**: Use `TABLES` constant from `lib/supabase.ts` for table names
 - **Environment**: Centralized env management in `lib/environment.ts`
 
 ## Development Workflows
@@ -50,6 +50,7 @@ members, donations, beneficiaries, campaigns, and more.
   (`components/charts/LazyCharts.tsx`)
 - **UI Components**: Radix UI + Tailwind CSS for consistent design system
 - **Mobile Support**: Mobile-specific components in `components/mobile/`
+- **Page Layout**: Always wrap pages with `PageLayout` component (`components/PageLayout.tsx`)
 
 ### Testing Strategy
 
@@ -57,6 +58,7 @@ members, donations, beneficiaries, campaigns, and more.
 - **Service Tests**: Comprehensive service layer tests in `tests/services/`
 - **Component Tests**: React Testing Library patterns in `components/__tests__/`
 - **Test Commands**: `npm test`, `npm run test:coverage`, `npm run test:ui`
+- **E2E Testing**: Playwright tests with `npm run test:e2e` and `npm run test:e2e:ui`
 
 ### Build & Development
 
@@ -66,6 +68,7 @@ members, donations, beneficiaries, campaigns, and more.
 - **PWA**: Configured with VitePWA plugin for offline support
 - **Bundle Analysis**: `npm run analyze` generates `dist/bundle-analysis.html`
 - **Performance Monitoring**: Core Web Vitals tracking enabled
+- **Environment Setup**: Copy `.env.example` to `.env.local` and configure
 
 ## Project-Specific Conventions
 
@@ -75,6 +78,7 @@ members, donations, beneficiaries, campaigns, and more.
   `@/services`)
 - **Domain Grouping**: Features grouped by business domain, not technical type
 - **Lazy Loading**: Heavy components wrapped with React.lazy and Suspense
+- **Turkish Naming**: Many domain files use Turkish terms in file names
 
 ### TypeScript Patterns
 
@@ -84,6 +88,7 @@ members, donations, beneficiaries, campaigns, and more.
 - **Interface Naming**: Entity interfaces match database table names
 - **Generic Services**: Heavily typed service layer with generics for
   reusability
+- **Type Exports**: Prefer exporting types with `type` keyword, not interfaces
 
 ### Performance Optimizations
 
@@ -92,12 +97,14 @@ members, donations, beneficiaries, campaigns, and more.
 - **Code Splitting**: Route-based and component-based lazy loading
 - **Bundle Analysis**: `npm run analyze` for bundle size monitoring
 - **Chunk Splitting**: Manual chunks in `vite.config.ts` for vendor separation
+- **Mobile-Specific Hooks**: Use hooks like `useMobilePerformance` for mobile optimizations
 
 ### Turkish Language Support
 
 - **UI Text**: All user-facing text in Turkish
 - **Database**: Turkish field names and content
 - **Comments**: Mix of English (technical) and Turkish (business logic)
+- **Error Messages**: All error messages for users in Turkish
 
 ### Environment & Security
 
@@ -105,6 +112,7 @@ members, donations, beneficiaries, campaigns, and more.
   validation with hardcoded credential detection
 - **Security Checks**: CSRF protection, XSS prevention, input sanitization
 - **RLS Enforcement**: All Supabase tables use Row Level Security
+- **Security Utils**: Use `lib/security.ts` for input sanitization and validation
 
 ## Development Commands & Workflows
 
@@ -121,9 +129,14 @@ npm run lint           # ESLint check only
 npm run type-check     # TypeScript check only
 npm run test           # Run all tests
 npm run test:coverage  # Tests with coverage report
+npm run test:e2e      # Run Playwright E2E tests
+npm run test:e2e:ui   # Run Playwright tests with UI
 
 # Analysis & Monitoring
 npm run analyze         # Generate bundle analysis report
+npm run cleanup:imports # Remove unused imports
+npm run clean          # Remove build artifacts
+npm run fresh          # Clean and reinstall dependencies
 ```
 
 ### Build Configuration Details
@@ -132,6 +145,7 @@ npm run analyze         # Generate bundle analysis report
 - **PWA Manifest**: Includes Turkish shortcuts for key features
 - **Terser Optimization**: Aggressive minification with console/debugger removal
 - **Asset Optimization**: 4KB inlining limit, hashed filenames
+- **Node Version**: Requires Node 22+ as specified in package.json
 
 ### ESLint Configuration
 
@@ -139,6 +153,7 @@ npm run analyze         # Generate bundle analysis report
 - **Test File Relaxation**: Looser rules for test files (no console warnings)
 - **Import Optimization**: Unused imports auto-removal
 - **Performance Rules**: Bundle size warnings, dependency checks
+- **Custom Config**: Uses new flat config format in `eslint.config.js`
 
 ## State Management Patterns
 
@@ -147,6 +162,20 @@ npm run analyze         # Generate bundle analysis report
 - **Rate Limiting**: 5 login attempts, 15-minute cooldown
 - **Persist Strategy**: Only `rememberMe`, `loginAttempts`, `lastLoginAttempt`
 - **Permission System**: Role-based with granular permissions
+- **Store Pattern**:
+  ```typescript
+  export const useAuthStore = create<AuthStore>()(
+    devtools(
+      subscribeWithSelector(
+        persist(
+          immer((set, get) => ({
+            // State and actions...
+          }))
+        )
+      )
+    )
+  );
+  ```
 
 ### UI Store (`stores/uiStore.ts`)
 - **Comprehensive State**: Theme, mobile, modals, navigation, accessibility
@@ -176,6 +205,7 @@ class MyService extends BaseService<Entity, InsertType, UpdateType, Filters> {
 - **MembersService**: Complex queries with multiple OR conditions
 - **Performance**: Direct Supabase calls for optimized queries
 - **Logging**: Comprehensive error logging with context
+- **Filtering**: Common pattern uses `applyDateRangeFilter` and `applySearchFilter` from BaseService
 
 ## Component Architecture
 
@@ -183,12 +213,14 @@ class MyService extends BaseService<Entity, InsertType, UpdateType, Filters> {
 - **Domain Organization**: 25+ specialized pages (MembersPage, DonationsPage, etc.)
 - **Layout Wrapper**: `PageLayout` component for consistent structure
 - **Mobile Responsive**: Touch-optimized interactions
+- **Actions Pattern**: Pages use the `actions` prop in PageLayout for action buttons
 
 ### Hook Patterns (`hooks/`)
 - **Domain Hooks**: `useMembers`, `useDonations`, `useBeneficiaries`
 - **Performance Hooks**: `useDebounce`, `useInfiniteScroll`, `usePagination`
 - **Mobile Hooks**: `useTouchDevice`, `useMobilePerformance`
 - **Data Hooks**: `useSupabaseData`, `useSupabaseConnection`
+- **Form Hooks**: Use `use-form-field.ts` for form field management
 
 ## Security Considerations
 
@@ -198,6 +230,7 @@ class MyService extends BaseService<Entity, InsertType, UpdateType, Filters> {
 - **Rate Limiting**: Implemented in `middleware/rateLimit.ts`
 - **Input Validation**: Client and server-side validation
 - **Environment Security**: Hardcoded credential detection in build
+- **Content Sanitization**: Always use `SecurityUtils.sanitizeHTML` from `lib/security.ts`
 
 ## Integration Points
 
@@ -215,6 +248,12 @@ class MyService extends BaseService<Entity, InsertType, UpdateType, Filters> {
 - **Database Changes**: Update Supabase types and service layer
 - **Performance Issues**: Check with React DevTools, use lazy loading patterns
 
+## Project Cleanup Notes
+
+- Project has an ongoing cleanup based on `GEREKSIZ_DOSYALAR_RAPORU.md` (Unnecessary Files Report)
+- Several unused services may be removed: `advancedTestingService.ts`, `campaignsService.ts`, etc.
+- Large components may be split or optimized, especially `BeneficiaryDetailPageComprehensive.tsx`
+
 ## Key Files to Reference
 
 - `App.tsx` - Main application structure and context providers
@@ -224,3 +263,4 @@ class MyService extends BaseService<Entity, InsertType, UpdateType, Filters> {
 - `lib/environment.ts` - Environment validation and configuration
 - `vite.config.ts` - Build configuration and optimizations
 - `tsconfig.json` - Pragmatic TypeScript strict mode settings
+- `components/PageLayout.tsx` - Standard page wrapper component
