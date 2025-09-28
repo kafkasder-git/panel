@@ -150,24 +150,52 @@ export class SecurityMiddleware {
 
   // Sanitize request body and query parameters
   private async sanitizeRequest(request: NextRequest) {
+    // Import the more comprehensive InputSanitizer
+    const { XSSProtection, InputSanitizer } = await import('../lib/security/InputSanitizer');
+    
     const url = new URL(request.url);
+
+    // Validate Content-Type header to prevent content-type confusion attacks
+    const contentType = request.headers.get('content-type') || '';
+    if (['POST', 'PUT', 'PATCH'].includes(request.method) && 
+        contentType.includes('application/json') && 
+        !contentType.startsWith('application/json')) {
+      throw new Error('Invalid Content-Type header');
+    }
 
     // Sanitize query parameters
     const sanitizedSearchParams = new URLSearchParams();
     for (const [key, value] of url.searchParams.entries()) {
-      sanitizedSearchParams.set(key, sanitizeInput(value));
+      // Use improved sanitizer for different parameter types
+      let sanitizedValue = value;
+      if (key.includes('email')) {
+        sanitizedValue = InputSanitizer.sanitizeEmail(value);
+      } else if (key.includes('url') || key.includes('link')) {
+        sanitizedValue = XSSProtection.sanitizeURL(value);
+      } else {
+        sanitizedValue = XSSProtection.sanitizeText(value);
+      }
+      sanitizedSearchParams.set(key, sanitizedValue);
     }
 
     // Create new URL with sanitized params
     const sanitizedUrl = new URL(url.pathname, url.origin);
     sanitizedUrl.search = sanitizedSearchParams.toString();
 
+    // Implement request size limits to prevent DoS attacks
+    const MAX_REQUEST_SIZE = 10 * 1024 * 1024; // 10 MB
+    const contentLength = parseInt(request.headers.get('content-length') || '0', 10);
+    if (contentLength > MAX_REQUEST_SIZE) {
+      throw new Error('Request body too large');
+    }
+
     // Sanitize request body if present
-    let sanitizedBody = null;
+    let sanitizedBody: any = null;
     if (request.body && ['POST', 'PUT', 'PATCH'].includes(request.method)) {
       try {
         const body = await request.json();
-        sanitizedBody = this.sanitizeObject(body);
+        // Use improved sanitization function that leverages InputSanitizer
+        sanitizedBody = await this.sanitizeComplexObject(body);
       } catch (error) {
         // If body is not JSON, leave it as is
         sanitizedBody = request.body;
@@ -182,20 +210,49 @@ export class SecurityMiddleware {
     });
   }
 
-  // Recursively sanitize object properties
-  private sanitizeObject(obj: unknown): unknown {
+  // Recursively sanitize object properties with more comprehensive protection
+  private async sanitizeComplexObject(obj: unknown): Promise<unknown> {
+    // Import the more comprehensive InputSanitizer
+    const { XSSProtection, InputSanitizer } = await import('../lib/security/InputSanitizer');
+    
     if (typeof obj === 'string') {
-      return sanitizeInput(obj);
+      // Apply deep sanitization for strings
+      return XSSProtection.sanitizeHTML(obj);
     }
 
     if (Array.isArray(obj)) {
-      return obj.map((item) => this.sanitizeObject(item));
+      // Process arrays recursively
+      return Promise.all(obj.map(item => this.sanitizeComplexObject(item)));
     }
 
     if (obj && typeof obj === 'object') {
       const sanitized: Record<string, unknown> = {};
+      
+      // For each key-value pair, apply appropriate sanitization based on key name
       for (const [key, value] of Object.entries(obj)) {
-        sanitized[sanitizeInput(key)] = this.sanitizeObject(value);
+        // Sanitize the key itself
+        const sanitizedKey = XSSProtection.sanitizeText(key);
+        
+        // Apply context-aware sanitization based on field name
+        if (typeof value === 'string') {
+          if (key.includes('email')) {
+            sanitized[sanitizedKey] = InputSanitizer.sanitizeEmail(value);
+          } else if (key.includes('url') || key.includes('link')) {
+            sanitized[sanitizedKey] = XSSProtection.sanitizeURL(value);
+          } else if (key.includes('html') || key.includes('content')) {
+            sanitized[sanitizedKey] = XSSProtection.sanitizeHTML(value);
+          } else if (key.includes('phone')) {
+            sanitized[sanitizedKey] = InputSanitizer.sanitizePhone ? InputSanitizer.sanitizePhone(value) : XSSProtection.sanitizeText(value);
+          } else if (key.includes('name')) {
+            sanitized[sanitizedKey] = XSSProtection.sanitizeText(value);
+          } else {
+            // Default sanitization
+            sanitized[sanitizedKey] = XSSProtection.sanitizeText(value);
+          }
+        } else {
+          // Recursively sanitize nested objects
+          sanitized[sanitizedKey] = await this.sanitizeComplexObject(value);
+        }
       }
       return sanitized;
     }
@@ -270,17 +327,27 @@ export class SecurityMiddleware {
     response.headers.set('X-Frame-Options', 'DENY');
     response.headers.set('X-XSS-Protection', '1; mode=block');
     response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-    response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=()');
+    
+    // Additional security headers
+    response.headers.set('Cross-Origin-Embedder-Policy', 'require-corp');
+    response.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
+    response.headers.set('Cross-Origin-Resource-Policy', 'same-origin');
 
-    // Content Security Policy
+    // Content Security Policy - aligned with vercel.json for consistency
     const csp = [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-      "style-src 'self' 'unsafe-inline'",
+      "script-src 'self'",
+      "style-src 'self'",
       "img-src 'self' data: https:",
-      "font-src 'self'",
-      "connect-src 'self' https://api.supabase.co wss://realtime.supabase.co https://*.supabase.co wss://*.supabase.co",
+      "font-src 'self' data:",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
       "frame-ancestors 'none'",
+      "upgrade-insecure-requests",
+      "block-all-mixed-content"
     ].join('; ');
 
     response.headers.set('Content-Security-Policy', csp);

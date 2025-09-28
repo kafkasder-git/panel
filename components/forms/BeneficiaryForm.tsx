@@ -11,6 +11,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { InputSanitizer } from '../../lib/security/InputSanitizer';
 // import type { AidType, BeneficiaryCategory, BeneficiaryFormData } from '../../types/beneficiary';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -150,7 +151,40 @@ export default function BeneficiaryForm({
 
   const handleFormSubmit = async (data: BeneficiaryFormData) => {
     try {
-      await onSubmit(data);
+      // Define field types for sanitization
+      const fieldTypes: Record<keyof BeneficiaryFormData, string> = {
+        full_name: 'name',
+        identity_no: 'tcKimlik',
+        nationality: 'text',
+        country: 'text',
+        phone: 'phone',
+        email: 'email',
+        city: 'text',
+        settlement: 'text',
+        neighborhood: 'text',
+        address: 'address',
+        household_size: 'numeric',
+        birth_date: 'date',
+        gender: 'text',
+        family_members: 'text',
+        needs: 'text',
+        health_info: 'text',
+        other_info: 'text',
+        documents: 'text',
+        notes: 'text',
+        risk_level: 'text',
+        status: 'text',
+        financial_support: 'text',
+        housing_status: 'text',
+        health_status: 'text',
+        education_level: 'text'
+      };
+
+      // Sanitize form data
+      const sanitizedData = InputSanitizer.validateAndSanitizeForm(data, fieldTypes);
+      
+      // Submit sanitized data
+      await onSubmit(sanitizedData);
       toast.success('Yardım alanı başarıyla kaydedildi');
     } catch (error) {
       toast.error('Kayıt sırasında bir hata oluştu');

@@ -17,6 +17,12 @@ export { BeneficiaryHealthInfo } from './BeneficiaryHealthInfo';
 // export { BeneficiaryOptimized } from './BeneficiaryOptimized'; // File deleted
 export { BeneficiaryPersonalInfo } from './BeneficiaryPersonalInfo';
 
+// New extracted components from BeneficiaryDetailPageComprehensive
+export { default as BeneficiaryDocumentManager } from './BeneficiaryDocumentManager';
+export { default as BeneficiaryPhotoGallery } from './BeneficiaryPhotoGallery';
+export { default as BeneficiaryDependentManager } from './BeneficiaryDependentManager';
+export { default as BeneficiaryRelationshipManager } from './BeneficiaryRelationshipManager';
+
 // Types
 /**
  * BeneficiaryData Interface

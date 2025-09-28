@@ -117,6 +117,81 @@ function getEnvNumber(key: string, defaultValue = 0): number {
   return isNaN(parsed) ? defaultValue : parsed;
 }
 
+/**
+ * Validates an individual environment variable against type-specific rules
+ * @param name The name of the environment variable
+ * @param value The value to validate
+ * @param type The expected type/format of the variable
+ * @returns Validation result object with success status and optional error message
+ */
+function validateEnvironmentVariable(
+  name: string,
+  value: string,
+  type: 'url' | 'jwt' | 'secret' | 'boolean' | 'number' | 'text' = 'text'
+): { isValid: boolean; error?: string } {
+  if (!value || value === '') {
+    return { isValid: false, error: `${name} is required` };
+  }
+
+  // Check if the value is a placeholder from .env.example
+  if (value.includes('your_') || value.includes('YOUR_')) {
+    return { isValid: false, error: `${name} contains a placeholder value` };
+  }
+
+  switch (type) {
+    case 'url':
+      try {
+        const url = new URL(value);
+        if (!url.protocol.startsWith('http')) {
+          return { isValid: false, error: `${name} must have HTTP/HTTPS protocol` };
+        }
+        if (name === 'VITE_SUPABASE_URL' && !url.hostname.endsWith('supabase.co')) {
+          return { isValid: false, error: `${name} must be a valid Supabase URL (ending with supabase.co)` };
+        }
+        return { isValid: true };
+      } catch (e) {
+        return { isValid: false, error: `${name} is not a valid URL` };
+      }
+
+    case 'jwt':
+      // Basic JWT structure validation (3 parts separated by dots)
+      const jwtRegex = /^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.[A-Za-z0-9-_.+/=]*$/;
+      if (!jwtRegex.test(value)) {
+        return { isValid: false, error: `${name} is not a valid JWT token format` };
+      }
+      return { isValid: true };
+
+    case 'secret':
+      // Check minimum length and complexity for secrets
+      if (value.length < 32) {
+        return { isValid: false, error: `${name} must be at least 32 characters long` };
+      }
+      // Check for sufficient complexity (at least one number, uppercase, lowercase)
+      const hasNumber = /\d/.test(value);
+      const hasUpper = /[A-Z]/.test(value);
+      const hasLower = /[a-z]/.test(value);
+      if (!(hasNumber && (hasUpper || hasLower))) {
+        return { isValid: false, error: `${name} has insufficient complexity` };
+      }
+      return { isValid: true };
+
+    case 'boolean':
+      if (!['true', 'false', '0', '1'].includes(value.toLowerCase())) {
+        return { isValid: false, error: `${name} must be a boolean value (true/false/0/1)` };
+      }
+      return { isValid: true };
+
+    case 'number':
+      if (isNaN(Number(value))) {
+        return { isValid: false, error: `${name} must be a valid number` };
+      }
+      return { isValid: true };
+
+    default:
+      return { isValid: true };
+  }
+}
+
 // Environment validation
 function validateEnvironment(): void {
   const mode = getEnvVar('VITE_APP_MODE', 'development');
@@ -133,34 +208,60 @@ function validateEnvironment(): void {
     return;
   }
 
-  const requiredVars = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY', 'VITE_CSRF_SECRET'];
+  // Define required variables with their expected types
+  const requiredVars = [
+    { name: 'VITE_SUPABASE_URL', type: 'url' as const },
+    { name: 'VITE_SUPABASE_ANON_KEY', type: 'jwt' as const },
+    { name: 'VITE_CSRF_SECRET', type: 'secret' as const }
+  ];
 
   const missingVars: string[] = [];
+  const invalidVars: {name: string, error: string}[] = [];
 
-  for (const varName of requiredVars) {
-    const value = getEnvVar(varName, '');
+  // Validate each required variable
+  for (const { name, type } of requiredVars) {
+    const value = getEnvVar(name, '');
+    
     if (!value || value === '') {
-      missingVars.push(varName);
+      missingVars.push(name);
+      continue;
+    }
+    
+    const validation = validateEnvironmentVariable(name, value, type);
+    if (!validation.isValid) {
+      invalidVars.push({ name, error: validation.error || 'Invalid format' });
     }
   }
 
+  // Format error messages
+  let errorMessages: string[] = [];
+  
   if (missingVars.length > 0) {
+    errorMessages.push(`🚨 Eksik Environment Variables:
+${missingVars.map((v) => `  - ${v}`).join('\n')}`);
+  }
+  
+  if (invalidVars.length > 0) {
+    errorMessages.push(`⚠️ Geçersiz Environment Variables:
+${invalidVars.map((v) => `  - ${v.name}: ${v.error}`).join('\n')}`);
+  }
+  
+  if (errorMessages.length > 0) {
     // Production'da daha yumuşak hata handling
     const errorMessage = `
 🚨 KRİTİK GÜVENLİK UYARISI!
 
-Eksik environment variable'lar tespit edildi:
-${missingVars.map((v) => `  - ${v}`).join('\n')}
+${errorMessages.join('\n\n')}
 
-Lütfen .env dosyanızı oluşturun ve gerekli değişkenleri ekleyin:
+Lütfen .env dosyanızı oluşturun ve gerekli değişkenleri doğru formatta ekleyin:
 
 # .env dosyası oluşturun:
 cp .env.example .env
 
 # Gerekli değişkenleri ekleyin:
-VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-VITE_CSRF_SECRET=your_csrf_secret_key
+VITE_CSRF_SECRET=$(openssl rand -hex 32)
 
 Bu eksiklikler giderilmezse uygulama çalışmayacaktır!
         `;
@@ -173,7 +274,7 @@ Bu eksiklikler giderilmezse uygulama çalışmayacaktır!
       errorDiv.innerHTML = `
         <div style="padding: 20px; background: #fee; border: 1px solid #fcc; color: #800; font-family: monospace;">
           <h3>🚨 Konfigürasyon Hatası</h3>
-          <p>Uygulama environment variable'ları eksik. Lütfen administrator ile iletişime geçin.</p>
+          <p>Uygulama environment variable'ları eksik veya geçersiz. Lütfen administrator ile iletişime geçin.</p>
           <details>
             <summary>Teknik Detaylar</summary>
             <pre>${errorMessage}</pre>
@@ -194,7 +295,14 @@ Bu eksiklikler giderilmezse uygulama çalışmayacaktır!
 
   // Test ortamında hardcoded credentials check'ini disable et
   if (mode !== 'test') {
+    // Check for placeholder or example values
     if (
+      supabaseUrl.includes('YOUR_PROJECT_ID') ||
+      supabaseUrl.includes('your-project') ||
+      supabaseUrl.includes('your_project') ||
+      supabaseKey.includes('your_supabase_anon_key') ||
+      supabaseKey.includes('your-supabase-anon-key') ||
+      // Check for the specific hardcoded values from the previous .env.example
       supabaseUrl.includes('gyburnfaszhxcxdnwogj') ||
       supabaseKey.includes('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9')
     ) {

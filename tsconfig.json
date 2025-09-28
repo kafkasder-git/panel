@@ -23,17 +23,17 @@
     "noEmit": true,
 
     /* Enhanced TypeScript strict mode settings */
-    "noImplicitAny": false,
-    "noImplicitReturns": false,
-    "noImplicitThis": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "exactOptionalPropertyTypes": false,
-    "noImplicitOverride": false,
-    "noPropertyAccessFromIndexSignature": false,
-    "noUncheckedIndexedAccess": false,
-    "allowUnusedLabels": true,
-    "allowUnreachableCode": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
 
     /* Performance and optimization */
     "incremental": true,

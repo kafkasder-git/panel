@@ -8,27 +8,14 @@
 import {
   AlertTriangle,
   Calendar,
-  Camera,
   CheckCircle2,
-  Download,
   Edit3,
-  Eye,
-  File,
-  FileText as FileIcon,
-  FileSpreadsheet,
   FileText,
-  Filter,
-  Grid,
   Heart,
-  Image as ImageIcon,
   Info,
   Save,
-  Search,
   Shield,
   Target,
-  Trash,
-  Trash2,
-  Upload,
   User,
   Users,
   X,
@@ -38,6 +25,15 @@ import { toast } from 'sonner';
 // Removed direct supabase import - using service layer instead
 import { ihtiyacSahipleriService } from '../../services/ihtiyacSahipleriService';
 import { supabaseAdmin } from '../../lib/supabase';
+
+// Import custom hook
+import { useBeneficiaryData } from '../../hooks/useBeneficiaryData';
+
+// Import extracted components
+import { BeneficiaryDocumentManager } from '../beneficiary/BeneficiaryDocumentManager';
+import { BeneficiaryPhotoGallery } from '../beneficiary/BeneficiaryPhotoGallery';
+import { BeneficiaryDependentManager } from '../beneficiary/BeneficiaryDependentManager';
+import { BeneficiaryRelationshipManager } from '../beneficiary/BeneficiaryRelationshipManager';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -109,6 +105,7 @@ const connectedRecords = [
   'Fotoğraflar',
   'Bağışçılar',
   'Bağlı Kişiler',
+  'İlişkiler',
   'Sponsorlar',
   'Referanslar',
   'Göç/İçine Sınav Takibi',
@@ -137,9 +134,30 @@ export function BeneficiaryDetailPageComprehensive({
 }: BeneficiaryDetailPageComprehensiveProps) {
   const [editMode, setEditMode] = useState(false);
   const [healthConditionsState, setHealthConditionsState] = useState<Record<string, boolean>>({});
-  const [beneficiaryData, setBeneficiaryData] = useState<Record<string, unknown> | null>(null);
+  
+  // Use our custom hook for beneficiary data operations
+  const {
+    data: beneficiaryData,
+    isLoading: loading,
+    isSaving,
+    error,
+    documents,
+    photos,
+    dependents: connectedDependents,
+    relationships,
+    updateData,
+    saveBeneficiaryData,
+    resetData,
+    loadBeneficiaryData,
+    updateDocuments,
+    updatePhotos,
+    updateDependents,
+    updateRelationships,
+    hasUnsavedChanges
+  } = useBeneficiaryData(beneficiaryId);
+  
+  // Keep editableData for backwards compatibility
   const [editableData, setEditableData] = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = useState(true);
 
   // Bank Account Modal States
   const [isBankAccountModalOpen, setIsBankAccountModalOpen] = useState(false);
@@ -150,119 +168,12 @@ export function BeneficiaryDetailPageComprehensive({
 
   // Document Management Modal States
   const [isDocumentModalOpen, setIsDocumentModalOpen] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState<
-    {
-      id: string;
-      name: string;
-      type: string;
-      size: string;
-      uploadDate: string;
-      url?: string;
-    }[]
-  >([]);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedFileType, setSelectedFileType] = useState('all');
-  const [previewFile, setPreviewFile] = useState<{
-    id: string;
-    name: string;
-    type: string;
-    url: string;
-    size?: string;
-    uploadDate?: string;
-  } | null>(null);
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   // Dependent Person Modal States
   const [isDependentPersonModalOpen, setIsDependentPersonModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<'list' | 'create' | 'select'>('list'); // Yeni: list modu eklendi
-  const [connectedDependents, setConnectedDependents] = useState<
-    {
-      id: string;
-      name: string;
-      relationship: string;
-      phone?: string;
-      ad_soyad?: string;
-      tur?: string;
-      yakinlik?: string;
-      kimlik_no?: string;
-      telefon_no?: string;
-      baglanti_tarihi?: string;
-      relationship_id?: string;
-      sehri?: string;
-      uyruk?: string;
-      Uyruk?: string;
-      kategori?: string;
-      Kategori?: string;
-      Kimlik_No?: string;
-      Telefon_No?: string;
-      Tur?: string;
-    }[]
-  >([]); // Bu kişiye bağlı olanlar
-  const [existingDependents, setExistingDependents] = useState<
-    {
-      id: string;
-      name: string;
-      relationship: string;
-      phone?: string;
-      ad_soyad?: string;
-      tur?: string;
-      yakinlik?: string;
-      kimlik_no?: string;
-      telefon_no?: string;
-      baglanti_tarihi?: string;
-      relationship_id?: string;
-      sehri?: string;
-      uyruk?: string;
-      Uyruk?: string;
-      kategori?: string;
-      Kategori?: string;
-      Kimlik_No?: string;
-      Telefon_No?: string;
-      Tur?: string;
-    }[]
-  >([]); // Mevcut bağlı kişiler
-  const [selectedDependentId, setSelectedDependentId] = useState<string | null>(null);
-  const [selectedRelationshipType, setSelectedRelationshipType] = useState<string>('');
-  const [dependentPersonData, setDependentPersonData] = useState({
-    name: '',
-    surname: '',
-    id_number: '',
-    phone: '',
-    relationship: '',
-    birth_date: '',
-    gender: '',
-    address: '',
-  });
-  const [isSavingDependent, setIsSavingDependent] = useState(false);
-  const [isLoadingDependents, setIsLoadingDependents] = useState(false);
-  const [dependentSearchTerm, setDependentSearchTerm] = useState('');
 
   // Photos Modal States
   const [isPhotosModalOpen, setIsPhotosModalOpen] = useState(false);
-  const [photos, setPhotos] = useState<any[]>([
-    {
-      id: 1,
-      name: 'profil_foto.jpg',
-      url: 'https://trae-api-sg.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20portrait%20photo%20of%20a%20person&image_size=square',
-      size: '2.3 MB',
-      uploadDate: '15.01.2024',
-      type: 'image/jpeg',
-    },
-    {
-      id: 2,
-      name: 'kimlik_foto.jpg',
-      url: 'https://trae-api-sg.mchost.guru/api/ide/v1/text_to_image?prompt=identity%20document%20photo&image_size=landscape_4_3',
-      size: '1.8 MB',
-      uploadDate: '12.01.2024',
-      type: 'image/jpeg',
-    },
-  ]);
-  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
-  const [photoUploadProgress, setPhotoUploadProgress] = useState(0);
-  const [selectedPhoto, setSelectedPhoto] = useState<any>(null);
-  const [isPhotoPreviewOpen, setIsPhotoPreviewOpen] = useState(false);
 
   // Donors Modal States
   const [isDonorsModalOpen, setIsDonorsModalOpen] = useState(false);
@@ -306,6 +217,9 @@ export function BeneficiaryDetailPageComprehensive({
 
   // Help Requests Modal States
   const [isHelpRequestsModalOpen, setIsHelpRequestsModalOpen] = useState(false);
+
+  // Relationships Modal States
+  const [isRelationshipsModalOpen, setIsRelationshipsModalOpen] = useState(false);
   const [helpRequests] = useState([
     {
       id: 1,
@@ -551,57 +465,6 @@ export function BeneficiaryDetailPageComprehensive({
     setIsPhotosModalOpen(false);
   };
 
-  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const {files} = event.target;
-    if (!files) return;
-
-    setIsUploadingPhoto(true);
-    setPhotoUploadProgress(0);
-
-    // Simulate upload progress
-    const interval = setInterval(() => {
-      setPhotoUploadProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsUploadingPhoto(false);
-
-          // Add new photos
-          const newPhotos = Array.from(files).map((file, index) => ({
-            id: (photos?.length ?? 0) + index + 1,
-            name: file.name,
-            url: URL.createObjectURL(file),
-            size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
-            uploadDate: new Date().toLocaleDateString('tr-TR'),
-            type: file.type,
-          }));
-
-          setPhotos((prev) => [...(prev || []), ...newPhotos]);
-          toast.success(`${files.length} fotoğraf başarıyla yüklendi`);
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 200);
-  };
-
-  const handlePhotoPreview = (photo: any) => {
-    setSelectedPhoto(photo);
-    setIsPhotoPreviewOpen(true);
-  };
-
-  const handlePhotoDelete = (photoId: number) => {
-    setPhotos((prev) => (prev || []).filter((photo) => photo.id !== photoId));
-    toast.success('Fotoğraf silindi');
-  };
-
-  const handlePhotoDownload = (photo: any) => {
-    const link = document.createElement('a');
-    link.href = photo.url;
-    link.download = photo.name;
-    link.click();
-    toast.success('Fotoğraf indirildi');
-  };
-
   // Donors Modal Handlers
   const handleOpenDonorsModal = () => {
     setIsDonorsModalOpen(true);
@@ -624,6 +487,14 @@ export function BeneficiaryDetailPageComprehensive({
   };
   const handleCloseHelpRequestsModal = () => {
     setIsHelpRequestsModalOpen(false);
+  };
+  
+  // Relationships Modal Handlers
+  const handleOpenRelationshipsModal = () => {
+    setIsRelationshipsModalOpen(true);
+  };
+  const handleCloseRelationshipsModal = () => {
+    setIsRelationshipsModalOpen(false);
   };
 
   // Help Provided Modal Handlers
@@ -759,33 +630,10 @@ export function BeneficiaryDetailPageComprehensive({
   // Document Management Modal Handlers
   const handleOpenDocumentModal = () => {
     setIsDocumentModalOpen(true);
-    // Load existing documents (mock data)
-    setUploadedFiles([
-      {
-        id: '1',
-        name: 'kimlik_fotokopisi.pdf',
-        size: '2.4 MB',
-        type: 'application/pdf',
-        uploadDate: '2024-01-15',
-        url: '#',
-      },
-      {
-        id: '2',
-        name: 'gelir_belgesi.jpg',
-        size: '1.8 MB',
-        type: 'image/jpeg',
-        uploadDate: '2024-01-14',
-        url: '#',
-      },
-    ]);
   };
 
   const handleCloseDocumentModal = () => {
     setIsDocumentModalOpen(false);
-    setSearchTerm('');
-    setSelectedFileType('all');
-    setPreviewFile(null);
-    setIsPreviewOpen(false);
   };
 
   // Dependent Person Modal Handlers
@@ -2554,11 +2402,13 @@ export function BeneficiaryDetailPageComprehensive({
                               ? handleOpenPhotosModal
                               : record === 'Bağışçılar'
                                 ? handleOpenDonorsModal
-                                : record === 'Sponsorlar'
-                                  ? handleOpenSponsorsModal
-                                  : record === 'Yardım Talepleri'
-                                    ? handleOpenHelpRequestsModal
-                                    : record === 'Yapılan Yardımlar'
+                                : record === 'İlişkiler'
+                                  ? handleOpenRelationshipsModal
+                                  : record === 'Sponsorlar'
+                                    ? handleOpenSponsorsModal
+                                    : record === 'Yardım Talepleri'
+                                      ? handleOpenHelpRequestsModal
+                                      : record === 'Yapılan Yardımlar'
                                       ? handleOpenHelpProvidedModal
                                       : record === 'Rıza Beyanları'
                                         ? handleOpenConsentModal
@@ -2660,946 +2510,47 @@ export function BeneficiaryDetailPageComprehensive({
         </DialogContent>
       </Dialog>
 
-      {/* Document Management Modal */}
-      <Dialog open={isDocumentModalOpen} onOpenChange={setIsDocumentModalOpen}>
-        <DialogContent className="sm:max-w-[900px] max-h-[80vh] overflow-hidden">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-semibold flex items-center gap-2">
-              <FileIcon className="w-5 h-5" />
-              Doküman Yönetimi
-            </DialogTitle>
-          </DialogHeader>
+      {/* Document Management Modal - Using extracted component */}
+      <BeneficiaryDocumentManager 
+        beneficiaryId={beneficiaryId || ''} 
+        isOpen={isDocumentModalOpen}
+        onOpenChange={setIsDocumentModalOpen}
+        initialFiles={uploadedFiles.map(file => ({
+          id: file.id,
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          uploadDate: file.uploadDate,
+          url: file.url || '#'
+        }))}
+        onFilesChange={(files) => {
+          setUploadedFiles(files);
+        }}
+      />
 
-          <div className="space-y-6 py-4">
-            {/* File Upload Section */}
-            <div className="space-y-4">
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
-                <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Dosya Yükle</h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  Dosyaları buraya sürükleyip bırakın veya seçmek için tıklayın
-                </p>
-                <div className="flex items-center justify-center gap-4">
-                  <input
-                    type="file"
-                    multiple
-                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xlsx,.xls"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    id="file-upload"
-                  />
-                  <label htmlFor="file-upload">
-                    <Button className="bg-blue-600 hover:bg-blue-700" asChild>
-                      <span>
-                        <Upload className="w-4 h-4 mr-2" />
-                        Dosya Seç
-                      </span>
-                    </Button>
-                  </label>
-                </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  Desteklenen formatlar: PDF, DOC, DOCX, JPG, PNG, XLSX (Maks. 10MB)
-                </p>
-              </div>
+      {/* File Preview Modal - Removed as it's now handled by BeneficiaryDocumentManager */}
 
-              {/* Upload Progress */}
-              {isUploading && (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span>Yükleniyor...</span>
-                    <span>{uploadProgress}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${uploadProgress}%` }}
-                     />
-                  </div>
-                </div>
-              )}
-            </div>
+      {/* Dependent Person Modal - Using extracted component */}
+      <BeneficiaryDependentManager
+        beneficiaryId={beneficiaryId || ''}
+        isOpen={isDependentPersonModalOpen}
+        onOpenChange={setIsDependentPersonModalOpen}
+        initialDependents={connectedDependents}
+        onDependentsChange={(newDependents) => {
+          setConnectedDependents(newDependents);
+        }}
+      />
 
-            {/* Search and Filter */}
-            <div className="flex items-center gap-4">
-              <div className="flex-1 relative">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <Input
-                  placeholder="Dosya ara..."
-                  value={searchTerm}
-                  onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                  }}
-                  className="pl-10"
-                />
-              </div>
-              <Select value={selectedFileType} onValueChange={setSelectedFileType}>
-                <SelectTrigger className="w-40">
-                  <Filter className="w-4 h-4 mr-2" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tüm Dosyalar</SelectItem>
-                  <SelectItem value="image">Resimler</SelectItem>
-                  <SelectItem value="pdf">PDF Dosyalar</SelectItem>
-                  <SelectItem value="document">Diğer Dokümanlar</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Files List */}
-            <div className="space-y-2 max-h-60 overflow-y-auto">
-              {filteredFiles?.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <FileIcon className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-                  <p>Henüz dosya yüklenmemiş</p>
-                </div>
-              ) : (
-                filteredFiles?.map((file) => (
-                  <div
-                    key={file.id}
-                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50"
-                  >
-                    <div className="flex items-center gap-3">
-                      {getFileIcon(file.type)}
-                      <div>
-                        <p className="font-medium text-sm">{file.name}</p>
-                        <p className="text-xs text-gray-500">
-                          {file.size} • {file.uploadDate}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          handlePreviewFile(file);
-                        }}
-                        className="h-8 w-8 p-0"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          handleDownloadFile(file);
-                        }}
-                        className="h-8 w-8 p-0"
-                      >
-                        <Download className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          handleDeleteFile(file.id);
-                        }}
-                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
-                      >
-                        <Trash className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            {/* File Statistics */}
-            <div className="flex items-center justify-between text-sm text-gray-600 pt-4 border-t">
-              <span>Toplam {uploadedFiles?.length ?? 0} dosya</span>
-              <span>
-                Toplam boyut:{' '}
-                {(uploadedFiles || [])
-                  .reduce((total, file) => {
-                    const size = parseFloat(file.size.replace(' MB', ''));
-                    return total + size;
-                  }, 0)
-                  .toFixed(1)}{' '}
-                MB
-              </span>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={handleCloseDocumentModal} className="px-6">
-              Kapat
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* File Preview Modal */}
-      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <DialogContent className="sm:max-w-[700px] max-h-[80vh]">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-semibold">{previewFile?.name}</DialogTitle>
-          </DialogHeader>
-
-          <div className="py-4">
-            {previewFile?.type.startsWith('image/') ? (
-              <div className="text-center">
-                <img
-                  src={previewFile.url}
-                  alt={previewFile.name}
-                  className="max-w-full max-h-96 mx-auto rounded-lg"
-                />
-              </div>
-            ) : previewFile?.type.includes('pdf') ? (
-              <div className="text-center py-8">
-                <FileIcon className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                <p className="text-gray-600">PDF önizlemesi mevcut değil</p>
-                <p className="text-sm text-gray-500 mt-2">Dosyayı görüntülemek için indirin</p>
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <File className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                <p className="text-gray-600">Bu dosya türü için önizleme mevcut değil</p>
-                <div className="mt-4 text-sm text-gray-500">
-                  <p>
-                    <strong>Dosya adı:</strong> {previewFile?.name}
-                  </p>
-                  <p>
-                    <strong>Boyut:</strong> {previewFile?.size}
-                  </p>
-                  <p>
-                    <strong>Yüklenme tarihi:</strong> {previewFile?.uploadDate}
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <DialogFooter className="gap-2">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsPreviewOpen(false);
-              }}
-            >
-              Kapat
-            </Button>
-            <Button
-              onClick={() => {
-                handleDownloadFile(previewFile);
-              }}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              İndir
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Dependent Person Modal */}
-      <Dialog open={isDependentPersonModalOpen} onOpenChange={setIsDependentPersonModalOpen}>
-        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-semibold flex items-center gap-2">
-              <Users className="w-5 h-5" />
-              Bağlı Kişiler Yönetimi
-            </DialogTitle>
-          </DialogHeader>
-
-          {/* Mode Selection Tabs */}
-          <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg">
-            <Button
-              variant={modalMode === 'list' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => {
-                setModalMode('list');
-              }}
-              className="flex-1"
-            >
-              Bağlı Kişiler
-            </Button>
-            <Button
-              variant={modalMode === 'create' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => {
-                setModalMode('create');
-              }}
-              className="flex-1"
-            >
-              Yeni Ekle
-            </Button>
-            <Button
-              variant={modalMode === 'select' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => {
-                setModalMode('select');
-                loadExistingDependents();
-              }}
-              className="flex-1"
-            >
-              Mevcut Seç
-            </Button>
-          </div>
-
-          <div className="space-y-4 py-4">
-            {modalMode === 'list' ? (
-              // Mevcut Bağlı Kişiler Listesi
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-600">Bu kişiye bağlı olan kişiler listesi</div>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        setModalMode('create');
-                      }}
-                    >
-                      Yeni Ekle
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        setModalMode('select');
-                        loadExistingDependents();
-                      }}
-                    >
-                      Mevcut Seç
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Connected Dependents List */}
-                <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {connectedDependents.length === 0 ? (
-                    <div className="text-center py-12">
-                      <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">
-                        Henüz bağlı kişi yok
-                      </h3>
-                      <p className="text-gray-500 mb-6">
-                        Bu kişiyle ilişkili herhangi bir kayıt bulunmuyor. Yeni kişi ekleyebilir
-                        veya mevcut kayıtlardan birini bağlayabilirsiniz.
-                      </p>
-                      <div className="flex gap-3 justify-center">
-                        <Button
-                          onClick={() => {
-                            setModalMode('create');
-                          }}
-                          className="bg-blue-600 hover:bg-blue-700"
-                        >
-                          Yeni Kişi Ekle
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            setModalMode('select');
-                            loadExistingDependents();
-                          }}
-                        >
-                          Mevcut Kişi Bağla
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    connectedDependents.map((person) => (
-                      <div
-                        key={person.id}
-                        className="p-4 border rounded-lg bg-white hover:shadow-md transition-shadow"
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-3">
-                              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                                <Users className="w-6 h-6 text-white" />
-                              </div>
-                              <div>
-                                <h3 className="font-semibold text-lg text-gray-900">
-                                  {person.ad_soyad}
-                                </h3>
-                                <div className="flex items-center gap-2 mt-1">
-                                  <Badge
-                                    variant={
-                                      person.tur?.includes('Bakmakla Yükümlü')
-                                        ? 'default'
-                                        : 'secondary'
-                                    }
-                                    className={
-                                      person.tur?.includes('Bakmakla Yükümlü')
-                                        ? 'bg-purple-100 text-purple-800'
-                                        : 'bg-blue-100 text-blue-800'
-                                    }
-                                  >
-                                    {person.tur}
-                                  </Badge>
-                                  <Badge variant="outline" className="bg-green-50 text-green-700">
-                                    {person.yakinlik}
-                                  </Badge>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="grid grid-cols-3 gap-4 text-sm bg-gray-50 p-3 rounded-lg">
-                              <div>
-                                <p className="text-gray-500 text-xs">TC Kimlik No</p>
-                                <p className="font-medium">{person.kimlik_no}</p>
-                              </div>
-                              <div>
-                                <p className="text-gray-500 text-xs">Telefon</p>
-                                <p className="font-medium">{person.telefon_no}</p>
-                              </div>
-                              <div>
-                                <p className="text-gray-500 text-xs">Bağlantı Tarihi</p>
-                                <p className="font-medium">{person.baglanti_tarihi}</p>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex flex-col gap-2 ml-4">
-                            <Button size="sm" variant="outline">
-                              <Eye className="w-3 h-3 mr-1" />
-                              Detay
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-red-600 hover:text-red-700"
-                              onClick={() =>
-                                handleRemoveConnection(
-                                  person.relationship_id ?? '',
-                                  person.ad_soyad ?? '',
-                                )
-                              }
-                            >
-                              <X className="w-3 h-3 mr-1" />
-                              Bağlantıyı Kaldır
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            ) : modalMode === 'create' ? (
-              // Yeni Kişi Ekleme Formu
-              <>
-                {/* Name and Surname */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="dependent-name" className="text-sm font-medium">
-                      Ad *
-                    </Label>
-                    <Input
-                      id="dependent-name"
-                      placeholder="Adını giriniz"
-                      value={dependentPersonData.name}
-                      onChange={(e) => {
-                        setDependentPersonData((prev) => ({ ...prev, name: e.target.value }));
-                      }}
-                      className="h-10"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="dependent-surname" className="text-sm font-medium">
-                      Soyad *
-                    </Label>
-                    <Input
-                      id="dependent-surname"
-                      placeholder="Soyadını giriniz"
-                      value={dependentPersonData.surname}
-                      onChange={(e) => {
-                        setDependentPersonData((prev) => ({ ...prev, surname: e.target.value }));
-                      }}
-                      className="h-10"
-                    />
-                  </div>
-                </div>
-
-                {/* TC Kimlik No */}
-                <div className="space-y-2">
-                  <Label htmlFor="dependent-id" className="text-sm font-medium">
-                    TC Kimlik No *
-                  </Label>
-                  <Input
-                    id="dependent-id"
-                    placeholder="11 haneli TC kimlik numarası"
-                    value={dependentPersonData.id_number}
-                    onChange={(e) => {
-                      setDependentPersonData((prev) => ({ ...prev, id_number: e.target.value }));
-                    }}
-                    className="h-10"
-                    maxLength={11}
-                  />
-                </div>
-
-                {/* Phone and Relationship */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="dependent-phone" className="text-sm font-medium">
-                      Telefon
-                    </Label>
-                    <Input
-                      id="dependent-phone"
-                      placeholder="05XX XXX XX XX"
-                      value={dependentPersonData.phone}
-                      onChange={(e) => {
-                        setDependentPersonData((prev) => ({ ...prev, phone: e.target.value }));
-                      }}
-                      className="h-10"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="dependent-relationship" className="text-sm font-medium">
-                      Yakınlık Derecesi *
-                    </Label>
-                    <Select
-                      value={dependentPersonData.relationship}
-                      onValueChange={(value: any) => {
-                        setDependentPersonData((prev) => ({ ...prev, relationship: value }));
-                      }}
-                    >
-                      <SelectTrigger className="h-10">
-                        <SelectValue placeholder="Seçiniz" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="anne">Anne</SelectItem>
-                        <SelectItem value="baba">Baba</SelectItem>
-                        <SelectItem value="es">Eş</SelectItem>
-                        <SelectItem value="cocuk">Çocuk</SelectItem>
-                        <SelectItem value="kardes">Kardeş</SelectItem>
-                        <SelectItem value="diger">Diğer</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                {/* Birth Date and Gender */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="dependent-birth-date" className="text-sm font-medium">
-                      Doğum Tarihi
-                    </Label>
-                    <Input
-                      id="dependent-birth-date"
-                      type="date"
-                      value={dependentPersonData.birth_date}
-                      onChange={(e) => {
-                        setDependentPersonData((prev) => ({ ...prev, birth_date: e.target.value }));
-                      }}
-                      className="h-10"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="dependent-gender" className="text-sm font-medium">
-                      Cinsiyet
-                    </Label>
-                    <Select
-                      value={dependentPersonData.gender}
-                      onValueChange={(value: any) => {
-                        setDependentPersonData((prev) => ({ ...prev, gender: value }));
-                      }}
-                    >
-                      <SelectTrigger className="h-10">
-                        <SelectValue placeholder="Seçiniz" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="erkek">Erkek</SelectItem>
-                        <SelectItem value="kadin">Kadın</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                {/* Address */}
-                <div className="space-y-2">
-                  <Label htmlFor="dependent-address" className="text-sm font-medium">
-                    Adres
-                  </Label>
-                  <Textarea
-                    id="dependent-address"
-                    placeholder="Adres bilgilerini giriniz (opsiyonel)"
-                    value={dependentPersonData.address}
-                    onChange={(e) => {
-                      setDependentPersonData((prev) => ({ ...prev, address: e.target.value }));
-                    }}
-                    className="min-h-[80px] resize-none"
-                  />
-                </div>
-              </>
-            ) : (
-              // Mevcut Kişi Seçimi
-              <div className="space-y-4">
-                <div className="text-sm text-gray-600 mb-4">
-                  Sistemde kayıtlı kişilerden birini seçerek bu kişiyle ilişkilendirebilirsiniz.
-                </div>
-
-                {/* Search Bar */}
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input
-                    placeholder="Ad, soyad, TC, telefon, şehir veya uyruk ile ara..."
-                    value={dependentSearchTerm}
-                    onChange={(e) => {
-                      setDependentSearchTerm(e.target.value);
-                    }}
-                    className="pl-10"
-                  />
-                </div>
-
-                {/* Existing Dependents List */}
-                <div className="space-y-2 max-h-80 overflow-y-auto">
-                  {isLoadingDependents ? (
-                    <div className="text-center py-8">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4" />
-                      <p className="text-sm text-gray-600">Kayıtlar yükleniyor...</p>
-                    </div>
-                  ) : filteredDependents.length === 0 ? (
-                    <div className="text-center py-8">
-                      <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <p className="text-gray-500">
-                        {dependentSearchTerm
-                          ? 'Arama kriterlerine uygun kişi bulunamadı'
-                          : 'Henüz kayıtlı kişi bulunmuyor'}
-                      </p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="mt-4"
-                        onClick={() => {
-                          setModalMode('create');
-                        }}
-                      >
-                        Yeni Kişi Ekle
-                      </Button>
-                    </div>
-                  ) : (
-                    filteredDependents.map((person) => (
-                      <div
-                        key={person.id}
-                        className={`p-4 border rounded-lg cursor-pointer transition-all ${
-                          selectedDependentId === person.id
-                            ? 'border-blue-500 bg-blue-50'
-                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                        }`}
-                        onClick={() => {
-                          setSelectedDependentId(person.id);
-                        }}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                                <Users className="w-5 h-5 text-blue-600" />
-                              </div>
-                              <div>
-                                <h3 className="font-semibold text-gray-900">{person.ad_soyad}</h3>
-                                <div className="flex items-center gap-2">
-                                  <Badge
-                                    variant={
-                                      person.tur?.includes('Bakmakla Yükümlü')
-                                        ? 'default'
-                                        : 'secondary'
-                                    }
-                                    className={
-                                      person.tur?.includes('Bakmakla Yükümlü')
-                                        ? 'bg-purple-100 text-purple-800'
-                                        : 'bg-blue-100 text-blue-800'
-                                    }
-                                  >
-                                    {person.tur ?? person.Tur ?? 'İhtiyaç Sahibi'}
-                                  </Badge>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="grid grid-cols-3 gap-3 text-sm">
-                              <div>
-                                <p className="text-gray-500">TC Kimlik No</p>
-                                <p className="font-medium text-xs">
-                                  {person.kimlik_no ?? person.Kimlik_No ?? '—'}
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-gray-500">Telefon</p>
-                                <p className="font-medium text-xs">
-                                  {person.telefon_no ?? person.Telefon_No ?? '—'}
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-gray-500">Şehir</p>
-                                <p className="font-medium text-xs">{person.sehri ?? '—'}</p>
-                              </div>
-                              <div>
-                                <p className="text-gray-500">Uyruk</p>
-                                <p className="font-medium text-xs">
-                                  {person.uyruk ?? person.Uyruk ?? '—'}
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-gray-500">Kategori</p>
-                                <p className="font-medium text-xs">
-                                  {person.kategori ?? person.Kategori ?? '—'}
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-gray-500">ID</p>
-                                <Badge variant="outline" className="text-xs">
-                                  #{person.id}
-                                </Badge>
-                              </div>
-                            </div>
-                          </div>
-
-                          {selectedDependentId === person.id && (
-                            <div className="ml-4">
-                              <CheckCircle2 className="w-5 h-5 text-blue-600" />
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-
-                {/* Relationship Selection for Existing Person */}
-                {selectedDependentId && (
-                  <div className="space-y-2 p-4 bg-blue-50 rounded-lg">
-                    <Label className="text-sm font-medium">Bu kişiyle yakınlık dereceniz *</Label>
-                    <Select
-                      value={selectedRelationshipType}
-                      onValueChange={setSelectedRelationshipType}
-                    >
-                      <SelectTrigger className="h-10">
-                        <SelectValue placeholder="Yakınlık derecesi seçiniz" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="parent">Anne/Baba</SelectItem>
-                        <SelectItem value="spouse">Eş</SelectItem>
-                        <SelectItem value="child">Çocuk</SelectItem>
-                        <SelectItem value="sibling">Kardeş</SelectItem>
-                        <SelectItem value="grandparent">Büyükanne/Büyükbaba</SelectItem>
-                        <SelectItem value="grandchild">Torun</SelectItem>
-                        <SelectItem value="other">Diğer</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <DialogFooter className="gap-2">
-            <Button
-              variant="outline"
-              onClick={handleCloseDependentPersonModal}
-              disabled={isSavingDependent}
-              className="px-6"
-            >
-              İptal
-            </Button>
-
-            {modalMode === 'list' ? null : modalMode === 'create' ? ( // Liste modunda sadece kapat butonu
-              <>
-                <Button
-                  variant="secondary"
-                  onClick={handleSaveDependent}
-                  disabled={isSavingDependent}
-                  className="px-6"
-                >
-                  {isSavingDependent ? 'Kaydediliyor...' : 'Sadece Kaydet'}
-                </Button>
-                <Button
-                  onClick={handleSaveAndGoToDetail}
-                  disabled={isSavingDependent}
-                  className="px-6 bg-blue-600 hover:bg-blue-700"
-                >
-                  {isSavingDependent ? 'Kaydediliyor...' : 'Kaydet ve Detaya Git'}
-                </Button>
-              </>
-            ) : (
-              <Button
-                onClick={handleLinkExistingPerson}
-                disabled={(!selectedDependentId || !selectedRelationshipType) ?? isSavingDependent}
-                className="px-6 bg-green-600 hover:bg-green-700"
-              >
-                {isSavingDependent ? 'Bağlanıyor...' : 'Kişiyi Bağla'}
-              </Button>
-            )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Photos Modal */}
-      <Dialog open={isPhotosModalOpen} onOpenChange={setIsPhotosModalOpen}>
-        <DialogContent className="sm:max-w-[900px] max-h-[80vh] overflow-hidden">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-semibold flex items-center gap-2">
-              <Camera className="w-5 h-5" />
-              Fotoğraf Galerisi
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="space-y-6 py-4">
-            {/* Photo Upload Section */}
-            <div className="space-y-4">
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
-                <Camera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Fotoğraf Yükle</h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  Fotoğrafları buraya sürükleyip bırakın veya seçmek için tıklayın
-                </p>
-                <div className="flex items-center justify-center gap-4">
-                  <input
-                    type="file"
-                    multiple
-                    accept=".jpg,.jpeg,.png,.gif,.webp"
-                    onChange={handlePhotoUpload}
-                    className="hidden"
-                    id="photo-upload"
-                  />
-                  <label
-                    htmlFor="photo-upload"
-                    className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    Fotoğraf Seç
-                  </label>
-                </div>
-                {isUploadingPhoto && (
-                  <div className="mt-4">
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${photoUploadProgress}%` }}
-                       />
-                    </div>
-                    <p className="text-sm text-gray-600 mt-2">
-                      Yükleniyor... {photoUploadProgress}%
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Photos Grid */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium">Fotoğraflar ({photos?.length ?? 0})</h3>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm">
-                    <Grid className="w-4 h-4 mr-2" />
-                    Izgara
-                  </Button>
-                </div>
-              </div>
-
-              {photos?.length === 0 ? (
-                <div className="text-center py-8">
-                  <Camera className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">Henüz fotoğraf yüklenmemiş</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-96 overflow-y-auto">
-                  {photos?.map((photo) => (
-                    <div key={photo.id} className="relative group">
-                      <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                        <img
-                          src={photo.url}
-                          alt={photo.name}
-                          className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform"
-                          onClick={() => {
-                            handlePhotoPreview(photo);
-                          }}
-                        />
-                      </div>
-                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="flex gap-1">
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            className="h-8 w-8 p-0 bg-white/90 hover:bg-white"
-                            onClick={() => {
-                              handlePhotoDownload(photo);
-                            }}
-                          >
-                            <Download className="w-3 h-3" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            className="h-8 w-8 p-0 bg-red-500/90 hover:bg-red-600"
-                            onClick={() => {
-                              handlePhotoDelete(photo.id);
-                            }}
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="mt-2">
-                        <p className="text-xs font-medium truncate">{photo.name}</p>
-                        <p className="text-xs text-gray-500">
-                          {photo.size} • {photo.uploadDate}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={handleClosePhotosModal}>
-              Kapat
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Photo Preview Modal */}
-      <Dialog open={isPhotoPreviewOpen} onOpenChange={setIsPhotoPreviewOpen}>
-        <DialogContent className="sm:max-w-[800px] max-h-[90vh]">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-semibold">{selectedPhoto?.name}</DialogTitle>
-          </DialogHeader>
-
-          <div className="py-4">
-            {selectedPhoto && (
-              <div className="text-center">
-                <img
-                  src={selectedPhoto.url}
-                  alt={selectedPhoto.name}
-                  className="max-w-full max-h-96 mx-auto rounded-lg"
-                />
-                <div className="mt-4 text-sm text-gray-500">
-                  <p>
-                    <strong>Boyut:</strong> {selectedPhoto.size}
-                  </p>
-                  <p>
-                    <strong>Yüklenme tarihi:</strong> {selectedPhoto.uploadDate}
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <DialogFooter className="gap-2">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsPhotoPreviewOpen(false);
-              }}
-            >
-              Kapat
-            </Button>
-            <Button
-              onClick={() => selectedPhoto && handlePhotoDownload(selectedPhoto)}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              İndir
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Photos Modal - Using extracted component */}
+      <BeneficiaryPhotoGallery
+        beneficiaryId={beneficiaryId || ''}
+        isOpen={isPhotosModalOpen}
+        onOpenChange={setIsPhotosModalOpen}
+        initialPhotos={photos}
+        onPhotosChange={(newPhotos) => {
+          setPhotos(newPhotos);
+        }}
+      />
 
       {/* Donors Modal */}
       <Dialog open={isDonorsModalOpen} onOpenChange={setIsDonorsModalOpen}>
@@ -4302,6 +3253,19 @@ export function BeneficiaryDetailPageComprehensive({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      {/* Relationships Modal - Using extracted component */}
+      <BeneficiaryRelationshipManager
+        beneficiaryId={beneficiaryId || ''}
+        isOpen={isRelationshipsModalOpen}
+        onOpenChange={setIsRelationshipsModalOpen}
+        initialRelationships={relationships || []}
+        onRelationshipsChange={(newRelationships) => {
+          if (updateRelationships) {
+            updateRelationships(newRelationships);
+          }
+        }}
+      />
     </div>
   );
 }

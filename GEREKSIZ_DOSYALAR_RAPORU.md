@@ -10,22 +10,22 @@
 
 #### **2. Kullanılmayan Example/Demo Dosyaları**
 
-- `components/notifications/NotificationExample.tsx` - Hiç import edilmiyor
-- `components/notifications/integration-guide.tsx` - Sadece örnek dosya
+- [Silindi] ~~`components/notifications/NotificationExample.tsx` - Hiç import edilmiyor~~
+- [Silindi] ~~`components/notifications/integration-guide.tsx` - Sadece örnek dosya~~
 
 #### **3. Kullanılmayan Services**
 
-- `services/advancedTestingService.ts` (15KB) - Hiç kullanılmıyor  
+- [Silindi] ~~`services/advancedTestingService.ts` (15KB) - Hiç kullanılmıyor~~  
 - `services/campaignsService.ts` - Hiç kullanılmıyor
 - `services/deepLinkingService.ts` - Hiç kullanılmıyor
 - `services/memoization.ts` - Hiç kullanılmıyor
-- `services/dataProcessor.ts` - Hiç kullanılmıyor
-- `services/serviceFactory.ts` - Hiç kullanılmıyor
-- `services/internationalizationService.ts` - Hiç kullanılmıyor
+- [Silindi] ~~`services/dataProcessor.ts` - Hiç kullanılmıyor~~
+- [Silindi] ~~`services/serviceFactory.ts` - Hiç kullanılmıyor~~
+- [Silindi] ~~`services/internationalizationService.ts` - Hiç kullanılmıyor~~
 
 #### **4. Kullanılmayan Hooks**
 
-- `hooks/usePerformanceOptimization.ts` - Sadece test dosyalarında referans
+- [Silindi] ~~`hooks/usePerformanceOptimization.ts` - Sadece test dosyalarında referans~~
 - `hooks/usePerformanceMonitoring.ts` - Kullanılmıyor
 
 #### **5. Kullanılmayan UX Components**

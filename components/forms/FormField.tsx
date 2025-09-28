@@ -9,6 +9,7 @@ import type { ReactNode } from 'react';
 import { forwardRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AlertCircle, CheckCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { InputSanitizer } from '../../lib/security/InputSanitizer';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Label } from '../ui/label';
@@ -134,7 +135,31 @@ export const FormField = forwardRef<HTMLInputElement | HTMLTextAreaElement, Form
     };
 
     const handleChange = (newValue: any) => {
-      onChange?.(newValue);
+      // Sanitize input based on field type
+      let sanitizedValue = newValue;
+      if (typeof newValue === 'string') {
+        // Determine sanitization method based on type or variant
+        if (type === 'email') {
+          sanitizedValue = InputSanitizer.sanitizeUserInput(newValue, 'email');
+        } else if (type === 'tel') {
+          sanitizedValue = InputSanitizer.sanitizeUserInput(newValue, 'phone');
+        } else if (type === 'url') {
+          sanitizedValue = InputSanitizer.sanitizeUserInput(newValue, 'url');
+        } else if (type === 'date') {
+          sanitizedValue = InputSanitizer.sanitizeUserInput(newValue, 'date');
+        } else if (type === 'number') {
+          sanitizedValue = InputSanitizer.sanitizeUserInput(newValue, 'numeric');
+        } else if (name.toLowerCase().includes('tc') || name.toLowerCase().includes('kimlik')) {
+          sanitizedValue = InputSanitizer.sanitizeUserInput(newValue, 'tcKimlik');
+        } else if (name.toLowerCase().includes('address')) {
+          sanitizedValue = InputSanitizer.sanitizeUserInput(newValue, 'address');
+        } else if (name.toLowerCase().includes('name')) {
+          sanitizedValue = InputSanitizer.sanitizeUserInput(newValue, 'name');
+        } else {
+          sanitizedValue = InputSanitizer.sanitizeUserInput(newValue, 'text');
+        }
+      }
+      onChange?.(sanitizedValue);
     };
 
     const renderValidationIcon = () => {

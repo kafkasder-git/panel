@@ -223,7 +223,7 @@ export class RateLimiter {
     const now = Date.now();
     const attempt = this.attempts.get(identifier);
     
-    if (!attempt ?? now > attempt.resetTime) {
+    if (!attempt || now > attempt.resetTime) {
       this.attempts.set(identifier, { count: 1, resetTime: now + windowMs });
       return true;
     }
@@ -258,7 +258,7 @@ export class RateLimiter {
  */
 export class InputSanitizer {
   static sanitize(input: unknown, type: 'text' | 'html' | 'sql' | 'email' | 'phone' | 'url' | 'filepath' = 'text'): string {
-    if (input === null ?? input === undefined) return '';
+    if (input === null || input === undefined) return '';
     
     const stringInput = typeof input === 'string' ? input : String(input);
     
@@ -327,6 +327,19 @@ export class InputSanitizer {
         return input.replace(/[^\d]/g, '').slice(0, 11);
       case 'iban':
         return input.replace(/[^\dA-Z]/gi, '').toUpperCase();
+      case 'address':
+        return XSSProtection.sanitizeHTML(input).trim();
+      case 'name':
+        // For Turkish names with special characters but no HTML
+        return this.sanitizeText(input).replace(/[^a-zA-ZçğıöşüÇĞIİÖŞÜ\s.-]/g, '');
+      case 'numeric':
+        return input.replace(/[^\d.-]/g, '');
+      case 'alphanumeric':
+        return input.replace(/[^a-zA-ZçğıöşüÇĞIİÖŞÜ0-9\s]/g, '');
+      case 'date':
+        // Format: YYYY-MM-DD
+        const dateMatch = input.match(/^\d{4}-\d{2}-\d{2}$/);
+        return dateMatch ? dateMatch[0] : '';
       default:
         return this.sanitizeText(input);
     }
@@ -336,7 +349,7 @@ export class InputSanitizer {
     const result: Record<string, string> = {};
 
     for (const [key, value] of Object.entries(formData)) {
-      if (value === null ?? value === undefined) {
+      if (value === null || value === undefined) {
         result[key] = '';
       } else if (typeof value === 'string') {
         // Determine field type based on key name
@@ -344,8 +357,20 @@ export class InputSanitizer {
           result[key] = this.sanitizeEmail(value);
         } else if (key.toLowerCase().includes('phone')) {
           result[key] = this.sanitizePhone(value);
-        } else if (key.toLowerCase().includes('url')) {
+        } else if (key.toLowerCase().includes('url') || key.toLowerCase().includes('website')) {
           result[key] = this.sanitizeURL(value);
+        } else if (key.toLowerCase().includes('address')) {
+          result[key] = XSSProtection.sanitizeHTML(value);
+        } else if (key.toLowerCase().includes('tc') || 
+                  key.toLowerCase().includes('kimlik') || 
+                  key.toLowerCase().includes('tckn')) {
+          result[key] = value.replace(/[^\d]/g, '').slice(0, 11);
+        } else if (key.toLowerCase().includes('iban')) {
+          result[key] = value.replace(/[^\dA-Z]/gi, '').toUpperCase();
+        } else if (key.toLowerCase().includes('date') || key.toLowerCase().includes('tarih')) {
+          // Try to maintain valid date format
+          const dateMatch = value.match(/^\d{4}-\d{2}-\d{2}$/);
+          result[key] = dateMatch ? dateMatch[0] : this.sanitizeText(value);
         } else {
           result[key] = this.sanitizeText(value);
         }
@@ -355,6 +380,36 @@ export class InputSanitizer {
     }
 
     return result;
+  }
+  
+  // Specific methods for form integration
+  static sanitizeFormField(value: string | number | null | undefined, fieldType: string): string {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    
+    const stringValue = String(value);
+    return this.sanitizeUserInput(stringValue, fieldType as any);
+  }
+  
+  static validateAndSanitizeForm<T extends Record<string, unknown>>(
+    form: T,
+    fieldTypes: Record<keyof T, string>
+  ): T {
+    const sanitized = { ...form };
+    
+    for (const [key, type] of Object.entries(fieldTypes)) {
+      if (key in form) {
+        const value = form[key as keyof T];
+        if (typeof value === 'string') {
+          sanitized[key as keyof T] = this.sanitizeUserInput(value, type) as any;
+        } else if (value !== null && value !== undefined) {
+          sanitized[key as keyof T] = this.sanitizeUserInput(String(value), type) as any;
+        }
+      }
+    }
+    
+    return sanitized;
   }
 }
 
