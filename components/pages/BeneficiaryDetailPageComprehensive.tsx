@@ -50,6 +50,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Textarea } from '../ui/textarea';
 
 import { logger } from '../../lib/logging/logger';
+import { useBeneficiaryData } from '../../hooks/useBeneficiaryData';
+import BeneficiaryDocumentManager from '../beneficiary/BeneficiaryDocumentManager';
+import BeneficiaryPhotoGallery from '../beneficiary/BeneficiaryPhotoGallery';
+import BeneficiaryDependentManager from '../beneficiary/BeneficiaryDependentManager';
+import BeneficiaryRelationshipManager from '../beneficiary/BeneficiaryRelationshipManager';
 // Health conditions data
 const healthConditions = [
   'Akdeniz Anemisi',
@@ -109,6 +114,7 @@ const connectedRecords = [
   'Fotoğraflar',
   'Bağışçılar',
   'Bağlı Kişiler',
+  'İlişkiler',
   'Sponsorlar',
   'Referanslar',
   'Göç/İçine Sınav Takibi',
@@ -135,11 +141,31 @@ export function BeneficiaryDetailPageComprehensive({
   beneficiaryId,
   onBack,
 }: BeneficiaryDetailPageComprehensiveProps) {
+  // Use the extracted hook for data management
+  const {
+    beneficiaryData,
+    documents,
+    photos,
+    dependents,
+    relationships,
+    loading,
+    error,
+    updateBeneficiaryData,
+    updateDocuments,
+    updatePhotos,
+    updateDependents,
+    updateRelationships
+  } = useBeneficiaryData(beneficiaryId);
+
   const [editMode, setEditMode] = useState(false);
   const [healthConditionsState, setHealthConditionsState] = useState<Record<string, boolean>>({});
-  const [beneficiaryData, setBeneficiaryData] = useState<Record<string, unknown> | null>(null);
   const [editableData, setEditableData] = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = useState(true);
+
+  // Modal states for extracted components
+  const [isDocumentModalOpen, setIsDocumentModalOpen] = useState(false);
+  const [isPhotosModalOpen, setIsPhotosModalOpen] = useState(false);
+  const [isDependentPersonModalOpen, setIsDependentPersonModalOpen] = useState(false);
+  const [isRelationshipsModalOpen, setIsRelationshipsModalOpen] = useState(false);
 
   // Bank Account Modal States
   const [isBankAccountModalOpen, setIsBankAccountModalOpen] = useState(false);
@@ -147,122 +173,6 @@ export function BeneficiaryDetailPageComprehensive({
   const [bankName, setBankName] = useState('');
   const [accountHolder, setAccountHolder] = useState('');
   const [description, setDescription] = useState('');
-
-  // Document Management Modal States
-  const [isDocumentModalOpen, setIsDocumentModalOpen] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState<
-    {
-      id: string;
-      name: string;
-      type: string;
-      size: string;
-      uploadDate: string;
-      url?: string;
-    }[]
-  >([]);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedFileType, setSelectedFileType] = useState('all');
-  const [previewFile, setPreviewFile] = useState<{
-    id: string;
-    name: string;
-    type: string;
-    url: string;
-    size?: string;
-    uploadDate?: string;
-  } | null>(null);
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-
-  // Dependent Person Modal States
-  const [isDependentPersonModalOpen, setIsDependentPersonModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<'list' | 'create' | 'select'>('list'); // Yeni: list modu eklendi
-  const [connectedDependents, setConnectedDependents] = useState<
-    {
-      id: string;
-      name: string;
-      relationship: string;
-      phone?: string;
-      ad_soyad?: string;
-      tur?: string;
-      yakinlik?: string;
-      kimlik_no?: string;
-      telefon_no?: string;
-      baglanti_tarihi?: string;
-      relationship_id?: string;
-      sehri?: string;
-      uyruk?: string;
-      Uyruk?: string;
-      kategori?: string;
-      Kategori?: string;
-      Kimlik_No?: string;
-      Telefon_No?: string;
-      Tur?: string;
-    }[]
-  >([]); // Bu kişiye bağlı olanlar
-  const [existingDependents, setExistingDependents] = useState<
-    {
-      id: string;
-      name: string;
-      relationship: string;
-      phone?: string;
-      ad_soyad?: string;
-      tur?: string;
-      yakinlik?: string;
-      kimlik_no?: string;
-      telefon_no?: string;
-      baglanti_tarihi?: string;
-      relationship_id?: string;
-      sehri?: string;
-      uyruk?: string;
-      Uyruk?: string;
-      kategori?: string;
-      Kategori?: string;
-      Kimlik_No?: string;
-      Telefon_No?: string;
-      Tur?: string;
-    }[]
-  >([]); // Mevcut bağlı kişiler
-  const [selectedDependentId, setSelectedDependentId] = useState<string | null>(null);
-  const [selectedRelationshipType, setSelectedRelationshipType] = useState<string>('');
-  const [dependentPersonData, setDependentPersonData] = useState({
-    name: '',
-    surname: '',
-    id_number: '',
-    phone: '',
-    relationship: '',
-    birth_date: '',
-    gender: '',
-    address: '',
-  });
-  const [isSavingDependent, setIsSavingDependent] = useState(false);
-  const [isLoadingDependents, setIsLoadingDependents] = useState(false);
-  const [dependentSearchTerm, setDependentSearchTerm] = useState('');
-
-  // Photos Modal States
-  const [isPhotosModalOpen, setIsPhotosModalOpen] = useState(false);
-  const [photos, setPhotos] = useState<any[]>([
-    {
-      id: 1,
-      name: 'profil_foto.jpg',
-      url: 'https://trae-api-sg.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20portrait%20photo%20of%20a%20person&image_size=square',
-      size: '2.3 MB',
-      uploadDate: '15.01.2024',
-      type: 'image/jpeg',
-    },
-    {
-      id: 2,
-      name: 'kimlik_foto.jpg',
-      url: 'https://trae-api-sg.mchost.guru/api/ide/v1/text_to_image?prompt=identity%20document%20photo&image_size=landscape_4_3',
-      size: '1.8 MB',
-      uploadDate: '12.01.2024',
-      type: 'image/jpeg',
-    },
-  ]);
-  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
-  const [photoUploadProgress, setPhotoUploadProgress] = useState(0);
-  const [selectedPhoto, setSelectedPhoto] = useState<any>(null);
-  const [isPhotoPreviewOpen, setIsPhotoPreviewOpen] = useState(false);
 
   // Donors Modal States
   const [isDonorsModalOpen, setIsDonorsModalOpen] = useState(false);
@@ -437,59 +347,36 @@ export function BeneficiaryDetailPageComprehensive({
     },
   ]);
 
-  // Load beneficiary data
+  // Update editable data when beneficiary data changes
   useEffect(() => {
-    const loadBeneficiaryData = async () => {
-      if (!beneficiaryId) {
-        setLoading(false);
-        return;
-      }
+    if (beneficiaryData) {
+      // Transform data for editing
+      const fullName = beneficiaryData['ad_soyad'] as string ?? '';
+      const nameParts = fullName.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
 
-      try {
-        setLoading(true);
-        const result = await ihtiyacSahipleriService.getIhtiyacSahibi(parseInt(beneficiaryId));
+      const transformedData = {
+        ...beneficiaryData,
+        name: firstName,
+        surname: lastName,
+        full_name: fullName,
+        id_number: beneficiaryData['kimlik_no'] ?? beneficiaryData['Kimlik_No'] ?? '',
+        phone: beneficiaryData['telefon_no'] ?? beneficiaryData['Telefon_No'] ?? '',
+        city: beneficiaryData['sehri'] ?? '',
+        address: beneficiaryData['adres'] ?? beneficiaryData['Adres'] ?? '',
+        nationality: beneficiaryData['uyruk'] ?? beneficiaryData['Uyruk'] ?? '',
+        country: beneficiaryData['ulkesi'] ?? 'Türkiye',
+        settlement: beneficiaryData['yerlesimi'] ?? beneficiaryData['Yerlesimi'] ?? '',
+        neighborhood: beneficiaryData['mahalle'] ?? beneficiaryData['Mahalle'] ?? '',
+        category: beneficiaryData['kategori'] ?? beneficiaryData['Kategori'] ?? '',
+        aid_type: beneficiaryData['tur'] ?? beneficiaryData['Tur'] ?? '',
+        iban: beneficiaryData['iban'] ?? '',
+      };
 
-        if (result.data) {
-          // ad_soyad'ı ad ve soyad olarak ayır
-          const fullName = result.data.ad_soyad ?? '';
-          const nameParts = fullName.trim().split(' ');
-          const firstName = nameParts[0] || '';
-          const lastName = nameParts.slice(1).join(' ') || '';
-
-          const transformedData = {
-            ...result.data,
-            name: firstName,
-            surname: lastName,
-            full_name: fullName,
-            id_number: result.data.kimlik_no ?? result.data.Kimlik_No ?? '',
-            phone: result.data.telefon_no ?? result.data.Telefon_No ?? '',
-            city: result.data.sehri ?? '',
-            address: result.data.adres ?? result.data.Adres ?? '',
-            nationality: result.data.uyruk ?? result.data.Uyruk ?? '',
-            country: result.data.ulkesi ?? 'Türkiye',
-            settlement: result.data.yerlesimi ?? result.data.Yerlesimi ?? '',
-            neighborhood: result.data.mahalle ?? result.data.Mahalle ?? '',
-            category: result.data.kategori ?? result.data.Kategori ?? '',
-            aid_type: result.data.tur ?? result.data.Tur ?? '',
-            iban: result.data.iban ?? '',
-          };
-
-          setBeneficiaryData(transformedData);
-          setEditableData(transformedData);
-        } else {
-          logger.warn('⚠️ Beneficiary not found:', beneficiaryId);
-          toast.error('İhtiyaç sahibi bulunamadı');
-        }
-      } catch (error) {
-        logger.error('❌ Error loading beneficiary:', error);
-        toast.error('Veri yüklenirken hata oluştu');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadBeneficiaryData();
-  }, [beneficiaryId]);
+      setEditableData(transformedData);
+    }
+  }, [beneficiaryData]);
 
   const handleSave = useCallback(async () => {
     if (!editableData || !beneficiaryId) {
@@ -527,7 +414,7 @@ export function BeneficiaryDetailPageComprehensive({
       }
 
       // Başarılı güncelleme sonrası veriyi yenile
-      setBeneficiaryData(editableData);
+      updateBeneficiaryData(editableData);
       toast.success('İhtiyaç sahibi bilgileri başarıyla güncellendi');
       setEditMode(false);
     } catch (error: any) {
@@ -547,6 +434,7 @@ export function BeneficiaryDetailPageComprehensive({
   const handleOpenPhotosModal = () => {
     setIsPhotosModalOpen(true);
   };
+
   const handleClosePhotosModal = () => {
     setIsPhotosModalOpen(false);
   };
@@ -759,41 +647,29 @@ export function BeneficiaryDetailPageComprehensive({
   // Document Management Modal Handlers
   const handleOpenDocumentModal = () => {
     setIsDocumentModalOpen(true);
-    // Load existing documents (mock data)
-    setUploadedFiles([
-      {
-        id: '1',
-        name: 'kimlik_fotokopisi.pdf',
-        size: '2.4 MB',
-        type: 'application/pdf',
-        uploadDate: '2024-01-15',
-        url: '#',
-      },
-      {
-        id: '2',
-        name: 'gelir_belgesi.jpg',
-        size: '1.8 MB',
-        type: 'image/jpeg',
-        uploadDate: '2024-01-14',
-        url: '#',
-      },
-    ]);
   };
 
   const handleCloseDocumentModal = () => {
     setIsDocumentModalOpen(false);
-    setSearchTerm('');
-    setSelectedFileType('all');
-    setPreviewFile(null);
-    setIsPreviewOpen(false);
   };
 
   // Dependent Person Modal Handlers
   const handleOpenDependentPersonModal = async () => {
-    setModalMode('list'); // Önce bağlı kişiler listesini göster
     await ensureFamilyRelationshipsPolicies(); // Policy'leri kontrol et
-    loadConnectedDependents(); // Bu kişiye bağlı olanları yükle
     setIsDependentPersonModalOpen(true);
+  };
+
+  const handleCloseDependentPersonModal = () => {
+    setIsDependentPersonModalOpen(false);
+  };
+
+  // Relationships Modal Handlers
+  const handleOpenRelationshipsModal = () => {
+    setIsRelationshipsModalOpen(true);
+  };
+
+  const handleCloseRelationshipsModal = () => {
+    setIsRelationshipsModalOpen(false);
   };
 
   // family_relationships tablosu için gerekli policy'leri oluştur
@@ -829,7 +705,8 @@ export function BeneficiaryDetailPageComprehensive({
     }
   };
 
-  // Bu kişiye bağlı olanları yükle - şimdilik boş liste
+  // TODO: Remove this function as it's now handled by useBeneficiaryData hook
+  /*
   const loadConnectedDependents = async () => {
     if (!beneficiaryId) {
       setConnectedDependents([]);
@@ -913,58 +790,7 @@ export function BeneficiaryDetailPageComprehensive({
       setConnectedDependents([]);
     }
   };
-
-  // Mevcut bağlı kişileri yükle - Bakmakla Yükümlü Olunan Kişi türündeki kayıtlar
-  const loadExistingDependents = async () => {
-    setIsLoadingDependents(true);
-    try {
-      // Tüm kişileri getir (bağlantı kurabilmek için)
-      const result = await ihtiyacSahipleriService.getIhtiyacSahipleri(
-        1, // page
-        500, // pageSize - çok daha fazla kayıt getir
-        {}, // Tür filtresi yok - tüm kişiler
-      );
-
-      if (result.data) {
-        logger.info('✅ Loaded existing dependents:', result.data);
-        setExistingDependents(
-          result.data.map((person: any) => ({
-            ...person,
-            yakinlik: 'Belirtilmemiş', // Varsayılan yakınlık
-            durum: 'Aktif', // Varsayılan durum
-          })),
-        );
-      } else if (result.error) {
-        logger.error('❌ Error loading dependents:', result.error);
-        toast.error(`Bağlı kişiler yüklenirken hata: ${  result.error}`);
-        setExistingDependents([]);
-      }
-    } catch (error: any) {
-      logger.error('❌ Unexpected error loading dependents:', error);
-      toast.error('Bağlı kişiler yüklenirken beklenmeyen hata oluştu');
-      setExistingDependents([]);
-    } finally {
-      setIsLoadingDependents(false);
-    }
-  };
-
-  const handleCloseDependentPersonModal = () => {
-    setIsDependentPersonModalOpen(false);
-    setModalMode('list'); // Liste moduna dön
-    setSelectedDependentId(null);
-    setSelectedRelationshipType('');
-    setDependentSearchTerm('');
-    setDependentPersonData({
-      name: '',
-      surname: '',
-      id_number: '',
-      phone: '',
-      relationship: '',
-      birth_date: '',
-      gender: '',
-      address: '',
-    });
-  };
+  */
 
   const validateTcNumber = (tc: string): boolean => {
     const cleanTc = tc.replace(/\s/g, '');
@@ -2550,18 +2376,20 @@ export function BeneficiaryDetailPageComprehensive({
                           ? handleOpenDocumentModal
                           : record === 'Bağlı Kişiler'
                             ? handleOpenDependentPersonModal
-                            : record === 'Fotoğraflar'
-                              ? handleOpenPhotosModal
-                              : record === 'Bağışçılar'
-                                ? handleOpenDonorsModal
-                                : record === 'Sponsorlar'
-                                  ? handleOpenSponsorsModal
-                                  : record === 'Yardım Talepleri'
-                                    ? handleOpenHelpRequestsModal
-                                    : record === 'Yapılan Yardımlar'
-                                      ? handleOpenHelpProvidedModal
-                                      : record === 'Rıza Beyanları'
-                                        ? handleOpenConsentModal
+                            : record === 'İlişkiler'
+                              ? handleOpenRelationshipsModal
+                              : record === 'Fotoğraflar'
+                                ? handleOpenPhotosModal
+                                : record === 'Bağışçılar'
+                                  ? handleOpenDonorsModal
+                                  : record === 'Sponsorlar'
+                                    ? handleOpenSponsorsModal
+                                    : record === 'Yardım Talepleri'
+                                      ? handleOpenHelpRequestsModal
+                                      : record === 'Yapılan Yardımlar'
+                                        ? handleOpenHelpProvidedModal
+                                        : record === 'Rıza Beyanları'
+                                          ? handleOpenConsentModal
                                         : undefined
                     }
                   >
@@ -4302,6 +4130,35 @@ export function BeneficiaryDetailPageComprehensive({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Extracted Components */}
+      <BeneficiaryDocumentManager
+        isOpen={isDocumentModalOpen}
+        onClose={handleCloseDocumentModal}
+        documents={documents}
+        onDocumentsUpdate={updateDocuments}
+      />
+
+      <BeneficiaryPhotoGallery
+        isOpen={isPhotosModalOpen}
+        onClose={handleClosePhotosModal}
+        photos={photos}
+        onPhotosUpdate={updatePhotos}
+      />
+
+      <BeneficiaryDependentManager
+        isOpen={isDependentPersonModalOpen}
+        onClose={handleCloseDependentPersonModal}
+        dependents={dependents}
+        onDependentsUpdate={updateDependents}
+      />
+
+      <BeneficiaryRelationshipManager
+        isOpen={isRelationshipsModalOpen}
+        onClose={handleCloseRelationshipsModal}
+        relationships={relationships}
+        onRelationshipsUpdate={updateRelationships}
+      />
     </div>
   );
 }
