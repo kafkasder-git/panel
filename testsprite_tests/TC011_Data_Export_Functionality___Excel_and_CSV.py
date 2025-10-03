@@ -45,7 +45,7 @@ async def run_test():
                 pass
         
         # Interact with the page elements to simulate user flow
-        # Enter valid username and password, then click the login button.
+        # Input username and password, then click login button
         frame = context.pages[-1]
         elem = frame.locator('xpath=html/body/div/div/div[2]/div/div[2]/form/div/div/input').nth(0)
         await page.wait_for_timeout(3000); await elem.fill('isahamid095@gmail.com')
@@ -61,10 +61,26 @@ async def run_test():
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
 
-        # Assertion: Verify successful login by checking the presence of dashboard summary text indicating authorized landing page
+        # Navigate to members or donations page to access export modal
         frame = context.pages[-1]
-        dashboard_summary = await frame.locator('text=Dernek yönetim sistemi - Güncel durum özeti').text_content()
-        assert dashboard_summary is not None and 'Dernek yönetim sistemi' in dashboard_summary, 'Login failed or unauthorized landing page not loaded'
+        elem = frame.locator('xpath=html/body/div/div/div[2]/div/aside/div/div/div[3]/div').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+
+        # Click 'Üye Listesi' button to open member list and then open export modal
+        frame = context.pages[-1]
+        elem = frame.locator('xpath=html/body/div[2]/div/div/div[2]/button').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+
+        # Click the 'Dışa Aktar' button to open the export modal
+        frame = context.pages[-1]
+        elem = frame.locator('xpath=html/body/div/div/div[2]/main/div/div/div/div/div/div/div/div[2]/div/button').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+
+        # Final generic failing assertion since expected result is unknown
+        assert False, 'Test plan execution failed: generic failure assertion'
         await asyncio.sleep(5)
     
     finally:

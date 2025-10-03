@@ -45,15 +45,15 @@ async def run_test():
                 pass
         
         # Interact with the page elements to simulate user flow
-        # Enter valid username and password, then click the login button.
+        # Inject typical XSS attack vectors into username and password fields and attempt login
         frame = context.pages[-1]
         elem = frame.locator('xpath=html/body/div/div/div[2]/div/div[2]/form/div/div/input').nth(0)
-        await page.wait_for_timeout(3000); await elem.fill('isahamid095@gmail.com')
+        await page.wait_for_timeout(3000); await elem.fill("<script>alert('XSS')</script>")
         
 
         frame = context.pages[-1]
         elem = frame.locator('xpath=html/body/div/div/div[2]/div/div[2]/form/div[2]/div/input').nth(0)
-        await page.wait_for_timeout(3000); await elem.fill('Vadalov95.')
+        await page.wait_for_timeout(3000); await elem.fill("<script>alert('XSS')</script>")
         
 
         frame = context.pages[-1]
@@ -61,10 +61,13 @@ async def run_test():
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
 
-        # Assertion: Verify successful login by checking the presence of dashboard summary text indicating authorized landing page
+        # Navigate to member form to inject XSS attack vectors
         frame = context.pages[-1]
-        dashboard_summary = await frame.locator('text=Dernek yönetim sistemi - Güncel durum özeti').text_content()
-        assert dashboard_summary is not None and 'Dernek yönetim sistemi' in dashboard_summary, 'Login failed or unauthorized landing page not loaded'
+        elem = frame.locator('xpath=html/body/div').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+
+        assert False, "Test failed: Expected result unknown, generic failure assertion."
         await asyncio.sleep(5)
     
     finally:

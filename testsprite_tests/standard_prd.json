@@ -1,54 +1,56 @@
 {
   "meta": {
-    "project": "Community Aid Management System",
+    "project": "Kafkasder Panel Enhancement and Stabilization",
     "date": "2025-09-29",
     "prepared_by": "AI Assistant"
   },
-  "product_overview": "Community Aid Management System is a comprehensive platform designed to manage beneficiaries, members, donations, aid applications, legal and healthcare services, and internal communications. It integrates advanced database enhancements for better performance, security, and search capabilities, delivering a seamless experience for users including administrators and service personnel.",
+  "product_overview": "The Kafkasder Panel is a comprehensive management platform designed for non-profit organizations to handle member registrations, donations, aid cases, and other social service workflows. The product integrates advanced database migration, responsive UI components, security, and accessibility features to ensure reliable and scalable operations.",
   "core_goals": [
-    "Extend and optimize the database schemas for members and donations to improve data richness and query performance without downtime or data loss.",
-    "Enhance data integrity and type safety by migrating key identifiers to UUID standards and synchronizing service types accordingly.",
-    "Implement automated generation of membership numbers and donation receipt numbers to streamline workflows.",
-    "Enable powerful full-text search functionalities optimized for Turkish language for members and donations data.",
-    "Provide real-time analytics and reporting features through materialized views and dashboard enhancements.",
-    "Rectify critical UI/UX bugs across multiple core pages to ensure smooth user interactions and form submissions.",
-    "Ensure robust authentication, authorization, and security measures including CSRF and XSS protection, with permission-based access control.",
-    "Improve accessibility compliance to meet WCAG 2.1 AA standards for inclusive user experience.",
-    "Deliver a high-quality, production-ready codebase with comprehensive testing, error handling, and logging support."
+    "Ensure stable and error-free database operations with extended schemas for members and donations.",
+    "Provide intuitive UI/UX for seamless management of members, donations, aid applications, and legal documents.",
+    "Implement robust authentication and role-based permission controls for secure access.",
+    "Support mobile-first and PWA features to enhance accessibility and offline usage.",
+    "Achieve high test coverage with automated and manual testing to ensure quality and reliability."
   ],
   "key_features": [
-    "Hybrid (Non-Destructive) Database Migration extending Members and Donations tables with 81 new columns across both, including personal, payment, and metadata fields.",
-    "Full-text search indexes in Turkish for efficient search on members and donations.",
-    "UUID migration for primary keys in members and donations services ensuring type compatibility and improved data integrity.",
-    "Auto-generation triggers for membership numbers (e.g., MEM-2025-000001) and donation receipt numbers (e.g., RCP-2025-a1b2c3d4).",
-    "Advanced analytics views providing donor-type based and monthly summarized donation statistics.",
-    "Fixes and UI enhancements on critical pages: Members, Legal Documents, Aid Applications, Finance Income, InKind Aid Transactions, Hospital Referral ensuring flawless forms and dialogs.",
-    "Comprehensive authentication system integrating Supabase with robust permission guards and refresh token mechanisms.",
-    "Accessibility enhancements to satisfy WCAG 2.1 AA including ARIA support and keyboard navigability.",
-    "Improved error handling with centralized logging and notification systems.",
-    "Performance optimizations including additional indexing, caching strategies, and query tuning."
+    "Comprehensive Authentication System with Supabase integration, protected routes, and permission guards.",
+    "Advanced Member Management including registration, searching, filtering, and membership fee tracking.",
+    "Robust Donation Management with auto-generated receipts, multi-index optimizations, and detailed analytics views.",
+    "Aid and Beneficiary Management with comprehensive personal, financial, health, and family information.",
+    "Legal and Healthcare Services tracking with document uploads and referral management.",
+    "Event and Internal Messaging systems for collaboration and scheduling.",
+    "Document Management with OCR processing and inventory control.",
+    "Notification System offering real-time, push notifications and user alerts.",
+    "Advanced Search & Filtering with full-text Turkish language support.",
+    "Analytics Dashboard providing detailed statistics and reporting.",
+    "PWA and Mobile Optimization enhancing usability across devices.",
+    "Security measures including XSS, CSRF protections, rate limiting, and role-based access control.",
+    "Accessibility (WCAG 2.1 AA) compliance for inclusive use.",
+    "Error handling, logging, and performance monitoring with caching and query optimization."
   ],
   "user_flow_summary": [
-    "User logs in via secure authentication system with permission-based access control protecting sensitive routes.",
-    "Users navigate through modules such as Members, Donations, Aid Applications, Legal and Healthcare services using the improved navigation and routing system.",
-    "Member registration or donation form submission processes trigger backend validation, auto-number generation and update extended database tables accordingly.",
-    "Administrative users access the analytics dashboard to review donor statistics and monthly summaries in real time.",
-    "Users leverage advanced search features with Turkish full-text search to locate specific members or donations efficiently.",
-    "Users upload legal documents, schedule hospital referrals, and track aid distributions through user-friendly dialogs and interfaces.",
-    "Errors and system notifications are handled gracefully and visible to users with enhanced notification center capabilities."
+    "User logs into the platform with secured authentication and is granted access based on their permissions.",
+    "Navigates through the sidebar to manage members, donations, or aid requests, with search and filter options.",
+    "User adds or edits member information using enhanced forms with validation and accessibility features.",
+    "When adding donations, users get auto-generated receipt numbers and can view analytic summaries.",
+    "Users apply for aid or track ongoing assistance cases and related document uploads.",
+    "Administrators manage system users, assign roles, and monitor notifications in the smart notification center.",
+    "Users collaborate via internal messaging with real-time updates enabled by Supabase Realtime.",
+    "Users can export data (Excel, CSV) and import as needed using built-in utilities.",
+    "The system gracefully handles errors and logs them, providing feedback and status to users.",
+    "Offline support and background sync ensure continuity of operations in poor network conditions."
   ],
   "validation_criteria": [
-    "Successful completion of hybrid database migration with extended schemas and zero data loss.",
-    "All affected services compile without type errors after UUID migration in member and donation IDs.",
-    "Automated generation of membership and receipt numbers verified through multiple form submissions.",
-    "Full-text search queries return expected results with Turkish language relevance.",
-    "Analytics views load summarized donation data correctly consistent with raw data.",
-    "Fixed UI pages function correctly including form dialog submissions and data updates.",
-    "Authentication and permission systems enforce access restrictions properly ensuring security.",
-    "Accessibility audits confirm WCAG 2.1 AA compliance with proper ARIA labeling and keyboard navigation.",
-    "Test coverage improved substantially with a target success rate increase from 37% to approximately 55-60%.",
-    "No critical runtime errors or warnings recorded during testing and user acceptance phases.",
-    "Performance benchmarks show improved query response times due to new indexing and caching improvements."
+    "Database migration scripts must apply fully without data loss, extending members and donations tables with new columns and indexed fields.",
+    "All critical UI pages including MembersPage, LegalDocumentsPage, and AidApplicationsPage must have fully functional dialogs and forms with proper onClick handlers and accessible labels.",
+    "Authentication flow must securely enforce permission-based access control with no bypasses.",
+    "Automated tests from TestSprite suite should achieve at least 95% pass rate after fixes and validations.",
+    "Export functionality must reliably generate Excel and CSV files with correct data and provide user feedback during processing.",
+    "File upload components must allow selecting and validating files with visible filenames and ARIA-compliant inputs.",
+    "Real-time messaging must update conversations immediately via Supabase channels without lag or errors.",
+    "Navigation routes must be correctly configured and functional, with no broken links or 400 errors on API calls.",
+    "Performance benchmarks including lazy loading, caching, and optimized queries must meet defined thresholds.",
+    "Accessibility audits must confirm WCAG 2.1 AA compliance, including proper aria-describedby on dialogs and keyboard navigation support."
   ],
   "code_summary": {
     "tech_stack": [
@@ -176,9 +178,7 @@
       {
         "name": "Healthcare Services",
         "description": "Hospital referral management and healthcare service tracking",
-        "files": [
-          "components/pages/HospitalReferralPage.tsx"
-        ]
+        "files": ["components/pages/HospitalReferralPage.tsx"]
       },
       {
         "name": "Event Management",
@@ -269,16 +269,12 @@
       {
         "name": "Internal Messaging",
         "description": "Internal communication system for team collaboration",
-        "files": [
-          "components/pages/InternalMessagingPage.tsx"
-        ]
+        "files": ["components/pages/InternalMessagingPage.tsx"]
       },
       {
         "name": "Smart Automation System",
         "description": "Intelligent automation features for workflow optimization",
-        "files": [
-          "components/automation/SmartAutomationSystem.tsx"
-        ]
+        "files": ["components/automation/SmartAutomationSystem.tsx"]
       },
       {
         "name": "Mobile Optimization",
@@ -420,9 +416,7 @@
       {
         "name": "Internationalization",
         "description": "Multi-language support system",
-        "files": [
-          "services/internationalizationService.ts"
-        ]
+        "files": ["services/internationalizationService.ts"]
       },
       {
         "name": "Utility Functions",

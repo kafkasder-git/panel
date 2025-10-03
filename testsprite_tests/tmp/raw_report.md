@@ -1,9 +1,9 @@
-
 # TestSprite AI Testing Report(MCP)
 
 ---
 
 ## 1️⃣ Document Metadata
+
 - **Project Name:** panel-3
 - **Date:** 2025-10-03
 - **Prepared by:** TestSprite AI Team
@@ -13,222 +13,350 @@
 ## 2️⃣ Requirement Validation Summary
 
 #### Test TC001
-- **Test Name:** Hybrid Database Migration Completes Without Data Loss
-- **Test Code:** [TC001_Hybrid_Database_Migration_Completes_Without_Data_Loss.py](./TC001_Hybrid_Database_Migration_Completes_Without_Data_Loss.py)
-- **Test Error:** Reported the issue that the migration trigger button is missing or misdirected. Stopping further actions as the migration process cannot be initiated from the current UI.
-Browser Console Logs:
-[WARNING] Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (at http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=95e6c095:5721:14)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/281d06c6-05d1-48e4-ad6c-6516808b8cc7/e9ca1b07-dee3-460c-ae55-93debf11c168
-- **Status:** ❌ Failed
+
+- **Test Name:** User Authentication Success
+- **Test Code:**
+  [TC001_User_Authentication_Success.py](./TC001_User_Authentication_Success.py)
+- **Test Visualization and Result:**
+  https://www.testsprite.com/dashboard/mcp/tests/3652d4c9-b4b9-4880-b468-00b6540c3e29/f55b6967-4dad-4207-8df7-f04de97bb358
+- **Status:** ✅ Passed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+
 ---
 
 #### Test TC002
-- **Test Name:** UUID Migration for Member and Donation IDs
-- **Test Code:** [TC002_UUID_Migration_for_Member_and_Donation_IDs.py](./TC002_UUID_Migration_for_Member_and_Donation_IDs.py)
-- **Test Error:** The UUID migration for members has not been applied correctly as member IDs do not conform to UUID format. Additionally, the compile/run button on donationsService page is unresponsive, preventing further validation. The task cannot be completed successfully under these conditions.
-Browser Console Logs:
-[WARNING] Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (at http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=95e6c095:5721:14)
-[WARNING] Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (at http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=95e6c095:5721:14)
-[WARNING] Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (at http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=95e6c095:5721:14)
-[WARNING] Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (at http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=95e6c095:5721:14)
-[WARNING] Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (at http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=95e6c095:5721:14)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/281d06c6-05d1-48e4-ad6c-6516808b8cc7/fb61e27f-7ad8-4977-b9ba-72ca47a4c648
+
+- **Test Name:** User Authentication Failure - Invalid Credentials
+- **Test Code:**
+  [TC002_User_Authentication_Failure\_\_\_Invalid_Credentials.py](./TC002_User_Authentication_Failure___Invalid_Credentials.py)
+- **Test Error:** Login failure verification failed because the system allows
+  login with invalid credentials and does not show an error message. Reporting
+  this critical issue and stopping further testing. Browser Console Logs:
+  [WARNING] Multiple GoTrueClient instances detected in the same browser
+  context. It is not an error, but this should be avoided as it may produce
+  undefined behavior when used concurrently under the same storage key. (at
+  http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=5949bea8:5721:14)
+- **Test Visualization and Result:**
+  https://www.testsprite.com/dashboard/mcp/tests/3652d4c9-b4b9-4880-b468-00b6540c3e29/ec19200f-8143-4c4d-a984-b92f1a5dbd39
 - **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+
 ---
 
 #### Test TC003
-- **Test Name:** Auto-Generation of Membership Numbers
-- **Test Code:** [TC003_Auto_Generation_of_Membership_Numbers.py](./TC003_Auto_Generation_of_Membership_Numbers.py)
-- **Test Error:** The system does not automatically generate unique membership numbers in the required format MEM-YYYY-XXXXXX upon member registration. Instead, membership numbers are two-character codes derived from member names, with duplicates present. This fails the verification task.
-Browser Console Logs:
-[WARNING] Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (at http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=95e6c095:5721:14)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/281d06c6-05d1-48e4-ad6c-6516808b8cc7/a370b6f6-27d6-428e-85ec-284e2a532878
-- **Status:** ❌ Failed
+
+- **Test Name:** Protected Routes and Permission-based Access Control
+- **Test Code:**
+  [TC003_Protected_Routes_and_Permission_based_Access_Control.py](./TC003_Protected_Routes_and_Permission_based_Access_Control.py)
+- **Test Visualization and Result:**
+  https://www.testsprite.com/dashboard/mcp/tests/3652d4c9-b4b9-4880-b468-00b6540c3e29/fe36b80f-b56c-424e-9883-7db50d4c0723
+- **Status:** ✅ Passed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+
 ---
 
 #### Test TC004
-- **Test Name:** Auto-Generation of Donation Receipt Numbers
-- **Test Code:** [TC004_Auto_Generation_of_Donation_Receipt_Numbers.py](./TC004_Auto_Generation_of_Donation_Receipt_Numbers.py)
-- **Test Error:** The donation submission form was successfully filled and submitted. However, the receipt number generated upon submission is not visible or accessible in the user interface. Attempts to view donation details via available buttons did not reveal the receipt number. Therefore, verification of the receipt number format and uniqueness could not be completed. The issue has been reported.
-Browser Console Logs:
-[WARNING] Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (at http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=95e6c095:5721:14)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/281d06c6-05d1-48e4-ad6c-6516808b8cc7/d558db51-5db1-4c73-8219-cd2ebbebfe57
+
+- **Test Name:** Member Registration Form Validation and Accessibility
+- **Test Code:**
+  [TC004_Member_Registration_Form_Validation_and_Accessibility.py](./TC004_Member_Registration_Form_Validation_and_Accessibility.py)
+- **Test Error:** Navigation to New Member Registration page failed. Cannot
+  proceed with form validation tests. Reporting issue and stopping. Browser
+  Console Logs: [WARNING] Multiple GoTrueClient instances detected in the same
+  browser context. It is not an error, but this should be avoided as it may
+  produce undefined behavior when used concurrently under the same storage key.
+  (at
+  http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=5949bea8:5721:14)
+- **Test Visualization and Result:**
+  https://www.testsprite.com/dashboard/mcp/tests/3652d4c9-b4b9-4880-b468-00b6540c3e29/06572479-51fe-4810-9ff7-ba488ff925ed
 - **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+
 ---
 
 #### Test TC005
-- **Test Name:** Turkish Full-Text Search for Members Yields Relevant Results
-- **Test Code:** [TC005_Turkish_Full_Text_Search_for_Members_Yields_Relevant_Results.py](./TC005_Turkish_Full_Text_Search_for_Members_Yields_Relevant_Results.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/281d06c6-05d1-48e4-ad6c-6516808b8cc7/26ec8ca1-be83-4471-8993-f1598374d6e9
-- **Status:** ✅ Passed
+
+- **Test Name:** Donation Entry Auto-Receipt Number Generation
+- **Test Code:**
+  [TC005_Donation_Entry_Auto_Receipt_Number_Generation.py](./TC005_Donation_Entry_Auto_Receipt_Number_Generation.py)
+- **Test Error:** The new donation entry was created and saved successfully.
+  However, the system does not open the donation details view when clicking the
+  'view donation' button, preventing verification of the auto-generated receipt
+  number. This is a critical issue blocking further testing. Please fix the
+  issue to enable receipt number verification. Browser Console Logs: [WARNING]
+  Multiple GoTrueClient instances detected in the same browser context. It is
+  not an error, but this should be avoided as it may produce undefined behavior
+  when used concurrently under the same storage key. (at
+  http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=5949bea8:5721:14)
+- **Test Visualization and Result:**
+  https://www.testsprite.com/dashboard/mcp/tests/3652d4c9-b4b9-4880-b468-00b6540c3e29/ae25ad6d-905d-41e1-85aa-a3d0a439bc08
+- **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+
 ---
 
 #### Test TC006
-- **Test Name:** Turkish Full-Text Search for Donations Yields Relevant Results
-- **Test Code:** [TC006_Turkish_Full_Text_Search_for_Donations_Yields_Relevant_Results.py](./TC006_Turkish_Full_Text_Search_for_Donations_Yields_Relevant_Results.py)
-- **Test Error:** The full-text search test on the donations dataset with Turkish language support was partially successful. The initial search with the term 'bağışçı' returned relevant results. However, subsequent searches with other Turkish terms like 'bağış' did not execute properly, indicating a functional issue with the search button or search execution on the dashboard. Further testing is blocked until this issue is resolved.
-Browser Console Logs:
-[WARNING] Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (at http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=95e6c095:5721:14)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/281d06c6-05d1-48e4-ad6c-6516808b8cc7/216497cb-a653-49c8-a0ae-b8882668feb4
+
+- **Test Name:** Donation Analytics Data Accuracy
+- **Test Code:**
+  [TC006_Donation_Analytics_Data_Accuracy.py](./TC006_Donation_Analytics_Data_Accuracy.py)
+- **Test Error:** Testing stopped. The donation analytics dashboard does not
+  have accessible or working filter controls for date range and donor
+  demographics, preventing verification of aggregated data accuracy as required
+  by the task. Browser Console Logs: [WARNING] Multiple GoTrueClient instances
+  detected in the same browser context. It is not an error, but this should be
+  avoided as it may produce undefined behavior when used concurrently under the
+  same storage key. (at
+  http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=5949bea8:5721:14)
+- **Test Visualization and Result:**
+  https://www.testsprite.com/dashboard/mcp/tests/3652d4c9-b4b9-4880-b468-00b6540c3e29/76dfc2fa-9b4f-4243-9bee-e17210ef16c5
 - **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+
 ---
 
 #### Test TC007
-- **Test Name:** Admin Analytics Dashboard Loads Correct Donation Summaries
-- **Test Code:** [TC007_Admin_Analytics_Dashboard_Loads_Correct_Donation_Summaries.py](./TC007_Admin_Analytics_Dashboard_Loads_Correct_Donation_Summaries.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/281d06c6-05d1-48e4-ad6c-6516808b8cc7/7f34ea1b-03be-4a6d-9f09-e0e1538fe9b5
-- **Status:** ✅ Passed
+
+- **Test Name:** Aid Application Full Workflow
+- **Test Code:**
+  [TC007_Aid_Application_Full_Workflow.py](./TC007_Aid_Application_Full_Workflow.py)
+- **Test Error:** Reported the navigation issue preventing access to the Aid
+  Applications page, which is critical for testing the full aid application
+  lifecycle. Stopping further actions until the issue is resolved. Browser
+  Console Logs: [WARNING] Multiple GoTrueClient instances detected in the same
+  browser context. It is not an error, but this should be avoided as it may
+  produce undefined behavior when used concurrently under the same storage key.
+  (at
+  http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=5949bea8:5721:14)
+- **Test Visualization and Result:**
+  https://www.testsprite.com/dashboard/mcp/tests/3652d4c9-b4b9-4880-b468-00b6540c3e29/3250ab85-dc40-4d87-9bac-d5390a233dff
+- **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+
 ---
 
 #### Test TC008
-- **Test Name:** Members Page UI Fixes and Form Submission
-- **Test Code:** [TC008_Members_Page_UI_Fixes_and_Form_Submission.py](./TC008_Members_Page_UI_Fixes_and_Form_Submission.py)
-- **Test Error:** Testing stopped due to critical issue: The edit form does not open when clicking the 'Edit' button on the Members page, preventing further verification of UI/UX fixes and form submission. Please fix this issue to continue testing.
-Browser Console Logs:
-[WARNING] Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (at http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=95e6c095:5721:14)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/281d06c6-05d1-48e4-ad6c-6516808b8cc7/ca3ea2a4-3314-43a4-af96-78ce418b7009
+
+- **Test Name:** File Upload Validation and User Feedback
+- **Test Code:**
+  [TC008_File_Upload_Validation_and_User_Feedback.py](./TC008_File_Upload_Validation_and_User_Feedback.py)
+- **Test Error:** Reported issue: Unable to access document upload interface
+  from dashboard, preventing further testing of file upload validations.
+  Stopping as per instructions. Browser Console Logs: [WARNING] Multiple
+  GoTrueClient instances detected in the same browser context. It is not an
+  error, but this should be avoided as it may produce undefined behavior when
+  used concurrently under the same storage key. (at
+  http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=5949bea8:5721:14)
+- **Test Visualization and Result:**
+  https://www.testsprite.com/dashboard/mcp/tests/3652d4c9-b4b9-4880-b468-00b6540c3e29/8027a569-a72c-439d-8c7d-fc40bd76ecfa
 - **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+
 ---
 
 #### Test TC009
-- **Test Name:** Legal Documents Page Fixes and Upload Functionality
-- **Test Code:** [TC009_Legal_Documents_Page_Fixes_and_Upload_Functionality.py](./TC009_Legal_Documents_Page_Fixes_and_Upload_Functionality.py)
-- **Test Error:** The critical bug fixes for the Legal Documents page were partially verified. Navigation to the page and UI elements functioned correctly. The document upload form opened and accepted input for all fields except the file upload, which could not be automated due to file input element limitations. Attempts to submit without a file were blocked by validation as expected. No UI glitches or errors were observed during the process. The file upload step remains unverified due to environment constraints. Task is not fully complete.
-Browser Console Logs:
-[WARNING] Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (at http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=95e6c095:5721:14)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/281d06c6-05d1-48e4-ad6c-6516808b8cc7/32ebe946-1ba3-4230-b498-415ebccea15f
+
+- **Test Name:** Real-time Internal Messaging Updates
+- **Test Code:**
+  [TC009_Real_time_Internal_Messaging_Updates.py](./TC009_Real_time_Internal_Messaging_Updates.py)
+- **Test Error:** The internal messaging system test to verify real-time message
+  thread updates via Supabase Realtime was not fully successful. User A was able
+  to log in and open the messaging page and chat thread, but sending a message
+  did not update the chat UI as expected. User B could not be logged in due to
+  input issues, preventing verification of real-time message receipt and reply.
+  Therefore, the system's real-time update functionality could not be confirmed.
+  Recommend developer investigation into message sending and UI update flow, as
+  well as resolving User B login input issues for full testing. Browser Console
+  Logs: [WARNING] Multiple GoTrueClient instances detected in the same browser
+  context. It is not an error, but this should be avoided as it may produce
+  undefined behavior when used concurrently under the same storage key. (at
+  http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=5949bea8:5721:14)
+  [WARNING] Multiple GoTrueClient instances detected in the same browser
+  context. It is not an error, but this should be avoided as it may produce
+  undefined behavior when used concurrently under the same storage key. (at
+  http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=5949bea8:5721:14)
+  [WARNING] Multiple GoTrueClient instances detected in the same browser
+  context. It is not an error, but this should be avoided as it may produce
+  undefined behavior when used concurrently under the same storage key. (at
+  http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=5949bea8:5721:14)
+  [WARNING] Multiple GoTrueClient instances detected in the same browser
+  context. It is not an error, but this should be avoided as it may produce
+  undefined behavior when used concurrently under the same storage key. (at
+  http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=5949bea8:5721:14)
+  [WARNING] Multiple GoTrueClient instances detected in the same browser
+  context. It is not an error, but this should be avoided as it may produce
+  undefined behavior when used concurrently under the same storage key. (at
+  http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=5949bea8:5721:14)
+  [WARNING] Multiple GoTrueClient instances detected in the same browser
+  context. It is not an error, but this should be avoided as it may produce
+  undefined behavior when used concurrently under the same storage key. (at
+  http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=5949bea8:5721:14)
+  [ERROR] Failed to load resource: the server responded with a status of 404 ()
+  (at https://gyburnfaszhxcxdnwogj.supabase.co/rest/v1/messages:0:0)
+- **Test Visualization and Result:**
+  https://www.testsprite.com/dashboard/mcp/tests/3652d4c9-b4b9-4880-b468-00b6540c3e29/ef075ded-b247-40d3-bb92-a620baffc8e8
 - **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+
 ---
 
 #### Test TC010
-- **Test Name:** Authentication System Enforces Permissions and Security
-- **Test Code:** [TC010_Authentication_System_Enforces_Permissions_and_Security.py](./TC010_Authentication_System_Enforces_Permissions_and_Security.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/281d06c6-05d1-48e4-ad6c-6516808b8cc7/84382a52-3655-4de1-9d59-6f0f9ccd94c3
+
+- **Test Name:** Navigation and Route Validation
+- **Test Code:**
+  [TC010_Navigation_and_Route_Validation.py](./TC010_Navigation_and_Route_Validation.py)
+- **Test Visualization and Result:**
+  https://www.testsprite.com/dashboard/mcp/tests/3652d4c9-b4b9-4880-b468-00b6540c3e29/3442ebad-9126-4a4c-8409-625d0f22f3f4
 - **Status:** ✅ Passed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+
 ---
 
 #### Test TC011
-- **Test Name:** CSRF and XSS Protection Are Effective
-- **Test Code:** [TC011_CSRF_and_XSS_Protection_Are_Effective.py](./TC011_CSRF_and_XSS_Protection_Are_Effective.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/281d06c6-05d1-48e4-ad6c-6516808b8cc7/ede553aa-825f-44ec-9ce9-0ac613bdbfcb
-- **Status:** ✅ Passed
+
+- **Test Name:** Data Export Functionality - Excel and CSV
+- **Test Code:**
+  [TC011_Data_Export_Functionality\_\_\_Excel_and_CSV.py](./TC011_Data_Export_Functionality___Excel_and_CSV.py)
+- **Test Error:** Export modal does not open upon clicking the 'Dışa Aktar'
+  button on the members page, blocking further export testing. Reported the
+  issue and stopping further actions. Browser Console Logs: [WARNING] Multiple
+  GoTrueClient instances detected in the same browser context. It is not an
+  error, but this should be avoided as it may produce undefined behavior when
+  used concurrently under the same storage key. (at
+  http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=5949bea8:5721:14)
+- **Test Visualization and Result:**
+  https://www.testsprite.com/dashboard/mcp/tests/3652d4c9-b4b9-4880-b468-00b6540c3e29/80d58f50-ad77-427e-acb1-e72991d799d1
+- **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+
 ---
 
 #### Test TC012
-- **Test Name:** Accessibility Compliance WCAG 2.1 AA Verification
-- **Test Code:** [null](./null)
-- **Test Error:** Test execution timed out after 15 minutes
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/281d06c6-05d1-48e4-ad6c-6516808b8cc7/39cd2ced-b5eb-4be8-a9a7-cce7d43a221f
+
+- **Test Name:** PWA Offline Support and Background Sync
+- **Test Code:**
+  [TC012_PWA_Offline_Support_and_Background_Sync.py](./TC012_PWA_Offline_Support_and_Background_Sync.py)
+- **Test Error:** Reported issue about inability to simulate offline mode.
+  Stopping further testing as offline mode usability cannot be validated without
+  network loss simulation. Browser Console Logs: [WARNING] Multiple GoTrueClient
+  instances detected in the same browser context. It is not an error, but this
+  should be avoided as it may produce undefined behavior when used concurrently
+  under the same storage key. (at
+  http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=5949bea8:5721:14)
+- **Test Visualization and Result:**
+  https://www.testsprite.com/dashboard/mcp/tests/3652d4c9-b4b9-4880-b468-00b6540c3e29/4fdf04fa-489c-41b2-ac4f-1cd52fdfb9b8
 - **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+
 ---
 
 #### Test TC013
-- **Test Name:** Error Handling and Logging System Captures Runtime Errors
-- **Test Code:** [TC013_Error_Handling_and_Logging_System_Captures_Runtime_Errors.py](./TC013_Error_Handling_and_Logging_System_Captures_Runtime_Errors.py)
-- **Test Error:** Centralized error handling verification is incomplete. Invalid input and duplicate data error handling work as expected, but network interruption scenario lacks visible feedback or user notification. The issue has been reported. Further testing is stopped until the issue is resolved.
-Browser Console Logs:
-[WARNING] Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (at http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=95e6c095:5721:14)
-[ERROR] Failed to load resource: the server responded with a status of 409 () (at https://gyburnfaszhxcxdnwogj.supabase.co/rest/v1/members?columns=%22name%22%2C%22surname%22%2C%22email%22%2C%22phone%22%2C%22avatar_url%22%2C%22address%22%2C%22city%22%2C%22district%22%2C%22postal_code%22%2C%22country%22%2C%22birth_date%22%2C%22gender%22%2C%22marital_status%22%2C%22occupation%22%2C%22employer%22%2C%22membership_type%22%2C%22membership_number%22%2C%22join_date%22%2C%22membership_status%22%2C%22expiry_date%22%2C%22annual_fee%22%2C%22fee_paid%22%2C%22payment_method%22%2C%22profession%22%2C%22specialization%22%2C%22experience_years%22%2C%22education_level%22%2C%22certifications%22%2C%22languages%22%2C%22preferred_contact_method%22%2C%22newsletter_subscription%22%2C%22event_notifications%22%2C%22marketing_consent%22%2C%22emergency_contact_name%22%2C%22emergency_contact_phone%22%2C%22emergency_contact_relation%22%2C%22committee_memberships%22%2C%22volunteer_interests%22%2C%22leadership_positions%22%2C%22skills_and_expertise%22%2C%22event_attendance_count%22%2C%22volunteer_hours%22%2C%22contribution_amount%22%2C%22notes%22%2C%22special_requirements%22%2C%22dietary_restrictions%22%2C%22accessibility_needs%22%2C%22source%22%2C%22referral_code%22&select=*:0:0)
-[ERROR] Failed to load resource: the server responded with a status of 409 () (at https://gyburnfaszhxcxdnwogj.supabase.co/rest/v1/members?columns=%22name%22%2C%22surname%22%2C%22email%22%2C%22phone%22%2C%22avatar_url%22%2C%22address%22%2C%22city%22%2C%22district%22%2C%22postal_code%22%2C%22country%22%2C%22birth_date%22%2C%22gender%22%2C%22marital_status%22%2C%22occupation%22%2C%22employer%22%2C%22membership_type%22%2C%22membership_number%22%2C%22join_date%22%2C%22membership_status%22%2C%22expiry_date%22%2C%22annual_fee%22%2C%22fee_paid%22%2C%22payment_method%22%2C%22profession%22%2C%22specialization%22%2C%22experience_years%22%2C%22education_level%22%2C%22certifications%22%2C%22languages%22%2C%22preferred_contact_method%22%2C%22newsletter_subscription%22%2C%22event_notifications%22%2C%22marketing_consent%22%2C%22emergency_contact_name%22%2C%22emergency_contact_phone%22%2C%22emergency_contact_relation%22%2C%22committee_memberships%22%2C%22volunteer_interests%22%2C%22leadership_positions%22%2C%22skills_and_expertise%22%2C%22event_attendance_count%22%2C%22volunteer_hours%22%2C%22contribution_amount%22%2C%22notes%22%2C%22special_requirements%22%2C%22dietary_restrictions%22%2C%22accessibility_needs%22%2C%22source%22%2C%22referral_code%22&select=*:0:0)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/281d06c6-05d1-48e4-ad6c-6516808b8cc7/76aba399-06e4-4a34-9cdf-56280ed1782b
+
+- **Test Name:** Security Measures - XSS and CSRF Protection
+- **Test Code:**
+  [TC013_Security_Measures\_\_\_XSS_and_CSRF_Protection.py](./TC013_Security_Measures___XSS_and_CSRF_Protection.py)
+- **Test Error:** Testing stopped due to inability to login and access other
+  forms for XSS and CSRF testing. The login form rejects inputs and does not
+  proceed, preventing further security validation. Browser Console Logs:
+  [WARNING] Multiple GoTrueClient instances detected in the same browser
+  context. It is not an error, but this should be avoided as it may produce
+  undefined behavior when used concurrently under the same storage key. (at
+  http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=5949bea8:5721:14)
+  [ERROR] Failed to load resource: the server responded with a status of 400 ()
+  (at
+  https://gyburnfaszhxcxdnwogj.supabase.co/auth/v1/token?grant_type=password:0:0)
+- **Test Visualization and Result:**
+  https://www.testsprite.com/dashboard/mcp/tests/3652d4c9-b4b9-4880-b468-00b6540c3e29/b5fbcbf7-c2c4-469c-a9ac-e56a5badd1e6
 - **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+
 ---
 
 #### Test TC014
-- **Test Name:** Performance Optimization Improves Query Response Times
-- **Test Code:** [TC014_Performance_Optimization_Improves_Query_Response_Times.py](./TC014_Performance_Optimization_Improves_Query_Response_Times.py)
-- **Test Error:** Unable to proceed with the task as the web interface lacks controls to apply new indexing and caching strategies. Task stopped due to this limitation.
-Browser Console Logs:
-[WARNING] Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (at http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=95e6c095:5721:14)
-[WARNING] Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (at http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=95e6c095:5721:14)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/281d06c6-05d1-48e4-ad6c-6516808b8cc7/791d5c22-f5ae-4e33-a442-97e027937102
-- **Status:** ❌ Failed
+
+- **Test Name:** Accessibility Keyboard Navigation and Screen Reader Support
+- **Test Code:**
+  [TC014_Accessibility_Keyboard_Navigation_and_Screen_Reader_Support.py](./TC014_Accessibility_Keyboard_Navigation_and_Screen_Reader_Support.py)
+- **Test Visualization and Result:**
+  https://www.testsprite.com/dashboard/mcp/tests/3652d4c9-b4b9-4880-b468-00b6540c3e29/c2369f08-c42c-445d-8c92-869758ed17e3
+- **Status:** ✅ Passed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+
 ---
 
 #### Test TC015
-- **Test Name:** Donation Form Validation with Edge Cases
-- **Test Code:** [null](./null)
-- **Test Error:** Test execution timed out after 15 minutes
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/281d06c6-05d1-48e4-ad6c-6516808b8cc7/4ea46d4a-5bf1-45ec-89b6-62d22a52d6a1
-- **Status:** ❌ Failed
+
+- **Test Name:** Error Handling and Logging Mechanism
+- **Test Code:**
+  [TC015_Error_Handling_and_Logging_Mechanism.py](./TC015_Error_Handling_and_Logging_Mechanism.py)
+- **Test Visualization and Result:**
+  https://www.testsprite.com/dashboard/mcp/tests/3652d4c9-b4b9-4880-b468-00b6540c3e29/72643371-0f95-4359-9819-715929430214
+- **Status:** ✅ Passed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+
 ---
 
 #### Test TC016
-- **Test Name:** Permission Guard Prevents Unauthorized Data Access
-- **Test Code:** [TC016_Permission_Guard_Prevents_Unauthorized_Data_Access.py](./TC016_Permission_Guard_Prevents_Unauthorized_Data_Access.py)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/281d06c6-05d1-48e4-ad6c-6516808b8cc7/773495c2-6740-449c-9ab5-b447a6c16dfb
+
+- **Test Name:** Performance Benchmarks - Lazy Loading and Caching
+- **Test Code:**
+  [TC016_Performance_Benchmarks\_\_\_Lazy_Loading_and_Caching.py](./TC016_Performance_Benchmarks___Lazy_Loading_and_Caching.py)
+- **Test Visualization and Result:**
+  https://www.testsprite.com/dashboard/mcp/tests/3652d4c9-b4b9-4880-b468-00b6540c3e29/897c0162-7672-4300-be5a-5d2e9b361771
 - **Status:** ✅ Passed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+
 ---
 
 #### Test TC017
-- **Test Name:** Real-Time Notification System Pushes Alerts Correctly
-- **Test Code:** [TC017_Real_Time_Notification_System_Pushes_Alerts_Correctly.py](./TC017_Real_Time_Notification_System_Pushes_Alerts_Correctly.py)
-- **Test Error:** Testing stopped due to inability to generate system notification events. Notification bell does not update with new alerts after triggering attempts. Issue reported.
-Browser Console Logs:
-[WARNING] Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (at http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=95e6c095:5721:14)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/281d06c6-05d1-48e4-ad6c-6516808b8cc7/a9f93a31-7f25-4d18-97dc-501ca6221bfe
+
+- **Test Name:** Export and Import Data Integrity
+- **Test Code:**
+  [TC017_Export_and_Import_Data_Integrity.py](./TC017_Export_and_Import_Data_Integrity.py)
+- **Test Error:** Export functionality is broken or unresponsive. Cannot proceed
+  with export-import validation. Reporting the issue and stopping further
+  testing. Browser Console Logs: [WARNING] Multiple GoTrueClient instances
+  detected in the same browser context. It is not an error, but this should be
+  avoided as it may produce undefined behavior when used concurrently under the
+  same storage key. (at
+  http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=5949bea8:5721:14)
+- **Test Visualization and Result:**
+  https://www.testsprite.com/dashboard/mcp/tests/3652d4c9-b4b9-4880-b468-00b6540c3e29/5564e933-1de6-4f87-9691-ea6bdcecba3c
 - **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
+
 ---
 
 #### Test TC018
-- **Test Name:** Mobile Optimization and Responsive Form Behavior
-- **Test Code:** [null](./null)
-- **Test Error:** Test execution timed out after 15 minutes
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/281d06c6-05d1-48e4-ad6c-6516808b8cc7/19f6a9ce-4d22-48b3-8331-11ead9aef568
+
+- **Test Name:** Legal Document Upload and Management
+- **Test Code:**
+  [TC018_Legal_Document_Upload_and_Management.py](./TC018_Legal_Document_Upload_and_Management.py)
+- **Test Error:** The task to upload legal service documents failed due to
+  inability to automate file upload. All other form fields were filled
+  correctly, but the file input element did not accept a file, preventing form
+  submission. The issue is reported and the task is stopped. Browser Console
+  Logs: [WARNING] Multiple GoTrueClient instances detected in the same browser
+  context. It is not an error, but this should be avoided as it may produce
+  undefined behavior when used concurrently under the same storage key. (at
+  http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=5949bea8:5721:14)
+- **Test Visualization and Result:**
+  https://www.testsprite.com/dashboard/mcp/tests/3652d4c9-b4b9-4880-b468-00b6540c3e29/a4c423ec-4b64-43df-8844-603f275ad6e2
 - **Status:** ❌ Failed
 - **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
----
 
-#### Test TC019
-- **Test Name:** Internal Messaging System Sends and Receives Messages Correctly
-- **Test Code:** [TC019_Internal_Messaging_System_Sends_and_Receives_Messages_Correctly.py](./TC019_Internal_Messaging_System_Sends_and_Receives_Messages_Correctly.py)
-- **Test Error:** Testing stopped due to inability to start composing a new message on the Internal Messaging page. The 'Yeni Sohbet' buttons do not trigger the message composition interface, blocking further test steps. Issue reported for developer investigation.
-Browser Console Logs:
-[WARNING] Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (at http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=95e6c095:5721:14)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/281d06c6-05d1-48e4-ad6c-6516808b8cc7/2dfaa325-4e32-491d-8f92-32b011487f1c
-- **Status:** ❌ Failed
-- **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
 ---
-
-#### Test TC020
-- **Test Name:** Data Import and Export Functionality Works Correctly
-- **Test Code:** [TC020_Data_Import_and_Export_Functionality_Works_Correctly.py](./TC020_Data_Import_and_Export_Functionality_Works_Correctly.py)
-- **Test Error:** Export testing for Excel and CSV formats completed successfully. However, the data import module could not be accessed despite multiple navigation attempts. This prevents verification of import functionality for Excel, CSV, and PDF formats. Reporting this navigation issue to the development team for resolution. Task incomplete due to this blocking issue.
-Browser Console Logs:
-[WARNING] Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key. (at http://localhost:5173/node_modules/.vite/deps/@supabase_supabase-js.js?v=95e6c095:5721:14)
-- **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/281d06c6-05d1-48e4-ad6c-6516808b8cc7/4ebe7c6a-d24c-4998-8508-0ef699224c31
-- **Status:** ❌ Failed
-- **Analysis / Findings:** {{TODO:AI_ANALYSIS}}.
----
-
 
 ## 3️⃣ Coverage & Matching Metrics
 
-- **25.00** of tests passed
+- **33.33** of tests passed
 
-| Requirement        | Total Tests | ✅ Passed | ❌ Failed  |
-|--------------------|-------------|-----------|------------|
-| ...                | ...         | ...       | ...        |
+| Requirement | Total Tests | ✅ Passed | ❌ Failed |
+| ----------- | ----------- | --------- | --------- |
+| ...         | ...         | ...       | ...       |
+
 ---
-
 
 ## 4️⃣ Key Gaps / Risks
-{AI_GNERATED_KET_GAPS_AND_RISKS}
----
+
+## {AI_GNERATED_KET_GAPS_AND_RISKS}

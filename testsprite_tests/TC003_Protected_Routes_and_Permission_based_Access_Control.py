@@ -45,7 +45,7 @@ async def run_test():
                 pass
         
         # Interact with the page elements to simulate user flow
-        # Enter valid username and password, then click the login button.
+        # Input username and password, then click login button
         frame = context.pages[-1]
         elem = frame.locator('xpath=html/body/div/div/div[2]/div/div[2]/form/div/div/input').nth(0)
         await page.wait_for_timeout(3000); await elem.fill('isahamid095@gmail.com')
@@ -61,10 +61,48 @@ async def run_test():
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
 
-        # Assertion: Verify successful login by checking the presence of dashboard summary text indicating authorized landing page
+        # Attempt to access Admin Pages by clicking the corresponding menu item
         frame = context.pages[-1]
-        dashboard_summary = await frame.locator('text=Dernek yönetim sistemi - Güncel durum özeti').text_content()
-        assert dashboard_summary is not None and 'Dernek yönetim sistemi' in dashboard_summary, 'Login failed or unauthorized landing page not loaded'
+        elem = frame.locator('xpath=html/body/div/div/div[2]/div/aside/div/div/div[3]/div/button').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+
+        # Attempt to access 'Üye Listesi' page by clicking the corresponding button
+        frame = context.pages[-1]
+        elem = frame.locator('xpath=html/body/div[2]/div/div/div[2]/button').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+
+        # Attempt to access a more sensitive admin page or user management page to verify access restrictions
+        frame = context.pages[-1]
+        elem = frame.locator('xpath=html/body/div/div/div[2]/div/aside/div/div/div[5]/div/button').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+
+        # Attempt to access 'Öğrenci Listesi' page by clicking the corresponding button
+        frame = context.pages[-1]
+        elem = frame.locator('xpath=html/body/div[2]/div/div/div[2]/button').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+
+        # Attempt to access a highly sensitive admin or user management page to verify access restrictions and confirm unauthorized access is denied
+        frame = context.pages[-1]
+        elem = frame.locator('xpath=html/body/div/div/div[2]/div/aside/div/div/div/div/button').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+
+        # Verify that unauthorized access attempts show proper error or unauthorized access messages without sensitive data leakage
+        frame = context.pages[-1]
+        elem = frame.locator('xpath=html/body/div/div/div[2]/div/aside/div/div/div/div/button').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+
+        # Verify that unauthorized access is denied by checking for error or unauthorized access message
+        error_message_locator = frame.locator('text=Unauthorized')
+        await expect(error_message_locator).to_be_visible()
+        # Additionally, ensure no sensitive data like student names or bursary amounts are visible on the page
+        for sensitive_text in ['Ahmet Yılmaz', 'Ayşe Kaya', 'Mehmet Demir', 'Fatma Özkan', 'Can Polat', '₺1,500', '₺2,000', '₺1,800', '₺2,500', '₺1,200']:
+    assert not await frame.locator(f'text={sensitive_text}').is_visible(), f'Sensitive data "{sensitive_text}" should not be visible on unauthorized access page'
         await asyncio.sleep(5)
     
     finally:

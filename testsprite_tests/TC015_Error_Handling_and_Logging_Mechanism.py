@@ -45,15 +45,15 @@ async def run_test():
                 pass
         
         # Interact with the page elements to simulate user flow
-        # Enter valid username and password, then click the login button.
+        # Input malformed username and password to cause server-side error and submit login form.
         frame = context.pages[-1]
         elem = frame.locator('xpath=html/body/div/div/div[2]/div/div[2]/form/div/div/input').nth(0)
-        await page.wait_for_timeout(3000); await elem.fill('isahamid095@gmail.com')
+        await page.wait_for_timeout(3000); await elem.fill('!@#$%^&*()_+')
         
 
         frame = context.pages[-1]
         elem = frame.locator('xpath=html/body/div/div/div[2]/div/div[2]/form/div[2]/div/input').nth(0)
-        await page.wait_for_timeout(3000); await elem.fill('Vadalov95.')
+        await page.wait_for_timeout(3000); await elem.fill('invalid_password')
         
 
         frame = context.pages[-1]
@@ -61,10 +61,18 @@ async def run_test():
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
 
-        # Assertion: Verify successful login by checking the presence of dashboard summary text indicating authorized landing page
+        # Attempt to simulate an API failure or another backend error to confirm error boundaries and logging.
         frame = context.pages[-1]
-        dashboard_summary = await frame.locator('text=Dernek yönetim sistemi - Güncel durum özeti').text_content()
-        assert dashboard_summary is not None and 'Dernek yönetim sistemi' in dashboard_summary, 'Login failed or unauthorized landing page not loaded'
+        elem = frame.locator('xpath=html/body/div/div/div[2]/div/div[2]/div/p/button').nth(0)
+        await page.wait_for_timeout(3000); await elem.click(timeout=5000)
+        
+
+        # Assert that a user-friendly error message is displayed after submitting malformed data or simulating API failure.
+        error_message_locator = frame.locator('text=Hata oluştu, lütfen tekrar deneyiniz')
+        assert await error_message_locator.is_visible(), 'Expected error message is not visible on the UI'
+        # Optionally, check that the error message is meaningful and user-friendly
+        error_text = await error_message_locator.text_content()
+        assert 'Hata' in error_text or 'error' in error_text.lower(), 'Error message does not contain expected keywords'
         await asyncio.sleep(5)
     
     finally:
