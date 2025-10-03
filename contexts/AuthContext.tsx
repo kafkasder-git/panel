@@ -10,6 +10,8 @@ import { toast } from 'sonner';
 import type { AuthContextType, AuthState, LoginCredentials, Permission , UserRole } from '../types/auth';
 
 import { logger } from '../lib/logging/logger';
+import { setSentryUser, clearSentryContext } from '../lib/sentryUtils';
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Authentication will be handled by Supabase Auth
@@ -68,11 +70,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
               isLoading: false,
               error: null,
             });
+
+            // Sync user context with Sentry so that any subsequent errors
+            // can be attributed to the currently authenticated user.
+            // The sentryUtils functions are safe to call even if Sentry is
+            // not configured; they are no-ops in that case.
+            try {
+              setSentryUser(user);
+            } catch (sentryErr) {
+              // Protect auth initialization from any Sentry-related failures.
+              logger.warn('Failed to set Sentry user during auth initialization', sentryErr);
+            }
+
             return;
           } 
             // Session expired, clear storage
             localStorage.removeItem('auth_user');
             localStorage.removeItem('auth_session');
+
+            // Clear Sentry user context when session is expired so that
+            // future errors are not attributed to a user who is no longer active.
+            // This is safe to call even if Sentry is not configured.
+            try {
+              clearSentryContext();
+            } catch (sentryErr) {
+              logger.warn('Failed to clear Sentry context after expired session', sentryErr);
+            }
           
         }
 
@@ -141,6 +164,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
         error: null,
       });
 
+      // Clear Sentry user context on logout to avoid attributing
+      // subsequent errors to a logged-out user. Safe to call regardless
+      // of Sentry configuration.
+      try {
+        clearSentryContext();
+      } catch (sentryErr) {
+        logger.warn('Failed to clear Sentry context during logout', sentryErr);
+      }
+
       toast.success('Başarıyla çıkış yaptınız', {
         duration: 2000,
       });
@@ -180,6 +212,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (storedUser) {
         const user = JSON.parse(storedUser);
         setAuthState((prev) => ({ ...prev, user }));
+
+        // Update Sentry user context after refreshing user data so Sentry
+        // has the latest information for any future error reports.
+        // Safe to call even if Sentry is not configured.
+        try {
+          setSentryUser(user);
+        } catch (sentryErr) {
+          logger.warn('Failed to update Sentry user during refresh', sentryErr);
+        }
       }
     } catch (error) {
       logger.error('User refresh error:', error);

@@ -8,6 +8,8 @@
 import type { ErrorInfo } from 'react';
 
 import { logger } from '../../lib/logging/logger';
+import * as Sentry from '@sentry/react';
+import { isSentryEnabled } from '../../lib/environment';
 /**
  * StorageLike Interface
  * 
@@ -122,6 +124,8 @@ export const createErrorReport = ({
   const environment = getEnvironmentInfo(mergedSource);
   const { dateFactory } = mergedSource;
 
+  // After creating the report you can optionally call sendErrorReportToSentry(report, error)
+  // to send this structured report to Sentry if Sentry is configured and enabled.
   return {
     errorId,
     message: error.message,
@@ -130,4 +134,70 @@ export const createErrorReport = ({
     timestamp: dateFactory().toISOString(),
     environment,
   };
+};
+
+/**
+ * sendErrorReportToSentry
+ *
+ * Sends a structured error report to Sentry with additional context and tags.
+ *
+ * This function is safe to call even if Sentry is not configured or enabled.
+ * It will return early when Sentry is disabled. Any errors during the attempt
+ * to send to Sentry are caught and logged via the application's logger to avoid
+ * causing additional failures.
+ *
+ * @param {ErrorReport} report - The structured error report created by createErrorReport()
+ * @param {Error} error - The original Error instance to capture in Sentry
+ *
+ * Usage example:
+ * const report = createErrorReport({ errorId: '123', error, errorInfo, environmentSource });
+ * sendErrorReportToSentry(report, error);
+ */
+export const sendErrorReportToSentry = (report: ErrorReport, error: Error): void => {
+  if (!isSentryEnabled()) {
+    return;
+  }
+
+  try {
+    Sentry.withScope((scope) => {
+      try {
+        scope.setContext('errorReport', {
+          errorId: report.errorId,
+          message: report.message,
+          timestamp: report.timestamp,
+        });
+
+        scope.setContext('environment', report.environment);
+
+        scope.setTag('error_report', 'true');
+
+        if (report.environment && report.environment.userId) {
+          scope.setTag('user_id', report.environment.userId);
+        }
+
+        if (report.errorId) {
+          scope.setTag('error_id', String(report.errorId));
+        }
+
+        if (report.componentStack) {
+          scope.setContext('react', { componentStack: report.componentStack });
+        }
+
+        // Default level for error reports
+        scope.setLevel('error');
+
+        Sentry.captureException(error);
+      } catch (inner) {
+        // If something goes wrong while setting scope data, log and still attempt capture
+        logger.warn('[sendErrorReportToSentry] Error while preparing Sentry scope:', inner);
+        try {
+          Sentry.captureException(error);
+        } catch (captureErr) {
+          logger.warn('[sendErrorReportToSentry] Failed to capture exception after scope failure:', captureErr);
+        }
+      }
+    });
+  } catch (sentryError) {
+    logger.warn('[sendErrorReportToSentry] Failed to send error report to Sentry:', sentryError);
+  }
 };

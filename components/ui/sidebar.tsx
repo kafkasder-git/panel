@@ -29,17 +29,7 @@ const SIDEBAR_WIDTH_MOBILE = '18rem';
 const SIDEBAR_WIDTH_ICON = '3rem';
 const SIDEBAR_KEYBOARD_SHORTCUT = 'b';
 
-interface SidebarContextProps {
-  state: 'expanded' | 'collapsed';
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  openMobile: boolean;
-  setOpenMobile: (open: boolean) => void;
-  isMobile: boolean;
-  toggleSidebar: () => void;
-}
-
-import { SidebarContext } from '../../contexts/SidebarContext';
+import { SidebarContext, type SidebarContextProps } from '../../contexts/SidebarContext';
 
 function SidebarProvider({
   defaultOpen = true,
@@ -71,7 +61,8 @@ function SidebarProvider({
       }
 
       // This sets the cookie to keep the sidebar state.
-      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+      const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}${secure}`;
     },
     [setOpenProp, open],
   );

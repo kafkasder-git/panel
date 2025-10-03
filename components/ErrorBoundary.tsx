@@ -11,6 +11,8 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
 import { logger } from '../lib/logging/logger';
+import * as Sentry from '@sentry/react';
+import { isSentryEnabled } from '../lib/environment';
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
@@ -41,6 +43,25 @@ export class ErrorBoundary extends Component<Props, State> {
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     logger.error('Uncaught error:', error, errorInfo);
     this.setState({ errorInfo });
+
+    // Send React component errors to Sentry for monitoring.
+    // The component stack is included to help identify which part of the component tree caused the failure.
+    // This block is protected with a try/catch to ensure Sentry integration failures do not break the app.
+    if (isSentryEnabled()) {
+      try {
+        // Use a scoped capture so we can enrich the event with component stack and boundary metadata.
+        Sentry.withScope((scope) => {
+          scope.setContext('errorInfo', { componentStack: errorInfo?.componentStack });
+          scope.setContext('errorBoundary', { hasError: true, errorMessage: error?.message });
+          scope.setTag('error_boundary', 'true');
+          scope.setLevel('error');
+          Sentry.captureException(error);
+        });
+      } catch (sentryErr) {
+        // Don't allow Sentry failures to impact app flow
+        logger.warn('Sentry capture failed inside ErrorBoundary:', sentryErr);
+      }
+    }
   }
 
   private readonly handleRetry = () => {
@@ -107,7 +128,7 @@ export class ErrorBoundary extends Component<Props, State> {
  * @param {Object} params - Function parameters
  * @returns {void} Nothing
  */
-// HOC for error boundary
+ // HOC for error boundary
 export const withErrorBoundary = <P extends object>(
   Component: React.ComponentType<P>,
   fallback?: ReactNode,

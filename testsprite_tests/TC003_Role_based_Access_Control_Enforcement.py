@@ -61,7 +61,7 @@ async def run_test():
         await page.wait_for_timeout(3000); await elem.click(timeout=5000)
         
 
-        # Input correct username 'isahamid095@gmail.com' and password 'Vadalov95.' and click login button
+        # Input correct username 'isahamid095@gmail.com' and password 'testpassword123' and click login button
         frame = context.pages[-1]
         elem = frame.locator('xpath=html/body/div/div/div[2]/div/div[2]/form/div/div/input').nth(0)
         await page.wait_for_timeout(3000); await elem.fill('isahamid095@gmail.com')

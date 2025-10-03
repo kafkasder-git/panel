@@ -161,12 +161,12 @@ export class SecurityMiddleware {
     sanitizedUrl.search = sanitizedSearchParams.toString();
 
     // Sanitize request body if present
-    let sanitizedBody = null;
+    let sanitizedBody: unknown = null;
     if (request.body && ['POST', 'PUT', 'PATCH'].includes(request.method)) {
       try {
         const body = await request.json();
         sanitizedBody = this.sanitizeObject(body);
-      } catch (error) {
+      } catch {
         // If body is not JSON, leave it as is
         sanitizedBody = request.body;
       }
@@ -176,7 +176,7 @@ export class SecurityMiddleware {
     return new NextRequest(sanitizedUrl, {
       method: request.method,
       headers: request.headers,
-      body: sanitizedBody ? JSON.stringify(sanitizedBody) : request.body,
+      body: sanitizedBody !== null ? JSON.stringify(sanitizedBody) : request.body,
     });
   }
 
@@ -246,7 +246,7 @@ export class SecurityMiddleware {
     for (const [pattern, config] of Object.entries(permissionMap)) {
       if (path.startsWith(pattern) && config.methods.includes(method)) {
         const hasPermission = config.permissions.some(
-          (permission) => user.role === permission ?? user.permissions.includes(permission),
+          (permission) => user.role === permission || user.permissions.includes(permission),
         );
 
         if (!hasPermission) {

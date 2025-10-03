@@ -17,10 +17,15 @@
 
 import { useCallback, useEffect, useState, memo, useMemo } from 'react';
 
+// Sentry utilities and environment metadata
+import { setSentryTags, setSentryContext, addSentryBreadcrumb } from './lib/sentryUtils';
+import { environment } from './lib/environment';
+
 // Core System Imports
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ToastProvider } from './components/ToastProvider';
-import { SupabaseAuthProvider, useSupabaseAuth } from './contexts/SupabaseAuthContext';
+import { SupabaseAuthProvider } from './contexts/SupabaseAuthContext';
+import { useSupabaseAuth } from './hooks/useSupabaseAuth';
 
 // App Management Components
 import NavigationProvider, { useNavigation } from './components/app/NavigationManager';
@@ -149,6 +154,17 @@ const AppContent = memo(() => {
       const action = actionMap[actionId as keyof typeof actionMap];
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (action) {
+        // Add breadcrumb for quick action
+        addSentryBreadcrumb(
+          'user-action',
+          `Quick action: ${actionId}`,
+          { 
+            actionId, 
+            module: action.module, 
+            subPage: action.subPage 
+          }
+        );
+
         navigation.setActiveModule(action.module);
         navigation.setCurrentSubPage(action.subPage);
       }
@@ -286,6 +302,58 @@ function AppWithErrorHandling() {
  * ```
  */
 function App() {
+  /**
+   * Application-level Sentry context and tags
+   *
+   * Set application-wide tags and structured context in Sentry once on app initialization.
+   * These tags and context entries will be included with all subsequent Sentry events and
+   * help filter and analyze errors by application name, version, environment mode, and
+   * feature flags (e.g. PWA, offline mode).
+   */
+  useEffect(() => {
+    try {
+      setSentryTags({
+        app_name: environment.app.name,
+        app_version: environment.app.version,
+        app_mode: environment.app.mode,
+        pwa_enabled: String(environment.features.pwa),
+        offline_mode: String(environment.features.offlineMode),
+      });
+
+      setSentryContext('application', {
+        name: environment.app.name,
+        version: environment.app.version,
+        mode: environment.app.mode,
+        features: {
+          pwa: environment.features.pwa,
+          analytics: environment.features.analytics,
+          monitoring: environment.features.monitoring,
+          offlineMode: environment.features.offlineMode,
+        },
+        timestamp: new Date().toISOString(),
+      });
+
+      // Add performance monitoring context
+      setSentryContext('performance', {
+        tracingSampleRate: environment.sentry.tracesSampleRate,
+        replaysSessionSampleRate: environment.sentry.replaysSessionSampleRate,
+        replaysOnErrorSampleRate: environment.sentry.replaysOnErrorSampleRate,
+        navigationTracking: true,
+        replayEnabled: environment.sentry.replaysSessionSampleRate > 0 || environment.sentry.replaysOnErrorSampleRate > 0,
+      });
+
+      // Add initial breadcrumb for app start
+      addSentryBreadcrumb('lifecycle', 'Application initialized', {
+        mode: environment.app.mode,
+        version: environment.app.version,
+      });
+    } catch {
+      // Defensive: sentryUtils already logs internally; swallow any unexpected errors here
+      // to ensure initialization does not break the app startup.
+      // No further action required.
+    }
+  }, []);
+
   return <AppWithErrorHandling />;
 }
 

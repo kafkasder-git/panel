@@ -6,7 +6,7 @@
  */
 
 import type { ReactNode } from 'react';
-import { useSupabaseAuth } from '../../contexts/SupabaseAuthContext';
+import { useSupabaseAuth } from '../../hooks/useSupabaseAuth';
 import { UserRole, type Permission } from '../../types/auth';
 import { UnauthorizedPage } from './UnauthorizedPage';
 import { LoadingSpinner } from '../LoadingSpinner';

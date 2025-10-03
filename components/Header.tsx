@@ -18,7 +18,7 @@ import {
   X,
 } from 'lucide-react';
 import { useState } from 'react';
-import { useSupabaseAuth } from '../contexts/SupabaseAuthContext';
+import { useSupabaseAuth } from '../hooks/useSupabaseAuth';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 // SearchInput removed - using basic search instead

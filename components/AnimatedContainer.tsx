@@ -70,7 +70,7 @@ export function AnimatedContainer({
     },
   };
 
-  const currentVariant = variants[variant] ?? variants.fadeIn;
+  const currentVariant = variants[variant];
 
   try {
     if (variant === 'stagger') {

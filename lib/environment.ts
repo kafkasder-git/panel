@@ -74,6 +74,18 @@ interface EnvironmentConfig {
     performanceLogging: boolean;
   };
 
+  // Sentry configuration
+  sentry: {
+    dsn: string;
+    environment: string;
+    release: string;
+    tracesSampleRate: number;
+    replaysSessionSampleRate: number;
+    replaysOnErrorSampleRate: number;
+    debug: boolean;
+    enabled: boolean;
+  };
+
   // External error tracking removed
 }
 
@@ -309,6 +321,20 @@ export const environment: EnvironmentConfig = {
     performanceLogging: getEnvBool('VITE_ENABLE_PERFORMANCE_LOGGING', true),
   },
 
+  sentry: {
+    dsn: getEnvVar('VITE_SENTRY_DSN', ''),
+    environment: getEnvVar('VITE_SENTRY_ENVIRONMENT', 'development'),
+    release: getEnvVar('VITE_SENTRY_RELEASE', ''),
+    tracesSampleRate: getEnvNumber('VITE_SENTRY_TRACES_SAMPLE_RATE', 0.0),
+    replaysSessionSampleRate: getEnvNumber('VITE_SENTRY_REPLAYS_SESSION_SAMPLE_RATE', 0.0),
+    replaysOnErrorSampleRate: getEnvNumber('VITE_SENTRY_REPLAYS_ON_ERROR_SAMPLE_RATE', 1.0),
+    debug: getEnvBool('VITE_SENTRY_DEBUG', false),
+    // Enabled only when DSN is provided and the sentry environment is not 'test'
+    enabled:
+      getEnvVar('VITE_SENTRY_DSN', '') !== '' &&
+      getEnvVar('VITE_SENTRY_ENVIRONMENT', 'development') !== 'test',
+  },
+
   // External error tracking configuration removed
 };
 
@@ -397,3 +423,6 @@ export const performanceLog = (metric: string, value: number, context?: unknown)
 
 // Export environment for global access
 export default environment;
+
+export const isSentryEnabled = (): boolean =>
+  environment.sentry.enabled && environment.sentry.dsn !== '';

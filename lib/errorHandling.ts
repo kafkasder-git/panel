@@ -6,6 +6,8 @@
 import { toast } from 'sonner';
 
 import { logger } from './logging/logger';
+import * as Sentry from '@sentry/react';
+import { isSentryEnabled } from './environment';
 // Error types for better categorization
 export enum ErrorType {
   NETWORK = 'NETWORK',
@@ -304,10 +306,80 @@ export class ErrorHandler {
   private reportError(error: AppError, context?: ErrorContext): void {
     // Only report high severity errors in production
     if (process.env.NODE_ENV === 'production' &&
-        (error.severity === ErrorSeverity.HIGH ?? error.severity === ErrorSeverity.CRITICAL)) {
+        (error.severity === ErrorSeverity.HIGH || error.severity === ErrorSeverity.CRITICAL)) {
 
-      // External error reporting can be configured here
-      // Currently no external error tracking service is configured
+      /**
+       * Send HIGH and CRITICAL severity errors to Sentry (if enabled).
+       *
+       * We include all available AppError metadata and any provided ErrorContext
+       * to help with debugging. Any errors thrown by Sentry integration are
+       * caught and logged to avoid cascading failures in the application.
+       */
+      if (!isSentryEnabled()) {
+        return;
+      }
+
+      try {
+        const errToSend: Error =
+          // If it's already an Error instance, use it
+          (error as unknown as Error) instanceof Error
+            ? (error as unknown as Error)
+            : new Error(error.message);
+
+        // Ensure we have a meaningful name and stack where possible
+        try {
+          if (!(errToSend as any).name || (errToSend as any).name === 'Error') {
+            (errToSend as any).name = 'AppError';
+          }
+          if (!errToSend.stack && error.details && (error.details as any).stack) {
+            errToSend.stack = String((error.details as any).stack);
+          }
+        } catch (inner) {
+          // ignore any issues when normalizing the Error for Sentry
+        }
+
+        // Use a scoped capture so we can attach structured context and tags
+        Sentry.withScope((scope) => {
+          // App error metadata
+          scope.setContext('appError', {
+            type: error.type,
+            severity: error.severity,
+            code: error.code,
+            userMessage: error.userMessage,
+            actionRequired: error.actionRequired,
+          });
+
+          // Provided error context (user/session/component/action/url/userAgent/etc.)
+          scope.setContext('errorContext', context ?? {});
+
+          // Tags for easier filtering in Sentry
+          scope.setTag('error_type', String(error.type));
+          scope.setTag('error_severity', String(error.severity));
+          scope.setTag('error_handler', 'true');
+
+          if (error.code !== undefined && error.code !== null) {
+            scope.setTag('error_code', String(error.code));
+          }
+
+          if (context?.component) {
+            scope.setTag('component', String(context.component));
+          }
+
+          if (context?.action) {
+            scope.setTag('action', String(context.action));
+          }
+
+          // Map severity to Sentry level
+          const level = error.severity === ErrorSeverity.CRITICAL ? 'fatal' : 'error';
+          scope.setLevel(level as any);
+
+          // Finally capture the exception
+          Sentry.captureException(errToSend);
+        });
+      } catch (sentryErr) {
+        // Log Sentry integration failures but do not throw
+        logger.warn('Sentry capture failed:', (sentryErr as Error).message ?? sentryErr);
+      }
     }
   }
 

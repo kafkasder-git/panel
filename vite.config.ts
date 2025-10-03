@@ -1,8 +1,17 @@
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import { sentryVitePlugin } from '@sentry/vite-plugin';
 // import { visualizer } from 'rollup-plugin-visualizer'; // Temporarily disabled for Netlify deployment
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+
+const hasSentryAuthToken = Boolean(process.env.VITE_SENTRY_AUTH_TOKEN);
+
+if (hasSentryAuthToken) {
+  console.log('✅ Sentry plugin enabled with source map upload');
+} else {
+  console.log('⚠️ Sentry plugin skipped (no auth token)');
+}
 
 export default defineConfig({
   esbuild: {
@@ -97,6 +106,30 @@ export default defineConfig({
         prefer_related_applications: false,
       },
     }),
+    // Conditionally include the Sentry plugin with source map uploads when the auth token is available.
+    // Hidden source maps are uploaded to Sentry during build and deleted afterward to prevent public exposure.
+    ...(hasSentryAuthToken
+      ? [
+          sentryVitePlugin({
+            org: process.env.VITE_SENTRY_ORG,
+            project: process.env.VITE_SENTRY_PROJECT,
+            authToken: process.env.VITE_SENTRY_AUTH_TOKEN,
+            telemetry: false,
+            silent: false,
+            sourcemaps: {
+              assets: ['./dist/**/*.js', './dist/**/*.js.map'],
+              ignore: ['node_modules'],
+              filesToDeleteAfterUpload: ['./dist/**/*.js.map'],
+            },
+            release: {
+              name: process.env.VITE_SENTRY_RELEASE,
+            },
+            errorHandler: (err) => {
+              console.warn('Sentry source map upload warning:', err);
+            },
+          }),
+        ]
+      : []),
     // Temporarily disabled for Netlify deployment
     // visualizer({
     //   filename: 'dist/bundle-analysis.html',
@@ -173,7 +206,9 @@ export default defineConfig({
         return ['virtual:pwa-register'].includes(id);
       },
     },
-    sourcemap: false, // Production'da sourcemap kapalı
+    // 'hidden' generates source maps without referencing them in built assets, allowing Sentry to consume them securely.
+    // Unlike `true`, hidden source maps are not publicly exposed and are cleaned up after upload.
+    sourcemap: 'hidden',
     minify: 'terser',
     terserOptions: {
       compress: {

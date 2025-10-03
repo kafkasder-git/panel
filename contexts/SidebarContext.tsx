@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 export interface SidebarContextProps {
+  state: 'expanded' | 'collapsed';
   open: boolean;
   setOpen: (open: boolean) => void;
   openMobile: boolean;

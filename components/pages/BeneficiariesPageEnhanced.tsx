@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { useSupabaseAuth } from '../../contexts/SupabaseAuthContext';
+import { useSupabaseAuth } from '../../hooks/useSupabaseAuth';
 import {
   ihtiyacSahipleriService,
   type IhtiyacSahibi,

@@ -1,5 +1,8 @@
 [build]
-  command = "SECRETS_SCAN_ENABLED=false npm run build"
+  # VITE_SENTRY_RELEASE is set to the Git commit SHA during build (Netlify provides $COMMIT_REF).
+  # This allows Sentry to associate errors with specific deployments and enables uploading
+  # source maps for the release during build if Sentry credentials are configured.
+  command = "SECRETS_SCAN_ENABLED=false VITE_SENTRY_RELEASE=$COMMIT_REF npm run build"
   publish = "dist"
 
 [build.environment]
@@ -10,6 +13,17 @@
   NETLIFY_USE_YARN = "false"
   NETLIFY_USE_NPM = "true"
 
+# Sentry Configuration (set these in Netlify dashboard: Site settings > Environment variables)
+# - VITE_SENTRY_AUTH_TOKEN: Required for source map upload (create in Sentry: Settings > Developer Settings > Auth Tokens).
+#   Create a token with `project:releases` and `org:read` scopes. This is sensitive — do NOT commit to Git.
+#   Set this token as a secret in Netlify (Site settings > Environment variables).
+# - VITE_SENTRY_ORG: Your Sentry organization slug (e.g., my-organization). Required for source map upload.
+# - VITE_SENTRY_PROJECT: Your Sentry project slug (e.g., my-project). Required for source map upload.
+# - VITE_SENTRY_DSN: Your Sentry DSN for runtime error tracking.
+# - VITE_SENTRY_ENVIRONMENT: Set to 'production' for production builds (or 'staging' for previews).
+# These SHOULD be set as environment variables in the Netlify dashboard, NOT in this file.
+# Reference: https://docs.netlify.com/environment-variables/overview/
+
 # SPA routing için redirect
 [[redirects]]
   from = "/*"
@@ -19,10 +33,14 @@
 # Production environment
 [context.production.environment]
   NODE_ENV = "production"
+  # Tag this deployment as 'production' in Sentry
+  VITE_SENTRY_ENVIRONMENT = "production"
 
 # Branch deploy için
 [context.deploy-preview.environment]
   NODE_ENV = "production"
+  # Tag preview/branch deploys as 'staging' in Sentry for easier filtering
+  VITE_SENTRY_ENVIRONMENT = "staging"
 
 # Cache ayarları - Static assets
 [[headers]]
@@ -102,3 +120,16 @@
 # - Netlify Analytics (opsiyonel)
 # - Web Vitals monitoring
 
+# 🚀 DEPLOYMENT INSTRUCTIONS FOR SENTRY SOURCE MAPS
+# 1) Create a Sentry auth token with the following scopes: `project:releases` and `org:read`.
+# 2) In the Netlify dashboard (Site settings > Environment variables) add the following environment variables:
+#    - VITE_SENTRY_AUTH_TOKEN  (sensitive — mark as secret)
+#    - VITE_SENTRY_ORG
+#    - VITE_SENTRY_PROJECT
+#    - VITE_SENTRY_DSN
+# 3) Trigger a new deployment on Netlify (the build command sets VITE_SENTRY_RELEASE=$COMMIT_REF).
+# 4) Verify source maps are uploaded in Sentry: Project Settings > Source Maps (you should see a release for the commit SHA).
+# 5) Test error tracking with source maps by triggering a test error and confirming stack traces are symbolicated.
+#
+# Note: Source maps are intended to be uploaded during the build and deleted afterward (to avoid public exposure).
+# Warning: NEVER commit VITE_SENTRY_AUTH_TOKEN or other sensitive secrets into Git. Always set them in the Netlify dashboard.

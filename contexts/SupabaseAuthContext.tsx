@@ -6,13 +6,24 @@
  */
 
 import type { Session, User } from '@supabase/supabase-js';
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useEffect, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 
 import { logger } from '../lib/logging/logger';
+
+// Type guard to safely extract error message from unknown errors
+function isErrorWithMessage(error: unknown): error is { message: string } {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as { message: unknown }).message === 'string'
+  );
+}
+
 // Supabase Auth Context Types
-interface SupabaseAuthContextType {
+export interface SupabaseAuthContextType {
   user: User | null;
   session: Session | null;
   isAuthenticated: boolean;
@@ -25,7 +36,7 @@ interface SupabaseAuthContextType {
   clearError: () => void;
 }
 
-const SupabaseAuthContext = createContext<SupabaseAuthContextType | undefined>(undefined);
+export const SupabaseAuthContext = createContext<SupabaseAuthContextType | undefined>(undefined);
 
 interface SupabaseAuthProviderProps {
   children: ReactNode;
@@ -63,7 +74,7 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
           setError(error.message);
         } else if (mounted) {
           setSession(session);
-          setUser(session?.user ?? null);
+          setUser(session ? session.user : null);
         }
 
         // Setup auth state listener only after initial session check
@@ -76,7 +87,7 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
 
             if (mounted) {
               setSession(session);
-              setUser(session?.user ?? null);
+              setUser(session ? session.user : null);
               setIsLoading(false);
 
         // Handle auth events
@@ -139,14 +150,17 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
 
     // Check if Supabase is properly configured
     if (!isSupabaseConfigured()) {
-      // Mock authentication for development
+      // DEMO CREDENTIALS FOR DEVELOPMENT ONLY - NOT FOR PRODUCTION OR SECRETS
+      // These are intentionally non-secret and only for local demo mode
       logger.info('Using mock authentication - Supabase not configured');
 
       // Simulate a delay
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Mock successful login with demo credentials
-      if (email === 'demo@example.com' && password === 'demo123') {
+      const demoEmail = import.meta.env.VITE_DEMO_EMAIL ?? 'demo@example.com';
+      const demoPassword = import.meta.env.VITE_DEMO_PASSWORD ?? 'demo123';
+      if (email === demoEmail && password === demoPassword) {
         const mockUser = {
           id: 'mock-user-id',
           email,
@@ -182,9 +196,9 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
         toast.success('Demo modunda giriş yapıldı');
         return;
       }
-      setError('Demo için: demo@example.com / demo123 kullanın');
+      setError(`Demo için: ${demoEmail} / ${demoPassword} kullanın`);
       setIsLoading(false);
-      toast.error('Demo için: demo@example.com / demo123 kullanın');
+      toast.error(`Demo için: ${demoEmail} / ${demoPassword} kullanın`);
       return;
     }
 
@@ -199,23 +213,23 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
       }
 
       // Success is handled by onAuthStateChange
-    } catch (error: any) {
+    } catch (error: unknown) {
       let errorMessage = 'Giriş yapılamadı';
-
-      switch (error.message) {
-        case 'Invalid login credentials':
-          errorMessage = 'Geçersiz email veya şifre';
-          break;
-        case 'Email not confirmed':
-          errorMessage = 'Email adresinizi doğrulayın';
-          break;
-        case 'Too many requests':
-          errorMessage = 'Çok fazla deneme. Lütfen bekleyin';
-          break;
-        default:
-          errorMessage = error.message ?? 'Giriş yapılamadı';
+      if (isErrorWithMessage(error)) {
+        switch (error.message) {
+          case 'Invalid login credentials':
+            errorMessage = 'Geçersiz email veya şifre';
+            break;
+          case 'Email not confirmed':
+            errorMessage = 'Email adresinizi doğrulayın';
+            break;
+          case 'Too many requests':
+            errorMessage = 'Çok fazla deneme. Lütfen bekleyin';
+            break;
+          default:
+            errorMessage = error.message;
+        }
       }
-
       setError(errorMessage);
       toast.error(errorMessage, { duration: 4000 });
       throw new Error(errorMessage);
@@ -254,20 +268,20 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
       }
 
       toast.success('Kayıt başarılı! Email adresinizi kontrol edin.', { duration: 5000 });
-    } catch (error: any) {
+    } catch (error: unknown) {
       let errorMessage = 'Kayıt olunamadı';
-
-      switch (error.message) {
-        case 'User already registered':
-          errorMessage = 'Bu email adresi zaten kayıtlı';
-          break;
-        case 'Password should be at least 6 characters':
-          errorMessage = 'Şifre en az 6 karakter olmalı';
-          break;
-        default:
-          errorMessage = error.message ?? 'Kayıt olunamadı';
+      if (isErrorWithMessage(error)) {
+        switch (error.message) {
+          case 'User already registered':
+            errorMessage = 'Bu email adresi zaten kayıtlı';
+            break;
+          case 'Password should be at least 6 characters':
+            errorMessage = 'Şifre en az 6 karakter olmalı';
+            break;
+          default:
+            errorMessage = error.message;
+        }
       }
-
       setError(errorMessage);
       toast.error(errorMessage, { duration: 4000 });
       throw new Error(errorMessage);
@@ -307,7 +321,7 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
       setSession(null);
 
       toast.success('Çıkış yapıldı', { duration: 2000 });
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Even if Supabase API fails completely, clear local state
       logger.error('SignOut error (clearing local state anyway):', error);
       setUser(null);
@@ -341,8 +355,11 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
       }
 
       toast.success('Şifre sıfırlama bağlantısı email adresinize gönderildi', { duration: 5000 });
-    } catch (error: any) {
-      const errorMessage = error.message ?? 'Şifre sıfırlama başarısız';
+    } catch (error: unknown) {
+      let errorMessage = 'Şifre sıfırlama başarısız';
+      if (isErrorWithMessage(error)) {
+        errorMessage = error.message;
+      }
       setError(errorMessage);
       toast.error(errorMessage, { duration: 4000 });
       throw new Error(errorMessage);
@@ -373,16 +390,4 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
   );
 }
 
-/**
- * useSupabaseAuth function
- *
- * @param {Object} params - Function parameters
- * @returns {void} Nothing
- */
-export function useSupabaseAuth(): SupabaseAuthContextType {
-  const context = useContext(SupabaseAuthContext);
-  if (context === undefined) {
-    throw new Error('useSupabaseAuth must be used within a SupabaseAuthProvider');
-  }
-  return context;
-}
+

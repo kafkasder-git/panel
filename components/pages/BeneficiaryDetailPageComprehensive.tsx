@@ -530,7 +530,7 @@ export function BeneficiaryDetailPageComprehensive({
       setBeneficiaryData(editableData);
       toast.success('İhtiyaç sahibi bilgileri başarıyla güncellendi');
       setEditMode(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('❌ Error updating beneficiary:', error);
       toast.error('Güncelleme sırasında beklenmeyen hata oluştu');
     }

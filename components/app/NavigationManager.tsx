@@ -9,6 +9,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import { useUserPreferences } from '../../hooks/useLocalStorage';
 // import { useUXAnalytics } from '../../components/ux/hooks/useUXAnalytics';
 import monitoringService from '../../services/monitoringService';
+import { addSentryBreadcrumb } from '../../lib/sentryUtils';
 
 /**
  * NavigationState Interface
@@ -117,6 +118,14 @@ export function NavigationProvider({
         loading: false,
         selectedBeneficiaryId: null, // Reset selected beneficiary on module change
       }));
+      
+      // Add navigation breadcrumb
+      addSentryBreadcrumb('navigation', `Module changed: ${moduleId}`, {
+        previousModule: navigationState.activeModule,
+        newModule: moduleId,
+        source: 'sidebar',
+      });
+
       monitoringService.trackFeatureUsage('navigation', 'module_change', { moduleId });
       updatePreference('lastModule', moduleId);
     },
@@ -141,8 +150,14 @@ export function NavigationProvider({
         currentSubPage: subPage,
         loading: false,
       }));
+
+      // Add navigation breadcrumb for sub-page changes
+      addSentryBreadcrumb('navigation', `Sub-page changed: ${subPage}`, {
+        subPage,
+        currentModule: navigationState.activeModule,
+      });
     },
-    [],
+    [navigationState.activeModule],
   );
 
   const setLoading = useCallback((isLoading: boolean) => {
@@ -183,6 +198,7 @@ export function NavigationProvider({
   );
 
   const navigateToProfile = useCallback(() => {
+    addSentryBreadcrumb('navigation', 'Navigated to profile', { target: 'profile' });
     setNavigationState({
       activeModule: 'profile',
       currentPage: 'profile',
@@ -193,6 +209,7 @@ export function NavigationProvider({
   }, []);
 
   const navigateToSettings = useCallback(() => {
+    addSentryBreadcrumb('navigation', 'Navigated to settings', { target: 'settings' });
     setNavigationState({
       activeModule: 'settings',
       currentPage: 'settings',
