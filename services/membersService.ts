@@ -5,6 +5,7 @@ import { logger } from '../lib/logging/logger';
 export interface Member {
   id: string; // UUID
   name: string;
+  surname: string; // Required in database
   email: string;
   phone?: string;
   avatar_url?: string;
@@ -385,6 +386,7 @@ export class MembersService {
         .insert([
           {
             name: memberData.name!,
+            surname: memberData.surname!,
             email: memberData.email!,
             phone: memberData.phone,
             avatar_url: memberData.avatar_url,

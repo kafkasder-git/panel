@@ -155,7 +155,20 @@ export function MembersPage() {
     try {
       setIsSubmitting(true);
 
-      const result = await membersService.createMember(formData as any);
+      // Map form fields to database schema
+      const memberData = {
+        name: formData.first_name,
+        surname: formData.last_name,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        city: formData.city,
+        membership_type: formData.membership_type,
+        membership_status: formData.membership_status,
+        notes: formData.notes,
+      };
+
+      const result = await membersService.createMember(memberData as any);
 
       if (result.error) {
         toast.error(result.error);
@@ -396,15 +409,12 @@ export function MembersPage() {
                           <div className="flex flex-1 items-center gap-3">
                             <Avatar className="h-12 w-12">
                               <AvatarFallback className="bg-corporate text-sm font-medium text-white">
-                                {member.name
-                                  .split(' ')
-                                  .map((n) => n[0])
-                                  .join('')
-                                  .slice(0, 2)}
+                                {member.name.charAt(0)}
+                                {member.surname?.charAt(0) || ''}
                               </AvatarFallback>
                             </Avatar>
                             <div className="min-w-0 flex-1">
-                              <h3 className="truncate font-medium text-gray-900">{member.name}</h3>
+                              <h3 className="truncate font-medium text-gray-900">{member.name} {member.surname}</h3>
                               <p className="truncate text-sm text-gray-600">{member.email}</p>
                               <p className="text-xs text-gray-500">
                                 {member.phone ?? 'Telefon yok'}
@@ -427,7 +437,7 @@ export function MembersPage() {
                             variant="ghost"
                             size="sm"
                             className="min-h-[44px] min-w-[44px] p-2 text-blue-600 hover:text-blue-700"
-                            onClick={() => toast.info(`${member.name} detayları görüntüleniyor`)}
+                            onClick={() => toast.info(`${member.name} ${member.surname} detayları görüntüleniyor`)}
                             aria-label="Görüntüle"
                           >
                             <Eye className="h-4 w-4" />
@@ -516,12 +526,12 @@ export function MembersPage() {
                               <AvatarImage src={member.avatar_url ?? ''} />
                               <AvatarFallback className="bg-blue-100 text-blue-600">
                                 {(member.name ?? 'U').charAt(0)}
-                                {(member.name ?? '').split(' ')[1]?.charAt(0) || 'N'}
+                                {(member.surname ?? 'N').charAt(0)}
                               </AvatarFallback>
                             </Avatar>
                             <div className="min-w-0 flex-1">
                               <div className="truncate font-medium">
-                                {member.name ?? 'Bilinmeyen Üye'}
+                                {member.name} {member.surname}
                               </div>
                             </div>
                           </div>
