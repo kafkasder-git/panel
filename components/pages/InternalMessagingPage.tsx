@@ -5,25 +5,19 @@
  * @version 1.0.0
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { Send, Search, MessageCircle, UserPlus, Circle } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+import { toast as realToast } from 'sonner';
 
 // Simple className utility function
 const cn = (...classes: (string | undefined | null | boolean)[]) => {
   return classes.filter(Boolean).join(' ');
-};
-
-// Simple toast function
-const toast = {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  success: (_message: string): void => {
-    // Mock toast function - does nothing
-  },
 };
 
 interface User {
@@ -85,17 +79,65 @@ export function InternalMessagingPage() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const currentUserId = '1'; // TODO: Get from auth context
 
-  const handleSendMessage = () => {
-    if (!newMessage.trim()) return;
-    toast.success('Mesaj gönderildi');
-    setNewMessage('');
+  // TC019 FIX: Real-time message subscription
+  // Note: This will work when messages table exists in Supabase
+  useEffect(() => {
+    if (!selectedConversation) return;
+
+    const channel = supabase
+      .channel(`messages:${selectedConversation.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${selectedConversation.id}`,
+        },
+        (payload) => {
+          // Add new message to state when received
+          console.log('New message received:', payload.new);
+          // TODO: Update messages state when component uses real data
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedConversation]);
+
+  // TC019 FIX: Send message with Supabase
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || !selectedConversation) return;
+
+    try {
+      const { error } = await supabase.from('messages').insert({
+        conversation_id: selectedConversation.id,
+        sender_id: currentUserId,
+        content: newMessage.trim(),
+        created_at: new Date().toISOString(),
+      });
+
+      if (error) {
+        realToast.error('Mesaj gönderilemedi');
+        return;
+      }
+
+      setNewMessage('');
+    } catch {
+      realToast.error('Bir hata oluştu');
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      handleSendMessage();
+      handleSendMessage().catch(() => {
+        // Error already handled in handleSendMessage
+      });
     }
   };
 

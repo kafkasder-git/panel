@@ -6,13 +6,13 @@
   "loginUser": "isahamid095@gmail.com",
   "loginPassword": "Vadalov95.",
   "executionArgs": {
-    "projectName": "kafkasder-management-panel",
-    "projectPath": "c:\\Users\\isaha\\panel-3",
+    "projectName": "panel-3",
+    "projectPath": "C:\\Users\\isaha\\panel-3",
     "testIds": [],
     "additionalInstruction": "",
     "envs": {
-      "API_KEY": "sk-user-oNIBEsPoFtqYvu1FIfYVQ0KOOfudM-L078DyJF2PS4iJUnXKNQ5Y2dMAuBZZVQPn7evz_fv5dxkVdAQqwcrBhBGk1vwHz8Tk5XK1q2i1UzCDtd5-Hkz_G5V-ptpA-mVDjRQ"
+      "API_KEY": "sk-user-huZNTlAZ83EW2WoCjdub6vXacVhPsIRnsiV4M0lS_Yeq6GI2kM0oZpUINrCh4BcLbV9s4sjSOkiogDy65FrS_9XjgWI1fe7itdzyyIOIYOq8WQkKCDhdtzuouTyIXJDYlbg"
     }
   },
-  "proxy": "http://63c00cdb-68f8-4c5f-95f9-bce7b7c1717d:ugZPwnKqOA8zHv9dSlKcZf25ZLUEk2oX@tun.testsprite.com:8080"
+  "proxy": "http://c75029fa-1243-416d-9131-aacec787a959:fRtGWnmPlQNoWZ30J8qno2D9Vo0fp46j@tun.testsprite.com:8080"
 }

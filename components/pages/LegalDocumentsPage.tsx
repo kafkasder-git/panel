@@ -64,6 +64,9 @@ export function LegalDocumentsPage() {
     relatedCase: '',
     description: '',
   });
+  
+  // TC009 FIX: File upload state
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const filteredDocuments = documents.filter((doc) => {
     const matchesSearch =
@@ -115,11 +118,24 @@ export function LegalDocumentsPage() {
   const approvedDocs = documents.filter((d) => d.status === 'onaylandi').length;
   const pendingDocs = documents.filter((d) => d.status === 'bekliyor').length;
 
+  // TC009 FIX: File change handler
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.name || !formData.type || !formData.category) {
       toast.error('Lütfen zorunlu alanları doldurun');
+      return;
+    }
+
+    // TC009 FIX: Validate file selection
+    if (!selectedFile) {
+      toast.error('Lütfen yüklenecek dosyayı seçin');
       return;
     }
 
@@ -443,12 +459,26 @@ export function LegalDocumentsPage() {
               />
             </div>
 
-            {/* File Upload Input */}
+            {/* TC009 FIX: File Upload Input with proper handler */}
             <div className="space-y-2">
-              <Label htmlFor="file">Dosya Seç</Label>
-              <Input id="file" type="file" accept=".pdf,.doc,.docx" className="cursor-pointer" />
+              <Label htmlFor="file-upload">
+                Dosya Seç <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="file-upload"
+                type="file"
+                accept=".pdf,.doc,.docx,.jpg,.png"
+                onChange={handleFileChange}
+                aria-label="Hukuki belge yükle"
+                className="cursor-pointer"
+              />
+              {selectedFile && (
+                <p className="text-sm text-green-600">
+                  ✓ Seçilen: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(2)} KB)
+                </p>
+              )}
               <p className="text-muted-foreground text-xs">
-                Desteklenen formatlar: PDF, DOC, DOCX (Maks. 10MB)
+                Desteklenen formatlar: PDF, DOC, DOCX, JPG, PNG (Maks. 10MB)
               </p>
             </div>
 

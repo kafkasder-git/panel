@@ -1,349 +1,379 @@
 {
   "meta": {
-    "project": "Kafkasder Dernek Yönetim Sistemi",
+    "project": "Community Aid Management System",
     "date": "2025-09-29",
     "prepared_by": "AI Assistant"
   },
-  "product_overview": "Kafkasder Dernek Yönetim Sistemi, modern, güvenli ve ölçeklenebilir bir dernek yönetim uygulamasıdır. React, TypeScript ve Supabase teknolojileri ile geliştirilmiş kapsamlı modüller içerir ve Netlify üzerinde PWA olarak deploy edilmiştir.",
+  "product_overview": "Community Aid Management System is a comprehensive platform designed to manage beneficiaries, members, donations, aid applications, legal and healthcare services, and internal communications. It integrates advanced database enhancements for better performance, security, and search capabilities, delivering a seamless experience for users including administrators and service personnel.",
   "core_goals": [
-    "Kullanıcıların güvenli şekilde üyelik kaydı, güncelleme ve yönetim işlemlerini yapabilmesi",
-    "Bağışların kayıt altına alınması, takibi, tekrarlayan bağışların ve raporlamanın sağlanması",
-    "İhtiyaç sahiplerinin kaydı, başvuruları, sağlık durumları ve yardım geçmişlerinin yönetilmesi",
-    "Yardım başvurusu, dağıtımı ve banka ödeme emirlerinin işlendiği entegre sistem sağlanması",
-    "Burs ve etkinlik yönetimi ile kurumun sosyal sorumluluk faaliyetlerinin desteklenmesi",
-    "Finansal işlemler, raporlama, bütçe yönetimi ve hukuki süreçlerin yönetilmesi",
-    "Kullanıcı deneyimi ve erişilebilirlik standartlarına uyumlu, yüksek performanslı PWA yapı sunmak"
+    "Extend and optimize the database schemas for members and donations to improve data richness and query performance without downtime or data loss.",
+    "Enhance data integrity and type safety by migrating key identifiers to UUID standards and synchronizing service types accordingly.",
+    "Implement automated generation of membership numbers and donation receipt numbers to streamline workflows.",
+    "Enable powerful full-text search functionalities optimized for Turkish language for members and donations data.",
+    "Provide real-time analytics and reporting features through materialized views and dashboard enhancements.",
+    "Rectify critical UI/UX bugs across multiple core pages to ensure smooth user interactions and form submissions.",
+    "Ensure robust authentication, authorization, and security measures including CSRF and XSS protection, with permission-based access control.",
+    "Improve accessibility compliance to meet WCAG 2.1 AA standards for inclusive user experience.",
+    "Deliver a high-quality, production-ready codebase with comprehensive testing, error handling, and logging support."
   ],
   "key_features": [
-    "Kapsamlı Authentication & Authorization: Rol tabanlı erişim ve korunan rotalar",
-    "Üye Yönetimi: Profil, üyelik aidatları ve takip sistemi",
-    "Bağış Yönetimi: Bağış takibi, makbuz oluşturma ve analiz",
-    "İhtiyaç Sahipleri Yönetimi: Kişisel, aile, mali ve sağlık bilgilerinin takibi",
-    "Yardım Başvuru ve Dağıtım: Nakdi ve ayni yardımlar ile banka ödeme emirleri",
-    "Burs Yönetimi: Burs öğrenci kayıt ve başvuru takip",
-    "Finans & Muhasebe: Gelir-gider takibi ve mali raporlama",
-    "Hukuki Hizmetler: Avukat atamaları, dava takibi ve belge yönetimi",
-    "Hastane Sevk Sistemi: Randevu yönetimi ve sevk işlemleri",
-    "Etkinlik ve Envanter Yönetimi: Katılımcı ve stok takibi",
-    "Bildirim Sistemi ve İç Mesajlaşma",
-    "Dashboard & İstatistikler: Grafikler ve gelişmiş analizler",
-    "Gelişmiş Arama & Filtreleme",
-    "Formlar & Doğrulama: React Hook Form ve Zod ile",
-    "Veri Import/Export ve Performans Optimizasyonu",
-    "PWA, Offline destek ve background sync",
-    "UI kütüphanesi ve UX iyileştirmeleri"
+    "Hybrid (Non-Destructive) Database Migration extending Members and Donations tables with 81 new columns across both, including personal, payment, and metadata fields.",
+    "Full-text search indexes in Turkish for efficient search on members and donations.",
+    "UUID migration for primary keys in members and donations services ensuring type compatibility and improved data integrity.",
+    "Auto-generation triggers for membership numbers (e.g., MEM-2025-000001) and donation receipt numbers (e.g., RCP-2025-a1b2c3d4).",
+    "Advanced analytics views providing donor-type based and monthly summarized donation statistics.",
+    "Fixes and UI enhancements on critical pages: Members, Legal Documents, Aid Applications, Finance Income, InKind Aid Transactions, Hospital Referral ensuring flawless forms and dialogs.",
+    "Comprehensive authentication system integrating Supabase with robust permission guards and refresh token mechanisms.",
+    "Accessibility enhancements to satisfy WCAG 2.1 AA including ARIA support and keyboard navigability.",
+    "Improved error handling with centralized logging and notification systems.",
+    "Performance optimizations including additional indexing, caching strategies, and query tuning."
   ],
   "user_flow_summary": [
-    "Kullanıcılar sisteme login olarak yetkilerine göre erişim sağlar",
-    "Üyeler sayfasından yeni üye kayıt işlemi yapılır ve üye bilgileri güncellenir",
-    "Bağışlar sayfasında bağış kaydı, düzenleme ve raporlama gerçekleştirir",
-    "İhtiyaç sahipleri modülünde detaylı kayıt, durum takibi ve yardım başvurusu yapılır",
-    "Yardım başvuruları listelenir, onay süreçleri yönetilir ve yardımlar dağıtılır",
-    "Burs ve etkinlikler modüllerinde ilgili kayıtlar ve başvurular takip edilir",
-    "Hastane sevk sistemi üzerinden randevular ayarlanır ve sevkler yönetilir",
-    "Kullanıcılar arayüzde bildirim alır, mesajlaşma yapar ve dashboardda anlık verileri görüntüler"
+    "User logs in via secure authentication system with permission-based access control protecting sensitive routes.",
+    "Users navigate through modules such as Members, Donations, Aid Applications, Legal and Healthcare services using the improved navigation and routing system.",
+    "Member registration or donation form submission processes trigger backend validation, auto-number generation and update extended database tables accordingly.",
+    "Administrative users access the analytics dashboard to review donor statistics and monthly summaries in real time.",
+    "Users leverage advanced search features with Turkish full-text search to locate specific members or donations efficiently.",
+    "Users upload legal documents, schedule hospital referrals, and track aid distributions through user-friendly dialogs and interfaces.",
+    "Errors and system notifications are handled gracefully and visible to users with enhanced notification center capabilities."
   ],
   "validation_criteria": [
-    "Tüm temel özellikler, kullanıcı işlemleri, form doğrulamaları ve erişim kontrolleri eksiksiz çalışmalı",
-    "Üye, bağış, ihtiyaç sahibi, yardım başvuruları ve burs kayıtları sorunsuz yönetilebilmeli",
-    "Deployment sonrası PWA servis çalışanları ve manifest düzgün aktif olmalı",
-    "Netlify environment variables doğru ayarlanmalı ve güvenlik header'ları etkin olmalı",
-    "Database şemaları Supabase migration dosyalarına uygun olmalı, 400 hataları olmamalı",
-    "Kritik sayfalardaki dialog ve onClick handlerları sorunsuz çalışmalı",
-    "TestSprite testlerinde yüksek başarı ve güvenlik açığı bulunmamalı",
-    "Performans optimizasyonları (code splitting, lazy loading, caching) etkin olmalı"
+    "Successful completion of hybrid database migration with extended schemas and zero data loss.",
+    "All affected services compile without type errors after UUID migration in member and donation IDs.",
+    "Automated generation of membership and receipt numbers verified through multiple form submissions.",
+    "Full-text search queries return expected results with Turkish language relevance.",
+    "Analytics views load summarized donation data correctly consistent with raw data.",
+    "Fixed UI pages function correctly including form dialog submissions and data updates.",
+    "Authentication and permission systems enforce access restrictions properly ensuring security.",
+    "Accessibility audits confirm WCAG 2.1 AA compliance with proper ARIA labeling and keyboard navigation.",
+    "Test coverage improved substantially with a target success rate increase from 37% to approximately 55-60%.",
+    "No critical runtime errors or warnings recorded during testing and user acceptance phases.",
+    "Performance benchmarks show improved query response times due to new indexing and caching improvements."
   ],
   "code_summary": {
     "tech_stack": [
       "TypeScript",
-      "React 18",
-      "Vite",
-      "Supabase",
-      "PostgreSQL",
-      "Tailwind CSS",
+      "React 18.3.1",
+      "Vite 7.1.8",
+      "Supabase (PostgreSQL)",
+      "Tailwind CSS 4.0",
       "Radix UI",
+      "Zustand (State Management)",
       "React Hook Form",
-      "Zod",
-      "Zustand",
-      "TanStack Query",
-      "Recharts",
-      "Lucide Icons",
-      "PWA (Vite Plugin)"
+      "Zod (Validation)",
+      "TanStack React Query",
+      "Vitest (Testing)",
+      "Playwright (E2E Testing)"
     ],
     "features": [
       {
-        "name": "Authentication & Authorization",
-        "description": "User authentication with Supabase, protected routes, permission guards, and role-based access control",
+        "name": "Authentication System",
+        "description": "Comprehensive authentication system with Supabase integration, protected routes, and permission-based access control",
         "files": [
+          "contexts/AuthContext.tsx",
+          "contexts/SupabaseAuthContext.tsx",
           "components/auth/LoginPage.tsx",
           "components/auth/ProtectedRoute.tsx",
           "components/auth/PermissionGuard.tsx",
-          "contexts/SupabaseAuthContext.tsx",
-          "contexts/AuthContext.tsx"
+          "components/auth/UnauthorizedPage.tsx",
+          "stores/authStore.ts",
+          "hooks/useTokenRefresh.ts",
+          "hooks/usePermissions.ts"
         ]
       },
       {
         "name": "Member Management",
-        "description": "Comprehensive member registration, profile management, membership fees tracking with UUID-based database",
+        "description": "Complete member registration, search, filtering, and management system with advanced features",
         "files": [
           "components/pages/MembersPage.tsx",
           "components/pages/NewMemberPage.tsx",
           "components/pages/MembershipFeesPage.tsx",
-          "services/membersService.ts"
-        ]
-      },
-      {
-        "name": "Donations Management",
-        "description": "Donation tracking, receipt generation, donor management, recurring donations with analytics views",
-        "files": [
-          "components/pages/DonationsPage.tsx",
-          "components/pages/KumbaraPage.tsx",
-          "services/donationsService.ts",
-          "services/kumbaraService.ts",
-          "components/kumbara/KumbaraForm.tsx"
+          "services/membersService.ts",
+          "hooks/useMembers.ts",
+          "types/database.ts"
         ]
       },
       {
         "name": "Beneficiary Management",
-        "description": "İhtiyaç sahipleri yönetimi, aile bilgileri, mali durum, sağlık bilgileri ve evrak takibi",
+        "description": "Comprehensive beneficiary (ihtiyaç sahipleri) tracking system with personal info, family details, health info, financial data, and documents",
         "files": [
           "components/pages/BeneficiariesPageEnhanced.tsx",
           "components/pages/BeneficiaryDetailPageComprehensive.tsx",
           "components/beneficiary/BeneficiaryPersonalInfo.tsx",
-          "components/beneficiary/BeneficiaryFinancial.tsx",
           "components/beneficiary/BeneficiaryFamily.tsx",
           "components/beneficiary/BeneficiaryHealthInfo.tsx",
+          "components/beneficiary/BeneficiaryFinancial.tsx",
           "components/beneficiary/BeneficiaryDocuments.tsx",
           "components/beneficiary/BeneficiaryAidHistory.tsx",
+          "components/forms/BeneficiaryForm.tsx",
           "services/beneficiariesService.ts",
-          "services/ihtiyacSahipleriService.ts"
+          "services/ihtiyacSahipleriService.ts",
+          "hooks/useBeneficiaries.ts",
+          "types/beneficiary.ts",
+          "types/ihtiyacSahipleri.ts"
         ]
       },
       {
-        "name": "Aid Applications & Distribution",
-        "description": "Yardım başvuruları, onay süreçleri, nakdi ve ayni yardım dağıtımı, banka ödeme emirleri",
+        "name": "Aid/Assistance Management",
+        "description": "Aid application workflow, case management, distribution tracking, and cash/in-kind aid transactions",
         "files": [
+          "components/pages/AidPage.tsx",
           "components/pages/AidApplicationsPage.tsx",
           "components/pages/AllAidListPage.tsx",
-          "components/pages/CashAidVaultPage.tsx",
+          "components/pages/ApplicationWorkflowPage.tsx",
+          "components/pages/CaseManagementPage.tsx",
+          "components/pages/DistributionTrackingPage.tsx",
           "components/pages/CashAidTransactionsPage.tsx",
           "components/pages/InKindAidTransactionsPage.tsx",
-          "components/pages/BankPaymentOrdersPage.tsx",
-          "components/pages/DistributionTrackingPage.tsx",
+          "components/pages/CashAidVaultPage.tsx",
+          "components/pages/ServiceTrackingPage.tsx",
           "services/aidRequestsService.ts"
         ]
       },
       {
-        "name": "Scholarship Management",
-        "description": "Burs öğrenci yönetimi ve başvuru takibi",
+        "name": "Donation Management",
+        "description": "Complete donation tracking and management system with donor information and reporting",
         "files": [
-          "components/pages/BursStudentsPage.tsx",
-          "components/pages/BursApplicationsPage.tsx"
+          "components/pages/DonationsPage.tsx",
+          "services/donationsService.ts",
+          "hooks/useDonations.ts",
+          "types/database.ts"
         ]
       },
       {
-        "name": "Finance & Accounting",
-        "description": "Gelir-gider takibi, mali raporlama, bütçe yönetimi",
+        "name": "Financial Management",
+        "description": "Income and expense tracking, bank payment orders, and Kumbara (savings box) management",
         "files": [
           "components/pages/FinanceIncomePage.tsx",
-          "services/reportingService.ts",
-          "services/intelligentStatsService.ts",
-          "services/safeStatsService.ts"
+          "components/pages/BankPaymentOrdersPage.tsx",
+          "components/pages/KumbaraPage.tsx",
+          "components/kumbara/KumbaraForm.tsx",
+          "services/kumbaraService.ts",
+          "hooks/useKumbara.ts",
+          "types/kumbara.ts"
+        ]
+      },
+      {
+        "name": "Scholarship (Burs) Management",
+        "description": "Scholarship application processing and student tracking system",
+        "files": [
+          "components/pages/BursApplicationsPage.tsx",
+          "components/pages/BursStudentsPage.tsx"
         ]
       },
       {
         "name": "Legal Services",
-        "description": "Hukuki danışmanlık, avukat atamaları, dava takibi, yasal belge yönetimi",
+        "description": "Legal consultation tracking, lawsuit management, lawyer assignments, and legal document management",
         "files": [
           "components/pages/LegalConsultationPage.tsx",
-          "components/pages/LawyerAssignmentsPage.tsx",
           "components/pages/LawsuitTrackingPage.tsx",
-          "components/pages/LegalDocumentsPage.tsx"
+          "components/pages/LawyerAssignmentsPage.tsx",
+          "components/pages/LegalDocumentsPage.tsx",
+          "types/consultation.ts",
+          "types/lawyer.ts"
         ]
       },
       {
-        "name": "Hospital Referral System",
-        "description": "Hastane sevk işlemleri, randevu yönetimi, sağlık hizmetleri takibi",
+        "name": "Healthcare Services",
+        "description": "Hospital referral management and healthcare service tracking",
         "files": [
-          "components/pages/HospitalReferralPage.tsx",
-          "components/pages/AppointmentSchedulingPage.tsx",
-          "components/pages/ServiceTrackingPage.tsx"
+          "components/pages/HospitalReferralPage.tsx"
         ]
       },
       {
-        "name": "Events Management",
-        "description": "Etkinlik organizasyonu, katılımcı yönetimi, toplantı takibi",
-        "files": ["components/pages/EventsPage.tsx"]
-      },
-      {
-        "name": "Inventory Management",
-        "description": "Envanter takibi, stok yönetimi",
-        "files": ["components/pages/InventoryManagementPage.tsx"]
-      },
-      {
-        "name": "Case Management",
-        "description": "Vaka yönetimi ve iş akışı takibi",
+        "name": "Event Management",
+        "description": "Event planning, scheduling, and management system",
         "files": [
-          "components/pages/CaseManagementPage.tsx",
-          "components/pages/ApplicationWorkflowPage.tsx"
+          "components/pages/EventsPage.tsx",
+          "components/pages/AppointmentSchedulingPage.tsx"
         ]
       },
       {
         "name": "Document Management",
-        "description": "Evrak yönetimi, dosya depolama, OCR entegrasyonu",
+        "description": "Centralized document storage, OCR processing, and inventory management",
         "files": [
           "components/pages/DocumentManagementPage.tsx",
+          "components/pages/InventoryManagementPage.tsx",
           "services/fileStorageService.ts",
           "services/ocrService.ts"
         ]
       },
       {
-        "name": "Internal Messaging",
-        "description": "Kurum içi mesajlaşma sistemi",
-        "files": [
-          "components/pages/InternalMessagingPage.tsx",
-          "services/emailSMSService.ts"
-        ]
-      },
-      {
         "name": "User Management",
-        "description": "Kullanıcı yönetimi, rol ve izin kontrolü",
+        "description": "System user administration, role management, and access control",
         "files": [
           "components/pages/UserManagementPageReal.tsx",
           "components/pages/ProfilePage.tsx",
-          "services/userManagementService.ts"
+          "services/userManagementService.ts",
+          "hooks/useUserManagement.ts",
+          "types/auth.ts"
         ]
       },
       {
-        "name": "Dashboard & Analytics",
-        "description": "Ana dashboard, istatistikler, grafikler ve raporlama",
+        "name": "Notification System",
+        "description": "Smart notification center with push notifications, real-time alerts, and notification management",
         "files": [
-          "components/QuickStats.tsx",
-          "components/RecentActivity.tsx",
-          "components/analytics/AdvancedAnalyticsDashboard.tsx",
-          "components/charts/LazyCharts.tsx"
+          "components/notifications/SmartNotificationCenter.tsx",
+          "components/notifications/SmartNotificationSystem.tsx",
+          "components/notifications/EnhancedNotificationCenter.tsx",
+          "components/notifications/NotificationBell.tsx",
+          "components/notifications/PushNotificationManager.tsx",
+          "contexts/NotificationContext.tsx",
+          "stores/notificationStore.ts",
+          "services/notificationService.ts",
+          "services/pushNotificationService.ts",
+          "hooks/usePushNotifications.ts",
+          "lib/enhancedNotifications.tsx"
         ]
       },
       {
-        "name": "Search & Filtering",
-        "description": "Gelişmiş arama, filtreleme ve veri tabloları",
+        "name": "Advanced Search & Filtering",
+        "description": "Powerful search system with filters, data tables, and advanced search capabilities",
         "files": [
           "components/search/AdvancedSearch.tsx",
           "components/search/EnhancedSearchInput.tsx",
           "components/search/FilterPanel.tsx",
           "components/search/DataTable.tsx",
-          "components/search/SearchProvider.tsx"
+          "components/search/SearchProvider.tsx",
+          "hooks/useSearch.ts",
+          "types/search.ts"
         ]
       },
       {
-        "name": "Notifications System",
-        "description": "Bildirim merkezi, push notifications, akıllı bildirimler",
+        "name": "Analytics Dashboard",
+        "description": "Advanced analytics with charts, statistics, and reporting capabilities",
         "files": [
-          "components/notifications/SmartNotificationCenter.tsx",
-          "components/notifications/EnhancedNotificationCenter.tsx",
-          "components/notifications/NotificationBell.tsx",
-          "components/notifications/PushNotificationManager.tsx",
-          "services/notificationService.ts",
-          "services/pushNotificationService.ts"
+          "components/analytics/AdvancedAnalyticsDashboard.tsx",
+          "components/charts/LazyCharts.tsx",
+          "components/QuickStats.tsx",
+          "components/RecentActivity.tsx",
+          "services/intelligentStatsService.ts",
+          "services/safeStatsService.ts",
+          "services/reportingService.ts",
+          "types/stats.ts",
+          "types/reporting.ts"
         ]
       },
       {
-        "name": "Navigation & Routing",
-        "description": "Lazy loading, route management, sidebar, mobile navigation",
-        "files": [
-          "components/app/AppNavigation.tsx",
-          "components/app/NavigationManager.tsx",
-          "components/app/PageRenderer.tsx",
-          "components/Sidebar.tsx",
-          "components/MobileNavigation.tsx",
-          "App.tsx"
-        ]
-      },
-      {
-        "name": "UI Components Library",
-        "description": "Shadcn/UI component library with Radix UI primitives",
-        "files": [
-          "components/ui/button.tsx",
-          "components/ui/dialog.tsx",
-          "components/ui/input.tsx",
-          "components/ui/label.tsx",
-          "components/ui/select.tsx",
-          "components/ui/table.tsx",
-          "components/ui/card.tsx",
-          "components/ui/form.tsx",
-          "components/ui/badge.tsx",
-          "components/ui/tabs.tsx"
-        ]
-      },
-      {
-        "name": "Forms & Validation",
-        "description": "Form handling with React Hook Form and Zod validation",
-        "files": [
-          "components/forms/BeneficiaryForm.tsx",
-          "components/forms/FormField.tsx",
-          "components/forms/FormProvider.tsx",
-          "components/forms/MobileFormField.tsx",
-          "components/mobile/SmartMobileForm.tsx",
-          "hooks/useFormValidation.ts",
-          "hooks/useMobileForm.ts"
-        ]
-      },
-      {
-        "name": "Data Export & Import",
-        "description": "CSV export/import, data processing, bulk operations",
+        "name": "Data Import/Export",
+        "description": "Data import and export functionality with multiple formats (Excel, CSV, PDF)",
         "files": [
           "components/data/ExportModal.tsx",
           "services/exportService.ts",
           "services/exportUtils.ts",
-          "services/dataProcessor.ts",
           "hooks/useDataExport.ts",
-          "hooks/useDataImport.ts"
+          "hooks/useDataImport.ts",
+          "hooks/useExport.ts"
         ]
       },
       {
-        "name": "Performance Optimization",
-        "description": "Caching, query optimization, lazy loading, monitoring",
+        "name": "Internal Messaging",
+        "description": "Internal communication system for team collaboration",
         "files": [
-          "services/cachingService.ts",
-          "services/queryOptimizationService.ts",
-          "services/performanceMonitoringService.ts",
-          "services/advancedPerformanceService.ts",
-          "services/connectionPoolingService.ts",
-          "services/indexManagementService.ts",
-          "hooks/usePerformanceOptimization.ts",
-          "hooks/usePerformanceEnhanced.ts",
-          "hooks/usePerformanceMonitoring.ts"
+          "components/pages/InternalMessagingPage.tsx"
         ]
       },
       {
-        "name": "Security & Validation",
-        "description": "Advanced security, input validation, error handling",
+        "name": "Smart Automation System",
+        "description": "Intelligent automation features for workflow optimization",
         "files": [
-          "services/advancedSecurityService.ts",
-          "services/validation.ts",
-          "services/errorHandler.ts",
-          "lib/security.ts",
-          "lib/errorHandling.ts",
-          "lib/validation.ts",
-          "middleware/security.ts",
-          "middleware/csrf.ts",
-          "middleware/rateLimit.ts"
+          "components/automation/SmartAutomationSystem.tsx"
         ]
       },
       {
-        "name": "Background Sync & PWA",
-        "description": "Offline support, background sync, PWA features",
+        "name": "Mobile Optimization",
+        "description": "Mobile-first design with responsive forms, navigation, and touch-optimized interactions",
         "files": [
-          "components/sync/BackgroundSyncManager.tsx",
+          "components/MobileNavigation.tsx",
+          "components/mobile/SmartMobileForm.tsx",
+          "components/forms/MobileFormField.tsx",
+          "components/PullToRefresh.tsx",
+          "hooks/useAdvancedMobile.ts",
+          "hooks/useMobileForm.ts",
+          "hooks/useMobileFormOptimized.ts",
+          "hooks/useMobilePerformance.ts",
+          "hooks/useSafeMobile.ts",
+          "hooks/useTouchDevice.ts"
+        ]
+      },
+      {
+        "name": "PWA Features",
+        "description": "Progressive Web App features including offline support and background sync",
+        "files": [
           "components/pwa/OfflineIndicator.tsx",
+          "components/sync/BackgroundSyncManager.tsx",
           "services/backgroundSyncService.ts",
           "services/nativeFeaturesService.ts",
           "hooks/useBackgroundSync.ts"
         ]
       },
       {
-        "name": "UX Enhancements",
-        "description": "Command palette, onboarding, tooltips, quick actions",
+        "name": "Performance Optimization",
+        "description": "Advanced performance monitoring, caching, query optimization, and database optimization",
+        "files": [
+          "services/advancedPerformanceService.ts",
+          "services/performanceMonitoringService.ts",
+          "services/cachingService.ts",
+          "services/queryOptimizationService.ts",
+          "services/connectionPoolingService.ts",
+          "services/indexManagementService.ts",
+          "services/monitoringService.ts",
+          "hooks/usePerformanceEnhanced.ts",
+          "hooks/usePerformanceMonitoring.ts",
+          "hooks/usePerformanceOptimization.ts",
+          "lib/performance.ts"
+        ]
+      },
+      {
+        "name": "Security Features",
+        "description": "Comprehensive security implementation with XSS protection, CSRF protection, rate limiting, and input validation",
+        "files": [
+          "services/advancedSecurityService.ts",
+          "middleware/security.ts",
+          "middleware/csrf.ts",
+          "middleware/rateLimit.ts",
+          "lib/security.ts",
+          "lib/security/",
+          "types/validation.ts"
+        ]
+      },
+      {
+        "name": "Accessibility (a11y)",
+        "description": "Accessibility enhancements ensuring WCAG compliance",
+        "files": [
+          "components/accessibility/AccessibilityEnhancements.tsx",
+          "tests/accessibility/"
+        ]
+      },
+      {
+        "name": "Error Handling & Logging",
+        "description": "Centralized error handling, logging, and monitoring system",
+        "files": [
+          "components/ErrorBoundary.tsx",
+          "components/StoreErrorBoundary.tsx",
+          "components/notifications/NotificationErrorBoundary.tsx",
+          "services/errorHandler.ts",
+          "lib/errorHandling.ts",
+          "lib/logging/",
+          "components/utils/error-report.ts"
+        ]
+      },
+      {
+        "name": "UI Component Library",
+        "description": "Comprehensive set of reusable UI components based on Radix UI",
+        "files": [
+          "components/ui/",
+          "components/LoadingSpinner.tsx",
+          "components/SkeletonLoader.tsx",
+          "components/EmptyState.tsx",
+          "components/ResponsiveCard.tsx",
+          "components/FloatingActionButton.tsx",
+          "components/AnimatedContainer.tsx"
+        ]
+      },
+      {
+        "name": "UX Enhancement Features",
+        "description": "User experience improvements including command palette, onboarding flow, tooltips, and personalized quick actions",
         "files": [
           "components/ux/SmartCommandPalette.tsx",
           "components/ux/UserOnboardingFlow.tsx",
@@ -354,52 +384,64 @@
         ]
       },
       {
-        "name": "Accessibility",
-        "description": "WCAG 2.1 AA compliance, accessibility enhancements",
-        "files": ["components/accessibility/AccessibilityEnhancements.tsx"]
-      },
-      {
-        "name": "State Management",
-        "description": "Zustand stores for global state management",
+        "name": "Navigation & Routing",
+        "description": "Advanced navigation management with module-based routing",
         "files": [
-          "stores/authStore.ts",
-          "stores/uiStore.ts",
-          "stores/notificationStore.ts",
-          "stores/index.ts",
-          "stores/safeInit.ts"
+          "components/app/NavigationManager.tsx",
+          "components/app/PageRenderer.tsx",
+          "components/app/AppNavigation.tsx",
+          "components/Header.tsx",
+          "components/Sidebar.tsx",
+          "contexts/SidebarContext.tsx"
         ]
       },
       {
-        "name": "Contexts & Providers",
-        "description": "React contexts for app-wide state",
+        "name": "Forms Management",
+        "description": "Form handling with validation, field management, and form state",
         "files": [
-          "contexts/AuthContext.tsx",
-          "contexts/SupabaseAuthContext.tsx",
-          "contexts/NotificationContext.tsx",
-          "contexts/SidebarContext.tsx",
-          "contexts/FormContexts.tsx"
+          "components/forms/FormProvider.tsx",
+          "components/forms/FormField.tsx",
+          "contexts/FormContexts.tsx",
+          "hooks/useFormValidation.ts",
+          "hooks/use-form-field.ts"
         ]
       },
       {
-        "name": "Custom Hooks",
-        "description": "Reusable custom React hooks for various features",
+        "name": "Database Connection Management",
+        "description": "Supabase connection monitoring and management",
         "files": [
-          "hooks/useBeneficiaries.ts",
-          "hooks/useDonations.ts",
-          "hooks/useMembers.ts",
-          "hooks/useKumbara.ts",
-          "hooks/useSearch.ts",
-          "hooks/usePagination.ts",
-          "hooks/useInfiniteScroll.ts",
-          "hooks/useDebounce.ts",
-          "hooks/useLocalStorage.ts",
-          "hooks/useKeyboard.ts",
-          "hooks/useTouchDevice.ts",
-          "hooks/usePermissions.ts",
-          "hooks/usePushNotifications.ts",
+          "components/SupabaseConnectionStatus.tsx",
           "hooks/useSupabaseConnection.ts",
           "hooks/useSupabaseData.ts",
-          "hooks/useTokenRefresh.ts"
+          "lib/supabase.ts",
+          "types/supabase.ts"
+        ]
+      },
+      {
+        "name": "Internationalization",
+        "description": "Multi-language support system",
+        "files": [
+          "services/internationalizationService.ts"
+        ]
+      },
+      {
+        "name": "Utility Functions",
+        "description": "Common utilities for validation, data processing, and configuration",
+        "files": [
+          "lib/utils.ts",
+          "lib/validation.ts",
+          "lib/config.ts",
+          "lib/environment.ts",
+          "services/validation.ts",
+          "services/dataProcessor.ts",
+          "services/config.ts",
+          "utils/validation.ts",
+          "components/utils/EnvironmentUtils.tsx",
+          "hooks/useDebounce.ts",
+          "hooks/useLocalStorage.ts",
+          "hooks/usePagination.ts",
+          "hooks/useInfiniteScroll.ts",
+          "hooks/useKeyboard.ts"
         ]
       }
     ]

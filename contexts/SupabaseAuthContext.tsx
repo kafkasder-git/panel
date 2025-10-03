@@ -45,9 +45,10 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
 
   const isAuthenticated = !!user && !!session;
 
-  // Initialize auth state
+  // Initialize auth state - with proper cleanup to avoid multiple instances
   useEffect(() => {
     let mounted = true;
+    let authSubscription: { unsubscribe: () => void } | null = null;
 
     const initializeAuth = async () => {
       try {
@@ -64,31 +65,19 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
           setSession(session);
           setUser(session?.user ?? null);
         }
-      } catch (error) {
-        logger.error('Auth initialization error:', error);
-        if (mounted) {
-          setError('Kimlik doğrulama başlatılamadı');
-        }
-      } finally {
-        if (mounted) {
-          // Set loading to false immediately without delay
-          setTimeout(() => {
-            setIsLoading(false);
-          }, 10);
-        }
-      }
-    };
 
-    // Listen for auth state changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      logger.info('Auth state change:', event, session?.user?.email);
+        // Setup auth state listener only after initial session check
+        // This ensures we don't set up multiple listeners in StrictMode
+        if (mounted && !authSubscription) {
+          const {
+            data: { subscription },
+          } = supabase.auth.onAuthStateChange(async (event, session) => {
+            logger.info('Auth state change:', event, session?.user?.email);
 
-      if (mounted) {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setIsLoading(false);
+            if (mounted) {
+              setSession(session);
+              setUser(session?.user ?? null);
+              setIsLoading(false);
 
         // Handle auth events
         switch (event) {
@@ -105,15 +94,41 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
           case 'USER_UPDATED':
             logger.info('User updated');
             break;
+          case 'INITIAL_SESSION':
+          case 'PASSWORD_RECOVERY':
+          case 'MFA_CHALLENGE_VERIFIED':
+            // Handle other auth events
+            logger.info('Auth event:', event);
+            break;
+        }
+            }
+          });
+          authSubscription = subscription;
+        }
+      } catch (error) {
+        logger.error('Auth initialization error:', error);
+        if (mounted) {
+          setError('Kimlik doğrulama başlatılamadı');
+        }
+      } finally {
+        if (mounted) {
+          // Set loading to false immediately without delay
+          setTimeout(() => {
+            setIsLoading(false);
+          }, 10);
         }
       }
-    });
+    };
 
     initializeAuth();
 
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+      // Cleanup: Unsubscribe from auth state changes
+      if (authSubscription) {
+        authSubscription.unsubscribe();
+        authSubscription = null;
+      }
     };
   }, []);
 
@@ -174,7 +189,7 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
     }
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -224,7 +239,7 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
     }
 
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {

@@ -1,294 +1,327 @@
 {
   "tech_stack": [
     "TypeScript",
-    "React 18",
-    "Vite",
-    "Supabase",
-    "PostgreSQL",
-    "Tailwind CSS",
+    "React 18.3.1",
+    "Vite 7.1.8",
+    "Supabase (PostgreSQL)",
+    "Tailwind CSS 4.0",
     "Radix UI",
+    "Zustand (State Management)",
     "React Hook Form",
-    "Zod",
-    "Zustand",
-    "TanStack Query",
-    "Recharts",
-    "Lucide Icons",
-    "PWA (Vite Plugin)"
+    "Zod (Validation)",
+    "TanStack React Query",
+    "Vitest (Testing)",
+    "Playwright (E2E Testing)"
   ],
   "features": [
     {
-      "name": "Authentication & Authorization",
-      "description": "User authentication with Supabase, protected routes, permission guards, and role-based access control",
+      "name": "Authentication System",
+      "description": "Comprehensive authentication system with Supabase integration, protected routes, and permission-based access control",
       "files": [
+        "contexts/AuthContext.tsx",
+        "contexts/SupabaseAuthContext.tsx",
         "components/auth/LoginPage.tsx",
         "components/auth/ProtectedRoute.tsx",
         "components/auth/PermissionGuard.tsx",
-        "contexts/SupabaseAuthContext.tsx",
-        "contexts/AuthContext.tsx"
+        "components/auth/UnauthorizedPage.tsx",
+        "stores/authStore.ts",
+        "hooks/useTokenRefresh.ts",
+        "hooks/usePermissions.ts"
       ]
     },
     {
       "name": "Member Management",
-      "description": "Comprehensive member registration, profile management, membership fees tracking with UUID-based database",
+      "description": "Complete member registration, search, filtering, and management system with advanced features",
       "files": [
         "components/pages/MembersPage.tsx",
         "components/pages/NewMemberPage.tsx",
         "components/pages/MembershipFeesPage.tsx",
-        "services/membersService.ts"
-      ]
-    },
-    {
-      "name": "Donations Management",
-      "description": "Donation tracking, receipt generation, donor management, recurring donations with analytics views",
-      "files": [
-        "components/pages/DonationsPage.tsx",
-        "components/pages/KumbaraPage.tsx",
-        "services/donationsService.ts",
-        "services/kumbaraService.ts",
-        "components/kumbara/KumbaraForm.tsx"
+        "services/membersService.ts",
+        "hooks/useMembers.ts",
+        "types/database.ts"
       ]
     },
     {
       "name": "Beneficiary Management",
-      "description": "İhtiyaç sahipleri yönetimi, aile bilgileri, mali durum, sağlık bilgileri ve evrak takibi",
+      "description": "Comprehensive beneficiary (ihtiyaç sahipleri) tracking system with personal info, family details, health info, financial data, and documents",
       "files": [
         "components/pages/BeneficiariesPageEnhanced.tsx",
         "components/pages/BeneficiaryDetailPageComprehensive.tsx",
         "components/beneficiary/BeneficiaryPersonalInfo.tsx",
-        "components/beneficiary/BeneficiaryFinancial.tsx",
         "components/beneficiary/BeneficiaryFamily.tsx",
         "components/beneficiary/BeneficiaryHealthInfo.tsx",
+        "components/beneficiary/BeneficiaryFinancial.tsx",
         "components/beneficiary/BeneficiaryDocuments.tsx",
         "components/beneficiary/BeneficiaryAidHistory.tsx",
+        "components/forms/BeneficiaryForm.tsx",
         "services/beneficiariesService.ts",
-        "services/ihtiyacSahipleriService.ts"
+        "services/ihtiyacSahipleriService.ts",
+        "hooks/useBeneficiaries.ts",
+        "types/beneficiary.ts",
+        "types/ihtiyacSahipleri.ts"
       ]
     },
     {
-      "name": "Aid Applications & Distribution",
-      "description": "Yardım başvuruları, onay süreçleri, nakdi ve ayni yardım dağıtımı, banka ödeme emirleri",
+      "name": "Aid/Assistance Management",
+      "description": "Aid application workflow, case management, distribution tracking, and cash/in-kind aid transactions",
       "files": [
+        "components/pages/AidPage.tsx",
         "components/pages/AidApplicationsPage.tsx",
         "components/pages/AllAidListPage.tsx",
-        "components/pages/CashAidVaultPage.tsx",
+        "components/pages/ApplicationWorkflowPage.tsx",
+        "components/pages/CaseManagementPage.tsx",
+        "components/pages/DistributionTrackingPage.tsx",
         "components/pages/CashAidTransactionsPage.tsx",
         "components/pages/InKindAidTransactionsPage.tsx",
-        "components/pages/BankPaymentOrdersPage.tsx",
-        "components/pages/DistributionTrackingPage.tsx",
+        "components/pages/CashAidVaultPage.tsx",
+        "components/pages/ServiceTrackingPage.tsx",
         "services/aidRequestsService.ts"
       ]
     },
     {
-      "name": "Scholarship Management",
-      "description": "Burs öğrenci yönetimi ve başvuru takibi",
+      "name": "Donation Management",
+      "description": "Complete donation tracking and management system with donor information and reporting",
       "files": [
-        "components/pages/BursStudentsPage.tsx",
-        "components/pages/BursApplicationsPage.tsx"
+        "components/pages/DonationsPage.tsx",
+        "services/donationsService.ts",
+        "hooks/useDonations.ts",
+        "types/database.ts"
       ]
     },
     {
-      "name": "Finance & Accounting",
-      "description": "Gelir-gider takibi, mali raporlama, bütçe yönetimi",
+      "name": "Financial Management",
+      "description": "Income and expense tracking, bank payment orders, and Kumbara (savings box) management",
       "files": [
         "components/pages/FinanceIncomePage.tsx",
-        "services/reportingService.ts",
-        "services/intelligentStatsService.ts",
-        "services/safeStatsService.ts"
+        "components/pages/BankPaymentOrdersPage.tsx",
+        "components/pages/KumbaraPage.tsx",
+        "components/kumbara/KumbaraForm.tsx",
+        "services/kumbaraService.ts",
+        "hooks/useKumbara.ts",
+        "types/kumbara.ts"
+      ]
+    },
+    {
+      "name": "Scholarship (Burs) Management",
+      "description": "Scholarship application processing and student tracking system",
+      "files": [
+        "components/pages/BursApplicationsPage.tsx",
+        "components/pages/BursStudentsPage.tsx"
       ]
     },
     {
       "name": "Legal Services",
-      "description": "Hukuki danışmanlık, avukat atamaları, dava takibi, yasal belge yönetimi",
+      "description": "Legal consultation tracking, lawsuit management, lawyer assignments, and legal document management",
       "files": [
         "components/pages/LegalConsultationPage.tsx",
-        "components/pages/LawyerAssignmentsPage.tsx",
         "components/pages/LawsuitTrackingPage.tsx",
-        "components/pages/LegalDocumentsPage.tsx"
+        "components/pages/LawyerAssignmentsPage.tsx",
+        "components/pages/LegalDocumentsPage.tsx",
+        "types/consultation.ts",
+        "types/lawyer.ts"
       ]
     },
     {
-      "name": "Hospital Referral System",
-      "description": "Hastane sevk işlemleri, randevu yönetimi, sağlık hizmetleri takibi",
+      "name": "Healthcare Services",
+      "description": "Hospital referral management and healthcare service tracking",
       "files": [
-        "components/pages/HospitalReferralPage.tsx",
-        "components/pages/AppointmentSchedulingPage.tsx",
-        "components/pages/ServiceTrackingPage.tsx"
+        "components/pages/HospitalReferralPage.tsx"
       ]
     },
     {
-      "name": "Events Management",
-      "description": "Etkinlik organizasyonu, katılımcı yönetimi, toplantı takibi",
-      "files": ["components/pages/EventsPage.tsx"]
-    },
-    {
-      "name": "Inventory Management",
-      "description": "Envanter takibi, stok yönetimi",
-      "files": ["components/pages/InventoryManagementPage.tsx"]
-    },
-    {
-      "name": "Case Management",
-      "description": "Vaka yönetimi ve iş akışı takibi",
+      "name": "Event Management",
+      "description": "Event planning, scheduling, and management system",
       "files": [
-        "components/pages/CaseManagementPage.tsx",
-        "components/pages/ApplicationWorkflowPage.tsx"
+        "components/pages/EventsPage.tsx",
+        "components/pages/AppointmentSchedulingPage.tsx"
       ]
     },
     {
       "name": "Document Management",
-      "description": "Evrak yönetimi, dosya depolama, OCR entegrasyonu",
+      "description": "Centralized document storage, OCR processing, and inventory management",
       "files": [
         "components/pages/DocumentManagementPage.tsx",
+        "components/pages/InventoryManagementPage.tsx",
         "services/fileStorageService.ts",
         "services/ocrService.ts"
       ]
     },
     {
-      "name": "Internal Messaging",
-      "description": "Kurum içi mesajlaşma sistemi",
-      "files": [
-        "components/pages/InternalMessagingPage.tsx",
-        "services/emailSMSService.ts"
-      ]
-    },
-    {
       "name": "User Management",
-      "description": "Kullanıcı yönetimi, rol ve izin kontrolü",
+      "description": "System user administration, role management, and access control",
       "files": [
         "components/pages/UserManagementPageReal.tsx",
         "components/pages/ProfilePage.tsx",
-        "services/userManagementService.ts"
+        "services/userManagementService.ts",
+        "hooks/useUserManagement.ts",
+        "types/auth.ts"
       ]
     },
     {
-      "name": "Dashboard & Analytics",
-      "description": "Ana dashboard, istatistikler, grafikler ve raporlama",
+      "name": "Notification System",
+      "description": "Smart notification center with push notifications, real-time alerts, and notification management",
       "files": [
-        "components/QuickStats.tsx",
-        "components/RecentActivity.tsx",
-        "components/analytics/AdvancedAnalyticsDashboard.tsx",
-        "components/charts/LazyCharts.tsx"
+        "components/notifications/SmartNotificationCenter.tsx",
+        "components/notifications/SmartNotificationSystem.tsx",
+        "components/notifications/EnhancedNotificationCenter.tsx",
+        "components/notifications/NotificationBell.tsx",
+        "components/notifications/PushNotificationManager.tsx",
+        "contexts/NotificationContext.tsx",
+        "stores/notificationStore.ts",
+        "services/notificationService.ts",
+        "services/pushNotificationService.ts",
+        "hooks/usePushNotifications.ts",
+        "lib/enhancedNotifications.tsx"
       ]
     },
     {
-      "name": "Search & Filtering",
-      "description": "Gelişmiş arama, filtreleme ve veri tabloları",
+      "name": "Advanced Search & Filtering",
+      "description": "Powerful search system with filters, data tables, and advanced search capabilities",
       "files": [
         "components/search/AdvancedSearch.tsx",
         "components/search/EnhancedSearchInput.tsx",
         "components/search/FilterPanel.tsx",
         "components/search/DataTable.tsx",
-        "components/search/SearchProvider.tsx"
+        "components/search/SearchProvider.tsx",
+        "hooks/useSearch.ts",
+        "types/search.ts"
       ]
     },
     {
-      "name": "Notifications System",
-      "description": "Bildirim merkezi, push notifications, akıllı bildirimler",
+      "name": "Analytics Dashboard",
+      "description": "Advanced analytics with charts, statistics, and reporting capabilities",
       "files": [
-        "components/notifications/SmartNotificationCenter.tsx",
-        "components/notifications/EnhancedNotificationCenter.tsx",
-        "components/notifications/NotificationBell.tsx",
-        "components/notifications/PushNotificationManager.tsx",
-        "services/notificationService.ts",
-        "services/pushNotificationService.ts"
+        "components/analytics/AdvancedAnalyticsDashboard.tsx",
+        "components/charts/LazyCharts.tsx",
+        "components/QuickStats.tsx",
+        "components/RecentActivity.tsx",
+        "services/intelligentStatsService.ts",
+        "services/safeStatsService.ts",
+        "services/reportingService.ts",
+        "types/stats.ts",
+        "types/reporting.ts"
       ]
     },
     {
-      "name": "Navigation & Routing",
-      "description": "Lazy loading, route management, sidebar, mobile navigation",
-      "files": [
-        "components/app/AppNavigation.tsx",
-        "components/app/NavigationManager.tsx",
-        "components/app/PageRenderer.tsx",
-        "components/Sidebar.tsx",
-        "components/MobileNavigation.tsx",
-        "App.tsx"
-      ]
-    },
-    {
-      "name": "UI Components Library",
-      "description": "Shadcn/UI component library with Radix UI primitives",
-      "files": [
-        "components/ui/button.tsx",
-        "components/ui/dialog.tsx",
-        "components/ui/input.tsx",
-        "components/ui/label.tsx",
-        "components/ui/select.tsx",
-        "components/ui/table.tsx",
-        "components/ui/card.tsx",
-        "components/ui/form.tsx",
-        "components/ui/badge.tsx",
-        "components/ui/tabs.tsx"
-      ]
-    },
-    {
-      "name": "Forms & Validation",
-      "description": "Form handling with React Hook Form and Zod validation",
-      "files": [
-        "components/forms/BeneficiaryForm.tsx",
-        "components/forms/FormField.tsx",
-        "components/forms/FormProvider.tsx",
-        "components/forms/MobileFormField.tsx",
-        "components/mobile/SmartMobileForm.tsx",
-        "hooks/useFormValidation.ts",
-        "hooks/useMobileForm.ts"
-      ]
-    },
-    {
-      "name": "Data Export & Import",
-      "description": "CSV export/import, data processing, bulk operations",
+      "name": "Data Import/Export",
+      "description": "Data import and export functionality with multiple formats (Excel, CSV, PDF)",
       "files": [
         "components/data/ExportModal.tsx",
         "services/exportService.ts",
         "services/exportUtils.ts",
-        "services/dataProcessor.ts",
         "hooks/useDataExport.ts",
-        "hooks/useDataImport.ts"
+        "hooks/useDataImport.ts",
+        "hooks/useExport.ts"
       ]
     },
     {
-      "name": "Performance Optimization",
-      "description": "Caching, query optimization, lazy loading, monitoring",
+      "name": "Internal Messaging",
+      "description": "Internal communication system for team collaboration",
       "files": [
-        "services/cachingService.ts",
-        "services/queryOptimizationService.ts",
-        "services/performanceMonitoringService.ts",
-        "services/advancedPerformanceService.ts",
-        "services/connectionPoolingService.ts",
-        "services/indexManagementService.ts",
-        "hooks/usePerformanceOptimization.ts",
-        "hooks/usePerformanceEnhanced.ts",
-        "hooks/usePerformanceMonitoring.ts"
+        "components/pages/InternalMessagingPage.tsx"
       ]
     },
     {
-      "name": "Security & Validation",
-      "description": "Advanced security, input validation, error handling",
+      "name": "Smart Automation System",
+      "description": "Intelligent automation features for workflow optimization",
       "files": [
-        "services/advancedSecurityService.ts",
-        "services/validation.ts",
-        "services/errorHandler.ts",
-        "lib/security.ts",
-        "lib/errorHandling.ts",
-        "lib/validation.ts",
-        "middleware/security.ts",
-        "middleware/csrf.ts",
-        "middleware/rateLimit.ts"
+        "components/automation/SmartAutomationSystem.tsx"
       ]
     },
     {
-      "name": "Background Sync & PWA",
-      "description": "Offline support, background sync, PWA features",
+      "name": "Mobile Optimization",
+      "description": "Mobile-first design with responsive forms, navigation, and touch-optimized interactions",
       "files": [
-        "components/sync/BackgroundSyncManager.tsx",
+        "components/MobileNavigation.tsx",
+        "components/mobile/SmartMobileForm.tsx",
+        "components/forms/MobileFormField.tsx",
+        "components/PullToRefresh.tsx",
+        "hooks/useAdvancedMobile.ts",
+        "hooks/useMobileForm.ts",
+        "hooks/useMobileFormOptimized.ts",
+        "hooks/useMobilePerformance.ts",
+        "hooks/useSafeMobile.ts",
+        "hooks/useTouchDevice.ts"
+      ]
+    },
+    {
+      "name": "PWA Features",
+      "description": "Progressive Web App features including offline support and background sync",
+      "files": [
         "components/pwa/OfflineIndicator.tsx",
+        "components/sync/BackgroundSyncManager.tsx",
         "services/backgroundSyncService.ts",
         "services/nativeFeaturesService.ts",
         "hooks/useBackgroundSync.ts"
       ]
     },
     {
-      "name": "UX Enhancements",
-      "description": "Command palette, onboarding, tooltips, quick actions",
+      "name": "Performance Optimization",
+      "description": "Advanced performance monitoring, caching, query optimization, and database optimization",
+      "files": [
+        "services/advancedPerformanceService.ts",
+        "services/performanceMonitoringService.ts",
+        "services/cachingService.ts",
+        "services/queryOptimizationService.ts",
+        "services/connectionPoolingService.ts",
+        "services/indexManagementService.ts",
+        "services/monitoringService.ts",
+        "hooks/usePerformanceEnhanced.ts",
+        "hooks/usePerformanceMonitoring.ts",
+        "hooks/usePerformanceOptimization.ts",
+        "lib/performance.ts"
+      ]
+    },
+    {
+      "name": "Security Features",
+      "description": "Comprehensive security implementation with XSS protection, CSRF protection, rate limiting, and input validation",
+      "files": [
+        "services/advancedSecurityService.ts",
+        "middleware/security.ts",
+        "middleware/csrf.ts",
+        "middleware/rateLimit.ts",
+        "lib/security.ts",
+        "lib/security/",
+        "types/validation.ts"
+      ]
+    },
+    {
+      "name": "Accessibility (a11y)",
+      "description": "Accessibility enhancements ensuring WCAG compliance",
+      "files": [
+        "components/accessibility/AccessibilityEnhancements.tsx",
+        "tests/accessibility/"
+      ]
+    },
+    {
+      "name": "Error Handling & Logging",
+      "description": "Centralized error handling, logging, and monitoring system",
+      "files": [
+        "components/ErrorBoundary.tsx",
+        "components/StoreErrorBoundary.tsx",
+        "components/notifications/NotificationErrorBoundary.tsx",
+        "services/errorHandler.ts",
+        "lib/errorHandling.ts",
+        "lib/logging/",
+        "components/utils/error-report.ts"
+      ]
+    },
+    {
+      "name": "UI Component Library",
+      "description": "Comprehensive set of reusable UI components based on Radix UI",
+      "files": [
+        "components/ui/",
+        "components/LoadingSpinner.tsx",
+        "components/SkeletonLoader.tsx",
+        "components/EmptyState.tsx",
+        "components/ResponsiveCard.tsx",
+        "components/FloatingActionButton.tsx",
+        "components/AnimatedContainer.tsx"
+      ]
+    },
+    {
+      "name": "UX Enhancement Features",
+      "description": "User experience improvements including command palette, onboarding flow, tooltips, and personalized quick actions",
       "files": [
         "components/ux/SmartCommandPalette.tsx",
         "components/ux/UserOnboardingFlow.tsx",
@@ -299,52 +332,64 @@
       ]
     },
     {
-      "name": "Accessibility",
-      "description": "WCAG 2.1 AA compliance, accessibility enhancements",
-      "files": ["components/accessibility/AccessibilityEnhancements.tsx"]
-    },
-    {
-      "name": "State Management",
-      "description": "Zustand stores for global state management",
+      "name": "Navigation & Routing",
+      "description": "Advanced navigation management with module-based routing",
       "files": [
-        "stores/authStore.ts",
-        "stores/uiStore.ts",
-        "stores/notificationStore.ts",
-        "stores/index.ts",
-        "stores/safeInit.ts"
+        "components/app/NavigationManager.tsx",
+        "components/app/PageRenderer.tsx",
+        "components/app/AppNavigation.tsx",
+        "components/Header.tsx",
+        "components/Sidebar.tsx",
+        "contexts/SidebarContext.tsx"
       ]
     },
     {
-      "name": "Contexts & Providers",
-      "description": "React contexts for app-wide state",
+      "name": "Forms Management",
+      "description": "Form handling with validation, field management, and form state",
       "files": [
-        "contexts/AuthContext.tsx",
-        "contexts/SupabaseAuthContext.tsx",
-        "contexts/NotificationContext.tsx",
-        "contexts/SidebarContext.tsx",
-        "contexts/FormContexts.tsx"
+        "components/forms/FormProvider.tsx",
+        "components/forms/FormField.tsx",
+        "contexts/FormContexts.tsx",
+        "hooks/useFormValidation.ts",
+        "hooks/use-form-field.ts"
       ]
     },
     {
-      "name": "Custom Hooks",
-      "description": "Reusable custom React hooks for various features",
+      "name": "Database Connection Management",
+      "description": "Supabase connection monitoring and management",
       "files": [
-        "hooks/useBeneficiaries.ts",
-        "hooks/useDonations.ts",
-        "hooks/useMembers.ts",
-        "hooks/useKumbara.ts",
-        "hooks/useSearch.ts",
-        "hooks/usePagination.ts",
-        "hooks/useInfiniteScroll.ts",
-        "hooks/useDebounce.ts",
-        "hooks/useLocalStorage.ts",
-        "hooks/useKeyboard.ts",
-        "hooks/useTouchDevice.ts",
-        "hooks/usePermissions.ts",
-        "hooks/usePushNotifications.ts",
+        "components/SupabaseConnectionStatus.tsx",
         "hooks/useSupabaseConnection.ts",
         "hooks/useSupabaseData.ts",
-        "hooks/useTokenRefresh.ts"
+        "lib/supabase.ts",
+        "types/supabase.ts"
+      ]
+    },
+    {
+      "name": "Internationalization",
+      "description": "Multi-language support system",
+      "files": [
+        "services/internationalizationService.ts"
+      ]
+    },
+    {
+      "name": "Utility Functions",
+      "description": "Common utilities for validation, data processing, and configuration",
+      "files": [
+        "lib/utils.ts",
+        "lib/validation.ts",
+        "lib/config.ts",
+        "lib/environment.ts",
+        "services/validation.ts",
+        "services/dataProcessor.ts",
+        "services/config.ts",
+        "utils/validation.ts",
+        "components/utils/EnvironmentUtils.tsx",
+        "hooks/useDebounce.ts",
+        "hooks/useLocalStorage.ts",
+        "hooks/usePagination.ts",
+        "hooks/useInfiniteScroll.ts",
+        "hooks/useKeyboard.ts"
       ]
     }
   ]

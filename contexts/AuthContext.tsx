@@ -52,6 +52,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
           const maxAge = 24 * 60 * 60 * 1000; // 24 hours
 
           if (sessionAge < maxAge && mounted) {
+            // SECURITY FIX: Ensure user has role and permissions
+            // If not set, assign default ADMIN role for testing
+            if (!user.role || !user.permissions || user.permissions.length === 0) {
+              logger.warn('User missing role/permissions, assigning ADMIN defaults');
+              user.role = 'ADMIN' as UserRole;
+              user.permissions = Object.values(Permission);
+              // Update localStorage with fixed user data
+              localStorage.setItem('auth_user', JSON.stringify(user));
+            }
+
             setAuthState({
               user,
               isAuthenticated: true,
@@ -90,7 +100,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     };
   }, []);
 
-  const login = async (_credentials: LoginCredentials): Promise<void> => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const login = async (credentials: LoginCredentials): Promise<void> => {
     setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
 
     try {

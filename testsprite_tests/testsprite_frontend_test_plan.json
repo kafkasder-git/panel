@@ -1,895 +1,545 @@
 [
   {
     "id": "TC001",
-    "title": "User Login Success with Correct Credentials",
-    "description": "Verify that users can log in successfully using valid username/email and password credentials.",
+    "title": "Hybrid Database Migration Completes Without Data Loss",
+    "description": "Validate that the hybrid database migration extending Members and Donations tables with 81 new columns completes successfully without any data loss.",
     "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to the login page."
-      },
-      {
-        "type": "action",
-        "description": "Enter a valid username/email and correct password."
-      },
-      {
-        "type": "action",
-        "description": "Click the login button."
+        "description": "Trigger the hybrid database migration process"
       },
       {
         "type": "assertion",
-        "description": "Verify that the user is logged in and redirected to the dashboard."
+        "description": "Verify that all new columns are added to Members and Donations tables"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that existing data remains intact in all affected tables"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that no downtime or interruptions occurred during migration"
       }
     ]
   },
   {
     "id": "TC002",
-    "title": "User Login Failure with Incorrect Credentials",
-    "description": "Verify that login fails and an appropriate error message is displayed when incorrect credentials are used.",
-    "category": "error handling",
+    "title": "UUID Migration for Member and Donation IDs",
+    "description": "Ensure all primary keys for members and donations are migrated to UUIDs and services have no type errors or data integrity issues.",
+    "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to the login page."
-      },
-      {
-        "type": "action",
-        "description": "Enter an invalid username/email or an incorrect password."
-      },
-      {
-        "type": "action",
-        "description": "Click the login button."
+        "description": "Compile and run membersService and donationsService after UUID migration"
       },
       {
         "type": "assertion",
-        "description": "Verify that login fails with a visible error message indicating incorrect credentials."
+        "description": "Confirm no type errors or warnings during compilation"
+      },
+      {
+        "type": "assertion",
+        "description": "Validate that member and donation IDs conform to UUID format"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that existing data is correctly associated and intact after migration"
       }
     ]
   },
   {
     "id": "TC003",
-    "title": "Role-based Access Control Enforcement",
-    "description": "Ensure that users can only access routes and features allowed by their roles and permissions.",
-    "category": "security",
+    "title": "Auto-Generation of Membership Numbers",
+    "description": "Verify system automatically generates unique membership numbers in format MEM-YYYY-XXXXXX on member registration.",
+    "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Log in as a user with a limited role."
+        "description": "Navigate to New Member Registration page"
       },
       {
         "type": "action",
-        "description": "Attempt to navigate to a restricted page."
+        "description": "Fill all mandatory member fields with valid data"
+      },
+      {
+        "type": "action",
+        "description": "Submit the registration form"
       },
       {
         "type": "assertion",
-        "description": "Verify redirection or access denied message is shown."
-      },
-      {
-        "type": "action",
-        "description": "Log in as an admin or authorized user."
-      },
-      {
-        "type": "action",
-        "description": "Navigate to the previously restricted page."
+        "description": "Verify that membership number is automatically generated in format MEM-2025-000001 (incremented)"
       },
       {
         "type": "assertion",
-        "description": "Verify the page loads successfully."
+        "description": "Verify membership number is unique and stored in database"
       }
     ]
   },
   {
     "id": "TC004",
-    "title": "New Member Registration and Profile Update",
-    "description": "Test the complete flow of adding a new member, verifying inputs, and updating member details.",
+    "title": "Auto-Generation of Donation Receipt Numbers",
+    "description": "Verify donation receipt numbers are automatically generated in the format RCP-YYYY-XXXX on donation submission.",
     "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to the new member registration page."
+        "description": "Navigate to Donations submission form"
       },
       {
         "type": "action",
-        "description": "Fill in all required fields with valid data."
+        "description": "Fill all required donation information with valid data"
       },
       {
         "type": "action",
-        "description": "Submit the member registration form."
+        "description": "Submit the donation form"
       },
       {
         "type": "assertion",
-        "description": "Verify that the member is created successfully and appears in the members list."
-      },
-      {
-        "type": "action",
-        "description": "Select the registered member from the members list."
-      },
-      {
-        "type": "action",
-        "description": "Modify profile information with valid data."
-      },
-      {
-        "type": "action",
-        "description": "Save the updated profile."
+        "description": "Verify receipt number is generated automatically and matches format RCP-2025-<uniqueId>"
       },
       {
         "type": "assertion",
-        "description": "Verify that member details are updated and persist after page reload."
+        "description": "Verify receipt number is unique and saved in the database"
       }
     ]
   },
   {
     "id": "TC005",
-    "title": "Member Registration Form Validation",
-    "description": "Verify that form validations prevent submission with invalid or missing required fields.",
-    "category": "error handling",
+    "title": "Turkish Full-Text Search for Members Yields Relevant Results",
+    "description": "Test the full-text search functionality optimized for Turkish language on members data, ensuring correct and relevant search results are returned.",
+    "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to the new member registration page."
+        "description": "Navigate to Members search page"
       },
       {
         "type": "action",
-        "description": "Attempt to submit the form leaving required fields empty."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify validation messages are shown for required fields."
+        "description": "Input Turkish text queries with special characters and diacritics"
       },
       {
         "type": "action",
-        "description": "Enter invalid data formats (e.g., invalid email, phone number)."
+        "description": "Execute the search"
       },
       {
         "type": "assertion",
-        "description": "Verify proper error messages are displayed and form is not submitted."
+        "description": "Verify that search results include relevant members matching Turkish language nuances"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that no irrelevant or unrelated results appear"
       }
     ]
   },
   {
     "id": "TC006",
-    "title": "Donation Entry, Receipt Generation and Reporting",
-    "description": "Test the creation of donation records, generating receipts, and viewing donation analytics reports.",
+    "title": "Turkish Full-Text Search for Donations Yields Relevant Results",
+    "description": "Test full-text search on donations dataset with Turkish language support, confirming that queries return appropriate results.",
     "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to the donations page."
+        "description": "Navigate to Donations search page"
       },
       {
         "type": "action",
-        "description": "Create a new donation with all valid fields filled."
+        "description": "Input Turkish language terms related to donors and donation metadata"
       },
       {
         "type": "action",
-        "description": "Generate a receipt for the donation."
+        "description": "Execute the search"
       },
       {
         "type": "assertion",
-        "description": "Verify the receipt contains correct donation information."
-      },
-      {
-        "type": "action",
-        "description": "Navigate to donation analytics views."
+        "description": "Verify donations relevant to the query are included in results"
       },
       {
         "type": "assertion",
-        "description": "Verify that donation data is displayed correctly with meaningful metrics."
+        "description": "Verify no results are missed due to language processing errors"
       }
     ]
   },
   {
     "id": "TC007",
-    "title": "Recurring Donation Setup and Modification",
-    "description": "Verify that users can set up recurring donations and edit them thereafter.",
+    "title": "Admin Analytics Dashboard Loads Correct Donation Summaries",
+    "description": "Verify that advanced analytics dashboards correctly display donor-type based and monthly summarized donation statistics with real-time updates.",
     "category": "functional",
-    "priority": "Medium",
+    "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to the recurring donation setup page."
+        "description": "Log in as an admin user"
       },
       {
         "type": "action",
-        "description": "Configure a recurring donation with valid parameters."
-      },
-      {
-        "type": "action",
-        "description": "Submit the setup."
+        "description": "Navigate to Analytics Dashboard page"
       },
       {
         "type": "assertion",
-        "description": "Verify the recurring donation is saved and listed."
-      },
-      {
-        "type": "action",
-        "description": "Edit the recurring donation details."
+        "description": "Verify monthly donation statistics load and match expected aggregated data"
       },
       {
         "type": "assertion",
-        "description": "Verify changes are saved and reflected in the recurring donation list."
+        "description": "Verify donor-type based statistics categories display accurate counts and amounts"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify dashboard updates reflect latest donation data after new submissions"
       }
     ]
   },
   {
     "id": "TC008",
-    "title": "Beneficiary Registration with Health and Financial Data",
-    "description": "Test creating a beneficiary record including personal, family, financial, and health information.",
-    "category": "functional",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to the beneficiaries management page."
-      },
-      {
-        "type": "action",
-        "description": "Add a new beneficiary with personal information."
-      },
-      {
-        "type": "action",
-        "description": "Fill in family details, financial situation, and health conditions."
-      },
-      {
-        "type": "action",
-        "description": "Submit the beneficiary form."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify beneficiary is saved correctly with all data fields available and viewable."
-      }
-    ]
-  },
-  {
-    "id": "TC009",
-    "title": "Beneficiary Data Validation",
-    "description": "Verify form validations on beneficiary data entry including invalid or missing data handling.",
-    "category": "error handling",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Attempt to submit beneficiary form with empty required fields."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify required field validation errors are displayed."
-      },
-      {
-        "type": "action",
-        "description": "Input invalid data formats in financial and health info fields."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify proper validation messages and submission prevention."
-      }
-    ]
-  },
-  {
-    "id": "TC010",
-    "title": "Aid Application Submission and Approval Workflow",
-    "description": "Test submitting a new aid application by a beneficiary, approval process, and aid distribution tracking.",
-    "category": "functional",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to aid applications page."
-      },
-      {
-        "type": "action",
-        "description": "Submit a new aid application with valid beneficiary and aid data."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify application appears in application list with status pending."
-      },
-      {
-        "type": "action",
-        "description": "As an admin, approve the aid application."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify application status changes to approved."
-      },
-      {
-        "type": "action",
-        "description": "Record distribution of aid (monetary or in-kind)."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify distribution is logged and visible in distribution tracking."
-      }
-    ]
-  },
-  {
-    "id": "TC011",
-    "title": "Bank Payment Order Processing for Aid",
-    "description": "Test creation, tracking, and completion of bank payment orders related to aid distributions.",
-    "category": "functional",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to bank payment orders page."
-      },
-      {
-        "type": "action",
-        "description": "Create a new bank payment order linked to an approved aid application."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify bank order is saved and appears in the list."
-      },
-      {
-        "type": "action",
-        "description": "Update the status of bank payment order (e.g., processed, completed)."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify status updates persist and are reflected in reporting views."
-      }
-    ]
-  },
-  {
-    "id": "TC012",
-    "title": "Scholarship Student Registration and Application Tracking",
-    "description": "Verify that scholarships can be managed by registering students and tracking their applications.",
-    "category": "functional",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to the scholarship students page."
-      },
-      {
-        "type": "action",
-        "description": "Add new scholarship student data."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify student appears in the scholarship student list."
-      },
-      {
-        "type": "action",
-        "description": "Navigate to the scholarship applications page."
-      },
-      {
-        "type": "action",
-        "description": "Add a new scholarship application for the student."
-      },
-      {
-        "type": "assertion",
-        "description": "Confirm application is saved and tracked."
-      }
-    ]
-  },
-  {
-    "id": "TC013",
-    "title": "Finance Income and Expense Tracking",
-    "description": "Test the ability to enter income and expenses, verify proper calculations and display in financial reports.",
-    "category": "functional",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to the finance income page."
-      },
-      {
-        "type": "action",
-        "description": "Enter multiple income records."
-      },
-      {
-        "type": "action",
-        "description": "Enter multiple expense records."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify totals and summaries correctly reflect inputs."
-      },
-      {
-        "type": "action",
-        "description": "Generate financial reports based on entered data."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify accuracy and completeness of reports."
-      }
-    ]
-  },
-  {
-    "id": "TC014",
-    "title": "Legal Services Workflow: Lawyer Assignment and Case Tracking",
-    "description": "Verify assignment of lawyers to cases, tracking of lawsuits and management of legal documents.",
-    "category": "functional",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to lawyer assignments page."
-      },
-      {
-        "type": "action",
-        "description": "Assign a lawyer to a legal case."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify assignment appears correctly in the system."
-      },
-      {
-        "type": "action",
-        "description": "Navigate to lawsuit tracking page."
-      },
-      {
-        "type": "action",
-        "description": "Update lawsuit status and details."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify updates persist and are accurately reflected."
-      },
-      {
-        "type": "action",
-        "description": "Upload and manage legal documents."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify documents can be accessed and downloaded."
-      }
-    ]
-  },
-  {
-    "id": "TC015",
-    "title": "Hospital Referral Appointment Scheduling and Tracking",
-    "description": "Test scheduling of hospital appointments, managing referrals and tracking services rendered.",
-    "category": "functional",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to appointment scheduling page."
-      },
-      {
-        "type": "action",
-        "description": "Schedule a new hospital appointment."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify appointment is saved and listed."
-      },
-      {
-        "type": "action",
-        "description": "Process hospital referral and track relevant health services."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify service tracking data is updated correctly."
-      }
-    ]
-  },
-  {
-    "id": "TC016",
-    "title": "Event Management: Creation and Participant Tracking",
-    "description": "Verify creation of events, managing participants and updating attendance status.",
-    "category": "functional",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to events page."
-      },
-      {
-        "type": "action",
-        "description": "Create a new event with valid details."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the event appears in the event list."
-      },
-      {
-        "type": "action",
-        "description": "Add participants to the event."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify participants are listed and attendance can be updated."
-      }
-    ]
-  },
-  {
-    "id": "TC017",
-    "title": "Inventory Management: Stock Addition and Usage Tracking",
-    "description": "Test adding new inventory items, editing stock levels, and recording usage or depletion.",
-    "category": "functional",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to inventory management page."
-      },
-      {
-        "type": "action",
-        "description": "Add a new inventory item with valid data."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify item appears with correct initial stock quantity."
-      },
-      {
-        "type": "action",
-        "description": "Update stock levels to reflect usage or additions."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify stock updates persist correctly."
-      }
-    ]
-  },
-  {
-    "id": "TC018",
-    "title": "Internal Messaging: Send, Receive, and Notifications",
-    "description": "Verify internal message sending and receiving functionality, and that notifications appear for new messages.",
-    "category": "functional",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Log in as user A."
-      },
-      {
-        "type": "action",
-        "description": "Send a message to user B."
-      },
-      {
-        "type": "action",
-        "description": "Log in as user B."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify receipt of the message and notification is shown."
-      },
-      {
-        "type": "action",
-        "description": "Reply to the message from user B."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify user A receives the reply with notification."
-      }
-    ]
-  },
-  {
-    "id": "TC019",
-    "title": "Dashboard Rendering and Analytics Accuracy",
-    "description": "Verify that dashboard displays correct data, statistics and charts updated in real-time or on refresh.",
-    "category": "functional",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to the dashboard page."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify all dashboard widgets load and render correctly."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify displayed statistics match underlying data."
-      },
-      {
-        "type": "action",
-        "description": "Trigger data updates (e.g., add a new donation)."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify dashboard reflects updated data after refresh or live update."
-      }
-    ]
-  },
-  {
-    "id": "TC020",
-    "title": "Advanced Search and Filtering Functionality",
-    "description": "Test that advanced search and filtering features work correctly across multiple modules including members, donations and beneficiaries.",
-    "category": "functional",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to members page."
-      },
-      {
-        "type": "action",
-        "description": "Use advanced search with multiple filters (e.g., membership status, join date)."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify filtered member list matches search criteria."
-      },
-      {
-        "type": "action",
-        "description": "Navigate to donations page."
-      },
-      {
-        "type": "action",
-        "description": "Apply filters by donor name, date range, amount."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify donations list matches filter parameters."
-      }
-    ]
-  },
-  {
-    "id": "TC021",
-    "title": "PWA Offline Support and Background Sync",
-    "description": "Verify that the application behaves correctly in offline mode, and syncs changes in the background once back online.",
-    "category": "functional",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Load the application and activate offline mode (simulate no internet)."
-      },
-      {
-        "type": "action",
-        "description": "Perform operations such as form filling and submitting data."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the app stores data locally and shows offline indicators."
-      },
-      {
-        "type": "action",
-        "description": "Restore internet connection."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify background sync sends queued data successfully and app returns to online state."
-      }
-    ]
-  },
-  {
-    "id": "TC022",
-    "title": "Performance Optimization: Lazy Loading and Caching",
-    "description": "Verify that code splitting and lazy loading are functioning and cached data is reused to optimize performance.",
-    "category": "performance",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate through different major modules."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify that modules are lazy loaded on demand with no blocking delays."
-      },
-      {
-        "type": "action",
-        "description": "Reload pages and monitor if cached data is used."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify network requests reflect caching and faster load times."
-      }
-    ]
-  },
-  {
-    "id": "TC023",
-    "title": "Form Input Validation with React Hook Form and Zod",
-    "description": "Test that all forms validate inputs correctly with Zod schema and React Hook Form integration, preventing invalid submissions.",
-    "category": "error handling",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Open various forms across the app (member, beneficiary, donation)."
-      },
-      {
-        "type": "action",
-        "description": "Input invalid data or leave required fields empty."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify validation messages are shown and forms prevent submission."
-      },
-      {
-        "type": "action",
-        "description": "Input valid data and submit."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify form submits successfully."
-      }
-    ]
-  },
-  {
-    "id": "TC024",
-    "title": "Security Headers and Environment Variable Config Validation",
-    "description": "Verify that deployment environment variables are set correctly and security headers are active.",
-    "category": "security",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Review deployment setup on Netlify."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify necessary environment variables exist and have correct values."
-      },
-      {
-        "type": "action",
-        "description": "Inspect HTTP responses from deployed app."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify security headers such as Content-Security-Policy, X-Content-Type-Options, and others are set."
-      }
-    ]
-  },
-  {
-    "id": "TC025",
-    "title": "Database Schema Migration and API Error Handling",
-    "description": "Validate that Supabase schema migrations match database schema and application returns no 400 errors due to schema issues.",
-    "category": "error handling",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Deploy latest migration files to Supabase."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify database schema aligns with migration files."
-      },
-      {
-        "type": "action",
-        "description": "Perform various CRUD operations through the app."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify that no API returns HTTP 400 due to validation or schema mismatch."
-      }
-    ]
-  },
-  {
-    "id": "TC026",
-    "title": "Dialog and onClick Event Handlers on Critical Pages",
-    "description": "Ensure dialogs open/close properly and onClick event handlers work without errors on critical pages.",
-    "category": "functional",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to critical pages such as member management, donations, and aid applications."
-      },
-      {
-        "type": "action",
-        "description": "Trigger dialogs via buttons or links."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify dialogs open and close correctly."
-      },
-      {
-        "type": "action",
-        "description": "Click multiple actionable UI elements (buttons, links) with onClick handlers."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify no Javascript errors occur and expected custom actions run."
-      }
-    ]
-  },
-  {
-    "id": "TC027",
-    "title": "Accessibility Compliance Check (WCAG 2.1 AA)",
-    "description": "Verify that UI meets WCAG 2.1 AA standards including keyboard navigation, screen reader support and color contrast.",
+    "title": "Members Page UI Fixes and Form Submission",
+    "description": "Verify that UI/UX fixes on the Members page are effective and forms submit successfully without errors.",
     "category": "ui",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Run accessibility testing tools on major pages."
+        "description": "Navigate to Members page"
       },
       {
         "type": "assertion",
-        "description": "Verify keyboard user can navigate through interactive elements in logical order."
+        "description": "Verify all form inputs and dialogs render correctly according to updated UI"
+      },
+      {
+        "type": "action",
+        "description": "Edit a member's information and submit the form"
       },
       {
         "type": "assertion",
-        "description": "Verify all images and icons have alt text or aria labels."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify color contrast ratios meet minimum requirements."
+        "description": "Verify that form submission succeeds without warnings or validation errors"
       }
     ]
   },
   {
-    "id": "TC028",
-    "title": "Data Export and Import Functionality",
-    "description": "Test exporting dataset to CSV and importing valid CSV files without data loss or corruption.",
+    "id": "TC009",
+    "title": "Legal Documents Page Fixes and Upload Functionality",
+    "description": "Check that critical bug fixes for Legal Documents page are properly applied and document upload works flawlessly.",
     "category": "functional",
-    "priority": "Medium",
+    "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to data export/import page."
+        "description": "Navigate to Legal Documents page"
       },
       {
         "type": "action",
-        "description": "Export member or donations data to CSV."
+        "description": "Upload a valid legal document file"
       },
       {
         "type": "assertion",
-        "description": "Verify exported file is correctly formatted and contains expected data."
-      },
-      {
-        "type": "action",
-        "description": "Import a well-formed CSV file with new or updated records."
+        "description": "Verify upload completes successfully and document appears in the list"
       },
       {
         "type": "assertion",
-        "description": "Verify data is ingested correctly without duplicates or errors."
+        "description": "Verify no UI glitches or errors during upload process"
       }
     ]
   },
   {
-    "id": "TC029",
-    "title": "Notification System: Delivery and User Interaction",
-    "description": "Ensure push notifications and in-app messaging deliver correctly and users can interact with them.",
-    "category": "functional",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Trigger various notifications (system alerts, messages, reminders)."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify notifications appear in notification center and as push notifications."
-      },
-      {
-        "type": "action",
-        "description": "Click on notifications to navigate or take actions."
-      },
-      {
-        "type": "assertion",
-        "description": "Verify the app responds appropriately to notification clicks."
-      }
-    ]
-  },
-  {
-    "id": "TC030",
-    "title": "Security and Rate Limiting Middleware Testing",
-    "description": "Test that security middleware including CSRF protection and rate limiting is active and functioning under attack scenarios.",
+    "id": "TC010",
+    "title": "Authentication System Enforces Permissions and Security",
+    "description": "Verify the authentication system with Supabase integration correctly enforces permission-based access control and refresh token flows.",
     "category": "security",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Attempt multiple rapid requests or form submissions to protected endpoints."
+        "description": "Attempt to access protected route without login"
       },
       {
         "type": "assertion",
-        "description": "Verify rate limiting triggers and blocks excessive requests."
+        "description": "Verify access is denied and user is redirected to login"
       },
       {
         "type": "action",
-        "description": "Submit forms without CSRF tokens or with altered tokens."
+        "description": "Log in with user having limited permissions"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to access admin-only route"
       },
       {
         "type": "assertion",
-        "description": "Verify CSRF protection rejects the submissions."
+        "description": "Verify access is denied and unauthorized page is shown"
+      },
+      {
+        "type": "action",
+        "description": "Verify token refresh occurs upon expiry automatically and user remains logged in"
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "CSRF and XSS Protection Are Effective",
+    "description": "Test that CSRF tokens are validated and XSS inputs are sanitized preventing client and server-side vulnerabilities.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Submit form requests without proper CSRF token"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify server rejects requests due to missing or invalid CSRF token"
+      },
+      {
+        "type": "action",
+        "description": "Attempt injection of XSS vectors in input fields"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify inputs are sanitized and no scripts execute or appear in output"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Accessibility Compliance WCAG 2.1 AA Verification",
+    "description": "Perform accessibility audits to confirm the application meets WCAG 2.1 AA standards including ARIA labeling and keyboard navigation.",
+    "category": "ui",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Run automated accessibility audit tools on key pages"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no critical or major accessibility violations"
+      },
+      {
+        "type": "action",
+        "description": "Manually test keyboard navigability and screen reader support on forms and main functionalities"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all interactive elements are accessible and ARIA attributes are correctly assigned"
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Error Handling and Logging System Captures Runtime Errors",
+    "description": "Verify centralized error handling captures runtime errors and logs notifications appropriately without disrupting user experience.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Trigger known failure scenarios such as network interruptions or invalid inputs in critical forms"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify error boundaries catch the errors and display user-friendly messages"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify errors are logged in the central logging system"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify users receive notification alerts about error states"
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Performance Optimization Improves Query Response Times",
+    "description": "Confirm performance improvements such as new database indexing and caching reduce query response times consistently.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Execute common search and data retrieval queries before optimization"
+      },
+      {
+        "type": "action",
+        "description": "Record baseline response times"
+      },
+      {
+        "type": "action",
+        "description": "Apply new indexing and caching strategies"
+      },
+      {
+        "type": "action",
+        "description": "Repeat the same queries"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that response times improve noticeably over baseline"
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Donation Form Validation with Edge Cases",
+    "description": "Test donation form with various input edge cases including extreme numerical values, special characters, and incomplete data.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open donation submission form"
+      },
+      {
+        "type": "action",
+        "description": "Input invalid values such as negative amounts, extremely large numbers, and script tags in text inputs"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify proper validation errors display and submission is blocked"
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Permission Guard Prevents Unauthorized Data Access",
+    "description": "Validate that the permission guard components prevent users from viewing or modifying data they do not have access to.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in as a user with restricted permissions"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to access restricted member, donation, and aid data pages"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access is blocked and user is redirected or shown unauthorized message"
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "Real-Time Notification System Pushes Alerts Correctly",
+    "description": "Check that users receive real-time notifications through the Smart Notification Center for system events and errors.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Trigger system notification event (e.g., new donation or error)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify notification bell shows unseen alerts"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify notification detail displays correct message and timestamp"
+      },
+      {
+        "type": "action",
+        "description": "Dismiss notification"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify notification is removed from unseen alerts"
+      }
+    ]
+  },
+  {
+    "id": "TC018",
+    "title": "Mobile Optimization and Responsive Form Behavior",
+    "description": "Verify that the mobile-optimized forms and navigation work smoothly on various screen sizes and touch devices.",
+    "category": "ui",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open key forms and pages on a mobile device or emulator"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify UI components adjust layout appropriately for small screens"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify touch interactions such as toggles and dropdowns operate without issues"
+      },
+      {
+        "type": "action",
+        "description": "Attempt form submissions with mobile keyboard and gestures"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no validation or submission errors occur due to mobile-specific interactions"
+      }
+    ]
+  },
+  {
+    "id": "TC019",
+    "title": "Internal Messaging System Sends and Receives Messages Correctly",
+    "description": "Test the internal messaging page to ensure messages are delivered and displayed properly within team collaboration.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to Internal Messaging page"
+      },
+      {
+        "type": "action",
+        "description": "Compose and send a message to another user"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the message appears in the sender's chat view"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the message is received and displayed in recipient's chat view in real time"
+      }
+    ]
+  },
+  {
+    "id": "TC020",
+    "title": "Data Import and Export Functionality Works Correctly",
+    "description": "Verify that data import and export modules successfully process Excel, CSV, and PDF formats without data loss or corruption.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to data export modal"
+      },
+      {
+        "type": "action",
+        "description": "Export members data to CSV and Excel formats"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify exported files open correctly and include expected data"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to data import module"
+      },
+      {
+        "type": "action",
+        "description": "Import clean sample Excel, CSV, and PDF files containing data"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify data is processed and imported without errors"
       }
     ]
   }

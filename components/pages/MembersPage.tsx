@@ -21,6 +21,7 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { membersService, type Member } from '../../services/membersService';
+import { useDataExport } from '../../hooks/useDataExport';
 import { PageLoading } from '../LoadingSpinner';
 import { PageLayout } from '../PageLayout';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
@@ -88,6 +89,9 @@ export function MembersPage() {
     membership_status: 'active',
     notes: '',
   });
+
+  // TC020 FIX: Export functionality
+  const { exportData, isExporting } = useDataExport();
 
   // Load members data
   const loadMembers = useCallback(async () => {
@@ -171,7 +175,18 @@ export function MembersPage() {
       const result = await membersService.createMember(memberData as any);
 
       if (result.error) {
-        toast.error(result.error);
+        // TC008 FIX: Handle 409 conflict errors with user-friendly messages
+        if (result.error.includes('duplicate') || 
+            result.error.includes('unique') || 
+            result.error.includes('already exists') ||
+            result.error.includes('23505')) {
+          toast.error('Bu email veya telefon numarası zaten kayıtlı!', {
+            description: 'Lütfen farklı bir email veya telefon numarası kullanın.',
+            duration: 5000,
+          });
+        } else {
+          toast.error(result.error);
+        }
         return;
       }
 
@@ -199,6 +214,43 @@ export function MembersPage() {
       toast.error('Üye oluşturulurken hata oluştu');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // TC020 FIX: Export members handler
+  const handleExportMembers = async () => {
+    // Prevent multiple exports
+    if (isExporting) return;
+    
+    try {
+      toast.info('Export işlemi başlatılıyor...');
+      
+      const filters = {
+        searchTerm: searchTerm.trim() || undefined,
+        membershipStatus: statusFilter !== 'all' ? statusFilter : undefined,
+        membershipType: typeFilter !== 'all' ? typeFilter : undefined,
+      };
+
+      const result = await membersService.exportMembers(filters);
+
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+
+      if (result.data && result.data.length > 0) {
+        // Cast to any to satisfy ExportableData type requirement
+        await exportData(result.data as any, {
+          format: 'excel',
+          filename: `uyeler-${new Date().toISOString().split('T')[0]}`,
+        });
+        toast.success(`${result.data.length} üye başarıyla dışa aktarıldı!`);
+      } else {
+        toast.warning('Dışa aktarılacak üye bulunamadı');
+      }
+    } catch (error) {
+      logger.error('Export error:', error);
+      toast.error('Export işlemi başarısız oldu');
     }
   };
 
@@ -269,9 +321,9 @@ export function MembersPage() {
           }}
           secondaryActions={[
             {
-              label: 'Dışa Aktar',
+              label: isExporting ? 'Dışa aktarılıyor...' : 'Dışa Aktar',
               icon: <Download className="h-4 w-4" />,
-              onClick: () => toast.info('Dışa aktarma özelliği yakında eklenecek'),
+              onClick: handleExportMembers,
               variant: 'outline',
             },
           ]}
