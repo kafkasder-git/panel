@@ -1,6 +1,6 @@
 /**
  * @fileoverview Sidebar Module - Application module
- * 
+ *
  * @author Dernek Yönetim Sistemi Team
  * @version 1.0.0
  */
@@ -53,7 +53,7 @@ interface SidebarProps {
 
 /**
  * Sidebar function
- * 
+ *
  * @param {Object} params - Function parameters
  * @returns {void} Nothing
  */
@@ -86,14 +86,14 @@ export function Sidebar({
     {
       id: 'genel',
       name: 'Ana Sayfa',
-      icon: <Home className="w-5 h-5" />,
+      icon: <Home className="h-5 w-5" />,
       subPages: [{ name: 'Dashboard', href: '/dashboard' }],
       // badge removed - no unnecessary notifications
     },
     {
       id: 'bagis',
       name: 'Bağışlar',
-      icon: <Heart className="w-5 h-5" />,
+      icon: <Heart className="h-5 w-5" />,
       subPages: [
         { name: 'Bağış Listesi', href: '/bagis/liste' },
         { name: 'Bağış Raporları', href: '/bagis/raporlar' },
@@ -104,7 +104,7 @@ export function Sidebar({
     {
       id: 'uye',
       name: 'Üyeler',
-      icon: <Users className="w-5 h-5" />,
+      icon: <Users className="h-5 w-5" />,
       subPages: [
         { name: 'Üye Listesi', href: '/uye/liste' },
         { name: 'Aidat Takibi', href: '/uye/aidat' },
@@ -114,7 +114,7 @@ export function Sidebar({
     {
       id: 'yardim',
       name: 'Yardım',
-      icon: <HelpingHand className="w-5 h-5" />,
+      icon: <HelpingHand className="h-5 w-5" />,
       subPages: [
         { name: 'İhtiyaç Sahipleri', href: '/yardim/ihtiyac-sahipleri' },
         { name: 'Başvurular', href: '/yardim/basvurular' },
@@ -125,12 +125,13 @@ export function Sidebar({
         { name: 'Ayni Yardım İşlemleri', href: '/yardim/ayni-islemler' },
         { name: 'Hizmet Takibi', href: '/yardim/hizmet-takip' },
         { name: 'Hastane Sevk', href: '/yardim/hastane-sevk' },
+        { name: 'Envanter Yönetimi', href: '/yardim/envanter' },
       ],
     },
     {
       id: 'burs',
       name: 'Burs',
-      icon: <GraduationCap className="w-5 h-5" />,
+      icon: <GraduationCap className="h-5 w-5" />,
       subPages: [
         { name: 'Öğrenci Listesi', href: '/burs/ogrenciler' },
         { name: 'Burs Başvuruları', href: '/burs/basvurular' },
@@ -139,7 +140,7 @@ export function Sidebar({
     {
       id: 'fon',
       name: 'Fon',
-      icon: <Wallet className="w-5 h-5" />,
+      icon: <Wallet className="h-5 w-5" />,
       subPages: [
         { name: 'Gelir Gider', href: '/fon/gelir-gider' },
         { name: 'Raporlar', href: '/fon/raporlar' },
@@ -148,7 +149,7 @@ export function Sidebar({
     {
       id: 'mesaj',
       name: 'Mesaj',
-      icon: <MessageSquare className="w-5 h-5" />,
+      icon: <MessageSquare className="h-5 w-5" />,
       subPages: [
         { name: 'Toplu Mesaj', href: '/mesaj/toplu' },
         { name: 'Kurum İçi Mesajlaşma', href: '/mesaj/kurum-ici' },
@@ -157,7 +158,7 @@ export function Sidebar({
     {
       id: 'is',
       name: 'İş',
-      icon: <Calendar className="w-5 h-5" />,
+      icon: <Calendar className="h-5 w-5" />,
       subPages: [
         { name: 'Etkinlikler', href: '/is/etkinlikler' },
         { name: 'Toplantılar', href: '/is/toplantilar' },
@@ -167,7 +168,7 @@ export function Sidebar({
     {
       id: 'partner',
       name: 'Partner Yönetimi',
-      icon: <Building2 className="w-5 h-5" />,
+      icon: <Building2 className="h-5 w-5" />,
       subPages: [
         { name: 'Tüm Partnerler', href: '/partner/liste' },
         { name: 'Bağışçı Kurumlar', href: '/partner/bagiscilar' },
@@ -182,7 +183,7 @@ export function Sidebar({
     {
       id: 'hukuki',
       name: 'Hukuki Yardım',
-      icon: <Scale className="w-5 h-5" />,
+      icon: <Scale className="h-5 w-5" />,
       subPages: [
         { name: 'Hukuki Danışmanlık', href: '/hukuki/danismanlik' },
         { name: 'Avukat Atamaları', href: '/hukuki/avukatlar' },
@@ -195,7 +196,7 @@ export function Sidebar({
     {
       id: 'user-management',
       name: 'Kullanıcı Yönetimi',
-      icon: <Shield className="w-5 h-5" />,
+      icon: <Shield className="h-5 w-5" />,
       subPages: [
         { name: 'Kullanıcılar', href: '/user-management/users' },
         { name: 'Roller', href: '/user-management/roles' },
@@ -208,7 +209,7 @@ export function Sidebar({
           {
             id: 'raporlama',
             name: 'Raporlama & Analitik',
-            icon: <BarChart3 className="w-5 h-5" />,
+            icon: <BarChart3 className="h-5 w-5" />,
             subPages: [
               { name: 'Ana Dashboard', href: '/raporlama/dashboard' },
               { name: 'Mali Raporlar', href: '/raporlama/mali' },
@@ -346,17 +347,14 @@ export function Sidebar({
       {/* Mobile Overlay */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          className="bg-opacity-50 fixed inset-0 z-40 bg-black md:hidden"
           onClick={onMobileToggle}
         />
       )}
 
       {/* Desktop Sidebar */}
       <aside
-        className={`
-        hidden md:flex w-20 h-full bg-gray-900 border-r border-gray-800 flex-col
-        ${isMobileOpen ? '!flex fixed inset-y-0 left-0 z-50 w-64' : ''}
-      `}
+        className={`hidden h-full w-20 flex-col border-r border-gray-800 bg-gray-900 md:flex ${isMobileOpen ? 'fixed inset-y-0 left-0 z-50 !flex w-64' : ''} `}
       >
         {/* Navigation Icons */}
         <div className="flex-1 px-2 pt-6">
@@ -388,7 +386,7 @@ export function Sidebar({
                               handleModuleClick(module.id);
                             }}
                             className={cn(
-                              'w-full flex items-center justify-center p-4 rounded-lg transition-all duration-200 group relative',
+                              'group relative flex w-full items-center justify-center rounded-lg p-4 transition-all duration-200',
                               activeModule === module.id
                                 ? 'bg-gray-700 text-white'
                                 : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200',
@@ -397,24 +395,24 @@ export function Sidebar({
                                 'bg-gray-800',
                             )}
                           >
-                            <div className="flex-shrink-0 relative">
+                            <div className="relative flex-shrink-0">
                               {module.icon}
                               {module.badge && (
-                                <Badge className="absolute -top-2 -right-2 w-5 h-5 p-0 bg-blue-500 text-white text-xs flex items-center justify-center">
+                                <Badge className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center bg-blue-500 p-0 text-xs text-white">
                                   {module.badge}
                                 </Badge>
                               )}
                             </div>
 
                             {activeModule === module.id && (
-                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-500 rounded-r-full" />
+                              <div className="absolute top-1/2 left-0 h-8 w-1 -translate-y-1/2 rounded-r-full bg-blue-500" />
                             )}
                           </button>
                         </TooltipTrigger>
                         <TooltipContent
                           side="right"
                           sideOffset={8}
-                          className="bg-gray-800 text-white border border-gray-700"
+                          className="border border-gray-700 bg-gray-800 text-white"
                         >
                           <p className="font-medium">{module.name}</p>
                         </TooltipContent>
@@ -425,7 +423,7 @@ export function Sidebar({
                   <PopoverContent
                     side="right"
                     align="start"
-                    className="w-auto p-0 ml-3 border border-gray-200 bg-white animate-in slide-in-from-left-2 fade-in-0 duration-200"
+                    className="animate-in slide-in-from-left-2 fade-in-0 ml-3 w-auto border border-gray-200 bg-white p-0 duration-200"
                     sideOffset={8}
                     onMouseEnter={handlePopoverMouseEnter}
                     onMouseLeave={handlePopoverMouseLeave}
@@ -440,40 +438,50 @@ export function Sidebar({
                   >
                     <div className="min-w-[220px] overflow-hidden rounded-lg">
                       {/* Header */}
-                      <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
-                        <h4 className="font-semibold text-gray-800 flex items-center gap-2">
+                      <div className="border-b border-gray-100 bg-gray-50 px-4 py-3">
+                        <h4 className="flex items-center gap-2 font-semibold text-gray-800">
                           {module.icon}
                           {module.name}
                         </h4>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="mt-1 text-xs text-gray-500">
                           {module.subPages.length} seçenek
                         </p>
                       </div>
 
                       {/* Menu Items */}
-                      <div className="p-2 space-y-1">
+                      <div className="space-y-1 p-2">
                         {module.subPages.map((subPage, index) => (
                           <button
                             key={subPage.href}
                             onClick={() => {
                               handleSubPageClick(subPage.href, module.id);
                             }}
-                            className={`w-full text-left px-3 py-2.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-200 group flex items-center justify-between animate-in fade-in-0 slide-in-from-left-1 animate-fill-both ${
-                              index === 0 ? 'animate-delay-0' :
-                              index === 1 ? 'animate-delay-50' :
-                              index === 2 ? 'animate-delay-100' :
-                              index === 3 ? 'animate-delay-150' :
-                              index === 4 ? 'animate-delay-200' :
-                              index === 5 ? 'animate-delay-250' :
-                              index === 6 ? 'animate-delay-300' :
-                              index === 7 ? 'animate-delay-350' :
-                              index === 8 ? 'animate-delay-400' :
-                              index === 9 ? 'animate-delay-450' :
-                              'animate-delay-500'
+                            className={`group animate-in fade-in-0 slide-in-from-left-1 animate-fill-both flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm text-gray-700 transition-all duration-200 hover:bg-gray-100 hover:text-gray-900 ${
+                              index === 0
+                                ? 'animate-delay-0'
+                                : index === 1
+                                  ? 'animate-delay-50'
+                                  : index === 2
+                                    ? 'animate-delay-100'
+                                    : index === 3
+                                      ? 'animate-delay-150'
+                                      : index === 4
+                                        ? 'animate-delay-200'
+                                        : index === 5
+                                          ? 'animate-delay-250'
+                                          : index === 6
+                                            ? 'animate-delay-300'
+                                            : index === 7
+                                              ? 'animate-delay-350'
+                                              : index === 8
+                                                ? 'animate-delay-400'
+                                                : index === 9
+                                                  ? 'animate-delay-450'
+                                                  : 'animate-delay-500'
                             }`}
                           >
                             <span className="font-medium">{subPage.name}</span>
-                            <div className="w-1.5 h-1.5 rounded-full bg-gray-400 opacity-0 group-hover:opacity-100 transition-all duration-200 transform group-hover:scale-110" />
+                            <div className="h-1.5 w-1.5 transform rounded-full bg-gray-400 opacity-0 transition-all duration-200 group-hover:scale-110 group-hover:opacity-100" />
                           </button>
                         ))}
                       </div>
