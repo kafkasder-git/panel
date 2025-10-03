@@ -11,15 +11,19 @@
 
 ### 1. Multiple GoTrueClient Instances Warning
 
-- **Error:** `[WARNING] Multiple GoTrueClient instances detected in the same browser context`
+- **Error:**
+  `[WARNING] Multiple GoTrueClient instances detected in the same browser context`
 - **Impact:** Unpredictable authentication behavior, session conflicts
-- **Root Cause:** `middleware/security.ts` was creating a duplicate Supabase client instance
+- **Root Cause:** `middleware/security.ts` was creating a duplicate Supabase
+  client instance
 
 ### 2. Logout Functionality Broken
 
 - **Error:** `[ERROR] 400 () at /auth/v1/token?grant_type=password`
-- **Impact:** Users could not log out, sessions couldn't be cleared, role testing impossible
-- **Root Cause:** signOut function was throwing errors when Supabase API failed, without clearing local state
+- **Impact:** Users could not log out, sessions couldn't be cleared, role
+  testing impossible
+- **Root Cause:** signOut function was throwing errors when Supabase API failed,
+  without clearing local state
 
 ---
 
@@ -262,10 +266,14 @@ Run TestSprite TC003 to verify fix:
 
 ## 💡 Lessons Learned
 
-1. **Singleton Pattern for External Clients:** Always reuse existing client instances instead of creating new ones
-2. **Graceful Degradation:** Critical UX functions (like logout) should work even when backend APIs fail
-3. **Local State Management:** Frontend state should be cleared regardless of backend API response for logout operations
-4. **Error Logging vs Blocking:** Log errors for debugging but don't block critical user actions
+1. **Singleton Pattern for External Clients:** Always reuse existing client
+   instances instead of creating new ones
+2. **Graceful Degradation:** Critical UX functions (like logout) should work
+   even when backend APIs fail
+3. **Local State Management:** Frontend state should be cleared regardless of
+   backend API response for logout operations
+4. **Error Logging vs Blocking:** Log errors for debugging but don't block
+   critical user actions
 
 ---
 

@@ -10,18 +10,21 @@
 ## 🔴 Problem Identified
 
 ### Error Details
+
 - **HTTP Error:** `400 Bad Request at /rest/v1/members?columns=...`
 - **Impact:** 8+ tests failing, member registration completely broken
-- **Root Cause:** **Missing `surname` column in TypeScript interface and queries**
+- **Root Cause:** **Missing `surname` column in TypeScript interface and
+  queries**
 
 ### Discovery Process
 
 1. **Database Inspection:**
+
    ```sql
    SELECT column_name FROM information_schema.columns
    WHERE table_name = 'members' AND table_schema = 'public';
    ```
-   
+
    Result: Database has **58 columns** including:
    - `id`, `name`, **`surname`** ← Critical!
    - `email`, `phone`
@@ -32,17 +35,20 @@
 2. **Code Analysis:**
    - ❌ `services/membersService.ts` interface missing `surname`
    - ❌ `createMember()` function not inserting `surname`
-   - ❌ `MembersPage.tsx` form not mapping `first_name` & `last_name` to `name` & `surname`
+   - ❌ `MembersPage.tsx` form not mapping `first_name` & `last_name` to `name`
+     & `surname`
    - ❌ Table displays not showing `surname`
 
 ### Why This Caused 400 Errors
 
 When queries tried to:
+
 ```sql
 INSERT INTO members (name, email, phone, ...) VALUES (...)
 ```
 
 Database rejected because:
+
 - ✅ `name` column exists
 - ❌ **`surname` column is NOT NULL** (required in database!)
 - ❌ No `surname` value provided → 400 Bad Request
@@ -52,9 +58,11 @@ Database rejected because:
 ## ✅ Fixes Applied
 
 ### Fix 1: Add `surname` to Member Interface
+
 **File:** `services/membersService.ts`
 
 **Before:**
+
 ```typescript
 export interface Member {
   id: string; // UUID
@@ -66,6 +74,7 @@ export interface Member {
 ```
 
 **After:**
+
 ```typescript
 export interface Member {
   id: string; // UUID
@@ -80,53 +89,55 @@ export interface Member {
 ---
 
 ### Fix 2: Update `createMember()` Function
+
 **File:** `services/membersService.ts` (line 384-391)
 
 **Before:**
+
 ```typescript
-const { data: newMember, error } = await supabase
-  .from('members')
-  .insert([
-    {
-      name: memberData.name!,
-      email: memberData.email!,
-      phone: memberData.phone,
-      // ... other fields
-    },
-  ])
+const { data: newMember, error } = await supabase.from('members').insert([
+  {
+    name: memberData.name!,
+    email: memberData.email!,
+    phone: memberData.phone,
+    // ... other fields
+  },
+]);
 ```
 
 **After:**
+
 ```typescript
-const { data: newMember, error } = await supabase
-  .from('members')
-  .insert([
-    {
-      name: memberData.name!,
-      surname: memberData.surname!, // ✅ Now included!
-      email: memberData.email!,
-      phone: memberData.phone,
-      // ... other fields
-    },
-  ])
+const { data: newMember, error } = await supabase.from('members').insert([
+  {
+    name: memberData.name!,
+    surname: memberData.surname!, // ✅ Now included!
+    email: memberData.email!,
+    phone: memberData.phone,
+    // ... other fields
+  },
+]);
 ```
 
 ---
 
 ### Fix 3: Map Form Fields to Database Schema
+
 **File:** `components/pages/MembersPage.tsx` (line 158-170)
 
 **Before:**
+
 ```typescript
 const result = await membersService.createMember(formData as any);
 ```
 
 **After:**
+
 ```typescript
 // Map form fields to database schema
 const memberData = {
-  name: formData.first_name,      // ✅ first_name → name
-  surname: formData.last_name,    // ✅ last_name → surname
+  name: formData.first_name, // ✅ first_name → name
+  surname: formData.last_name, // ✅ last_name → surname
   email: formData.email,
   phone: formData.phone,
   address: formData.address,
@@ -144,9 +155,11 @@ const result = await membersService.createMember(memberData as any);
 ---
 
 ### Fix 4: Update Table Display (Mobile View)
+
 **File:** `components/pages/MembersPage.tsx` (line 410-417)
 
 **Before:**
+
 ```typescript
 <AvatarFallback>
   {member.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
@@ -156,6 +169,7 @@ const result = await membersService.createMember(memberData as any);
 ```
 
 **After:**
+
 ```typescript
 <AvatarFallback>
   {member.name.charAt(0)}
@@ -168,9 +182,11 @@ const result = await membersService.createMember(memberData as any);
 ---
 
 ### Fix 5: Update Table Display (Desktop View)
+
 **File:** `components/pages/MembersPage.tsx` (line 525-536)
 
 **Before:**
+
 ```typescript
 <AvatarFallback>
   {(member.name ?? 'U').charAt(0)}
@@ -183,6 +199,7 @@ const result = await membersService.createMember(memberData as any);
 ```
 
 **After:**
+
 ```typescript
 <AvatarFallback>
   {(member.name ?? 'U').charAt(0)}
@@ -197,14 +214,17 @@ const result = await membersService.createMember(memberData as any);
 ---
 
 ### Fix 6: Update Toast Message
+
 **File:** `components/pages/MembersPage.tsx` (line 440)
 
 **Before:**
+
 ```typescript
 onClick={() => toast.info(`${member.name} detayları görüntüleniyor`)}
 ```
 
 **After:**
+
 ```typescript
 onClick={() => toast.info(`${member.name} ${member.surname} detayları görüntüleniyor`)}
 ```
@@ -214,12 +234,15 @@ onClick={() => toast.info(`${member.name} ${member.surname} detayları görünt�
 ## 🧪 Testing
 
 ### ✅ Linter Check
+
 ```bash
 npx eslint services/membersService.ts components/pages/MembersPage.tsx
 ```
+
 **Result:** ✅ No errors
 
 ### Database Schema Verification
+
 ```sql
 -- Verify surname column exists
 SELECT column_name, data_type, is_nullable
@@ -230,6 +253,7 @@ WHERE table_name = 'members' AND column_name IN ('name', 'surname');
 -- name    | text | NO
 -- surname | text | NO
 ```
+
 **Result:** ✅ Both columns exist, both NOT NULL
 
 ---
@@ -237,18 +261,23 @@ WHERE table_name = 'members' AND column_name IN ('name', 'surname');
 ## 📊 Expected Impact on TestSprite Tests
 
 ### TC004 - New Member Registration and Profile Update
+
 - **Before:** ❌ Failed - 400 error on member creation
-- **After:** ✅ Expected to PASS - Form submits with valid data including surname
+- **After:** ✅ Expected to PASS - Form submits with valid data including
+  surname
 
 ### TC020 - Advanced Search and Filtering Functionality
+
 - **Before:** ❌ Failed - Cannot add members to test search
 - **After:** ✅ Expected to PASS - Members can be created for search testing
 
 ### TC023 - Form Input Validation with React Hook Form and Zod
+
 - **Before:** ❌ Failed - Valid data doesn't submit (400 error)
 - **After:** ✅ Expected to PASS - Valid data submits successfully
 
 ### Additional Tests That May Improve
+
 - **TC005** - Member Registration Form Validation (already passing, may improve)
 - **Any test requiring member data** - Can now create test members
 
@@ -257,6 +286,7 @@ WHERE table_name = 'members' AND column_name IN ('name', 'surname');
 ## 🎯 Success Metrics
 
 ### Before Fix
+
 - ❌ **3 critical tests failing** (TC004, TC020, TC023)
 - ❌ Member registration broken
 - ❌ 400 Bad Request errors
@@ -264,6 +294,7 @@ WHERE table_name = 'members' AND column_name IN ('name', 'surname');
 - **Test Success Rate:** 23.33% (7/30)
 
 ### After Fix
+
 - ✅ **All member-related tests expected to pass**
 - ✅ Member registration functional
 - ✅ No 400 errors
@@ -279,8 +310,10 @@ WHERE table_name = 'members' AND column_name IN ('name', 'surname');
 
 1. **Hybrid Migration Approach:**
    - Existing `members` table had `surname` column (original schema)
-   - Migration script (hybrid_001) added NEW columns but didn't document existing ones
-   - Documentation misleading: "10 → 59 columns" suggested starting from 10 base columns
+   - Migration script (hybrid_001) added NEW columns but didn't document
+     existing ones
+   - Documentation misleading: "10 → 59 columns" suggested starting from 10 base
+     columns
 
 2. **TypeScript Interface Mismatch:**
    - Service interface was written based on desired schema
@@ -295,12 +328,15 @@ WHERE table_name = 'members' AND column_name IN ('name', 'surname');
 ### Lessons Learned
 
 1. **Always Verify Database Schema:**
+
    ```sql
    SELECT * FROM information_schema.columns WHERE table_name = 'your_table';
    ```
+
    Don't assume migration documentation is complete!
 
 2. **Use Generated Types:**
+
    ```typescript
    // Use Supabase generated types instead of manual interfaces
    import { Database } from '../types/supabase';
@@ -308,6 +344,7 @@ WHERE table_name = 'members' AND column_name IN ('name', 'surname');
    ```
 
 3. **Add Schema Validation Tests:**
+
    ```typescript
    // Test that TypeScript interface matches database schema
    it('Member interface should match database schema', async () => {
@@ -332,11 +369,13 @@ WHERE table_name = 'members' AND column_name IN ('name', 'surname');
 ## 🔗 Related Issues
 
 ### ✅ Resolved
+
 - Members table 400 errors (TC004, TC020, TC023)
 - Member creation broken
 - Form submission failures
 
 ### ⏭️ Next Steps (Other Critical Issues)
+
 1. **Donations Table** - Verify no similar surname/field issues
 2. **Navigation Issues** - 6 tests failing due to unreachable pages
 3. **Missing onClick Handlers** - 5 tests with non-functional buttons
@@ -380,4 +419,3 @@ WHERE table_name = 'members' AND column_name IN ('name', 'surname');
 **Lines Changed:** ~50  
 **Test Success Rate Impact:** +10% (3 tests)  
 **Expected New Success Rate:** 33.33% (10/30 minimum)
-
