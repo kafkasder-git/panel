@@ -1,6 +1,6 @@
 /**
  * @fileoverview SupabaseAuthContext Module - Application module
- * 
+ *
  * @author Dernek Yönetim Sistemi Team
  * @version 1.0.0
  */
@@ -33,7 +33,7 @@ interface SupabaseAuthProviderProps {
 
 /**
  * SupabaseAuthProvider function
- * 
+ *
  * @param {Object} params - Function parameters
  * @returns {void} Nothing
  */
@@ -166,12 +166,11 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
         setIsLoading(false);
         toast.success('Demo modunda giriş yapıldı');
         return;
-      } 
-        setError('Demo için: demo@example.com / demo123 kullanın');
-        setIsLoading(false);
-        toast.error('Demo için: demo@example.com / demo123 kullanın');
-        return;
-      
+      }
+      setError('Demo için: demo@example.com / demo123 kullanın');
+      setIsLoading(false);
+      toast.error('Demo için: demo@example.com / demo123 kullanın');
+      return;
     }
 
     try {
@@ -352,7 +351,7 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
 
 /**
  * useSupabaseAuth function
- * 
+ *
  * @param {Object} params - Function parameters
  * @returns {void} Nothing
  */

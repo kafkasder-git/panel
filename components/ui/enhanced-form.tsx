@@ -1,6 +1,6 @@
 /**
  * @fileoverview enhanced-form Module - Application module
- * 
+ *
  * @author Dernek Yönetim Sistemi Team
  * @version 1.0.0
  */
@@ -80,7 +80,7 @@ interface EnhancedFormProviderProps<T extends FieldValues = FieldValues> {
 
 /**
  * EnhancedFormProvider function
- * 
+ *
  * @param {Object} params - Function parameters
  * @returns {void} Nothing
  */
@@ -156,7 +156,7 @@ export function EnhancedFormProvider<T extends FieldValues = FieldValues>({
     <EnhancedFormContext.Provider value={contextValue}>
       <ReactHookFormProvider {...form}>
         <Card className={cn('w-full shadow-lg border-0 bg-white/80 backdrop-blur-sm', className)}>
-          {(title ?? description || autoSave) && (
+          {(title ?? (description || autoSave)) && (
             <CardHeader className={cn('pb-4', compactMode && 'pb-2')}>
               <div className="flex items-center justify-between">
                 <div>
@@ -235,7 +235,7 @@ export type FieldType =
 
 /**
  * SelectOption Interface
- * 
+ *
  * @interface SelectOption
  */
 export interface SelectOption {
@@ -248,7 +248,7 @@ export interface SelectOption {
 
 /**
  * EnhancedFieldProps Interface
- * 
+ *
  * @interface EnhancedFieldProps
  */
 export interface EnhancedFieldProps {
@@ -283,7 +283,7 @@ export interface EnhancedFieldProps {
 // Enhanced Form Field Component
 /**
  * EnhancedField function
- * 
+ *
  * @param {Object} params - Function parameters
  * @returns {void} Nothing
  */
@@ -433,7 +433,11 @@ export function EnhancedField({
 
       case 'select':
         return (
-          <Select value={form.getValues(name) || ''} onValueChange={handleChange} disabled={disabled}>
+          <Select
+            value={form.getValues(name) || ''}
+            onValueChange={handleChange}
+            disabled={disabled}
+          >
             <SelectTrigger className={cn(sizeClasses[size], error && 'border-red-500')}>
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
@@ -511,7 +515,9 @@ export function EnhancedField({
                 )}
               >
                 <Calendar className="mr-2 h-4 w-4" />
-                {form.getValues(name) ? format(form.getValues(name), 'dd/MM/yyyy', { locale: tr }) : placeholder}
+                {form.getValues(name)
+                  ? format(form.getValues(name), 'dd/MM/yyyy', { locale: tr })
+                  : placeholder}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">
@@ -592,7 +598,9 @@ export function EnhancedField({
               </Button>
               {form.getValues(name) && (
                 <span className="text-sm text-gray-600">
-                  {Array.isArray(form.getValues(name)) ? `${form.getValues(name).length} dosya` : form.getValues(name).name}
+                  {Array.isArray(form.getValues(name))
+                    ? `${form.getValues(name).length} dosya`
+                    : form.getValues(name).name}
                 </span>
               )}
             </div>
@@ -603,7 +611,7 @@ export function EnhancedField({
               multiple={multiple}
               accept={accept}
               onChange={(e) => {
-                const {files} = e.target;
+                const { files } = e.target;
                 if (files) {
                   handleChange(multiple ? Array.from(files) : files[0]);
                 }
@@ -689,7 +697,7 @@ interface FormSectionProps {
 
 /**
  * FormSection function
- * 
+ *
  * @param {Object} params - Function parameters
  * @returns {void} Nothing
  */
@@ -756,7 +764,7 @@ interface FormActionsProps {
 
 /**
  * FormActions function
- * 
+ *
  * @param {Object} params - Function parameters
  * @returns {void} Nothing
  */
@@ -778,7 +786,7 @@ export function FormActions({
       disabled={loading ?? enhancedForm.isSubmitting}
       className="gap-2 min-w-24"
     >
-      {loading ?? enhancedForm.isSubmitting ? (
+      {(loading ?? enhancedForm.isSubmitting) ? (
         <Loader2 className="w-4 h-4 animate-spin" />
       ) : (
         <Save className="w-4 h-4" />

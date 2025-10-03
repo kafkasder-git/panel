@@ -1,6 +1,6 @@
 /**
  * @fileoverview ResponsiveCard Module - Application module
- * 
+ *
  * @author Dernek Yönetim Sistemi Team
  * @version 1.0.0
  */
@@ -78,7 +78,7 @@ interface ResponsiveCardGridProps {
 
 /**
  * ResponsiveCardGrid function
- * 
+ *
  * @param {Object} params - Function parameters
  * @returns {void} Nothing
  */
@@ -122,7 +122,7 @@ interface MobileInfoCardProps {
 
 /**
  * MobileInfoCard function
- * 
+ *
  * @param {Object} params - Function parameters
  * @returns {void} Nothing
  */
@@ -188,7 +188,7 @@ interface TouchActionCardProps {
 
 /**
  * TouchActionCard function
- * 
+ *
  * @param {Object} params - Function parameters
  * @returns {void} Nothing
  */
