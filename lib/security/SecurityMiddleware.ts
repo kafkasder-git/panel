@@ -9,13 +9,14 @@ import { logger } from './logging/logger';
 // API Security Wrapper
 /**
  * SecureAPIClient Service
- * 
+ *
  * Service class for handling secureapiclient operations
- * 
+ *
  * @class SecureAPIClient
  */
 export class SecureAPIClient {
-  private static readonly baseURL = (import.meta?.env?.VITE_API_URL) || process.env.VITE_API_URL ?? '';
+  private static readonly baseURL =
+    (import.meta?.env?.VITE_API_URL || process.env.VITE_API_URL) ?? '';
   private static readonly sessionId = crypto.getRandomValues(new Uint8Array(16)).join('');
 
   static async secureRequest(
@@ -147,9 +148,9 @@ export class SecureAPIClient {
 // Security Context Provider
 /**
  * SecurityContext Service
- * 
+ *
  * Service class for handling securitycontext operations
- * 
+ *
  * @class SecurityContext
  */
 export class SecurityContext {
@@ -182,7 +183,7 @@ export class SecurityContext {
 
 /**
  * SecurityConfig Interface
- * 
+ *
  * @interface SecurityConfig
  */
 export interface SecurityConfig {
@@ -207,15 +208,17 @@ export const DEFAULT_SECURITY_CONFIG: SecurityConfig = {
   enableInputSanitization: true,
   maxRequestsPerMinute: 100,
   sessionTimeoutMinutes: 60,
-  requireHTTPS: (typeof import.meta !== 'undefined' && import.meta.env?.PROD) || process.env.NODE_ENV === 'production',
+  requireHTTPS:
+    (typeof import.meta !== 'undefined' && import.meta.env?.PROD) ||
+    process.env.NODE_ENV === 'production',
 };
 
 // Security monitoring
 /**
  * SecurityMonitor Service
- * 
+ *
  * Service class for handling securitymonitor operations
- * 
+ *
  * @class SecurityMonitor
  */
 export class SecurityMonitor {
@@ -233,7 +236,10 @@ export class SecurityMonitor {
       logger.error('CRITICAL SECURITY THREAT:', threat);
 
       // In production, send to security service
-      if ((typeof import.meta !== 'undefined' && import.meta.env?.PROD) || process.env.NODE_ENV === 'production') {
+      if (
+        (typeof import.meta !== 'undefined' && import.meta.env?.PROD) ||
+        process.env.NODE_ENV === 'production'
+      ) {
         this.sendThreatAlert(threat);
       }
     }
@@ -271,7 +277,7 @@ export class SecurityMonitor {
 
 /**
  * SecurityThreat Interface
- * 
+ *
  * @interface SecurityThreat
  */
 export interface SecurityThreat {

@@ -1,6 +1,6 @@
 /**
  * @fileoverview use-mobile Module - Application module
- * 
+ *
  * @author Dernek Yönetim Sistemi Team
  * @version 1.0.0
  */
@@ -11,7 +11,7 @@ const MOBILE_BREAKPOINT = 768;
 
 /**
  * useIsMobile function
- * 
+ *
  * @param {Object} params - Function parameters
  * @returns {void} Nothing
  */

@@ -1,6 +1,6 @@
 /**
  * @fileoverview supabase Module - Application module
- * 
+ *
  * @author Dernek Yönetim Sistemi Team
  * @version 1.0.0
  */
@@ -29,17 +29,24 @@ logger.info('Supabase Configuration Debug:', {
   anonKeyLength: supabaseAnonKey?.length ?? 0,
   supabaseUrlValid: supabaseUrl && supabaseUrl.startsWith('http'),
   importMetaEnv: {
-    VITE_SUPABASE_URL: (import.meta?.env?.VITE_SUPABASE_URL) || process.env.VITE_SUPABASE_URL,
-    VITE_SUPABASE_ANON_KEY: ((import.meta?.env?.VITE_SUPABASE_ANON_KEY) || process.env.VITE_SUPABASE_ANON_KEY) ? 'SET' : 'NOT_SET',
+    VITE_SUPABASE_URL: import.meta?.env?.VITE_SUPABASE_URL || process.env.VITE_SUPABASE_URL,
+    VITE_SUPABASE_ANON_KEY:
+      import.meta?.env?.VITE_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY
+        ? 'SET'
+        : 'NOT_SET',
   },
   environment: {
     url: environment.supabase.url,
     anonKey: environment.supabase.anonKey ? 'SET' : 'NOT_SET',
   },
-  allImportMetaEnv: (typeof import.meta !== 'undefined' && import.meta.env) ? Object.keys(import.meta.env as Record<string, any>).filter((key) => key.startsWith('VITE_')) : [],
+  allImportMetaEnv:
+    typeof import.meta !== 'undefined' && import.meta.env
+      ? Object.keys(import.meta.env as Record<string, any>).filter((key) => key.startsWith('VITE_'))
+      : [],
   rawImportMetaEnv: {
-    VITE_SUPABASE_URL: (import.meta?.env?.VITE_SUPABASE_URL) || process.env.VITE_SUPABASE_URL,
-    VITE_SUPABASE_ANON_KEY: (import.meta?.env?.VITE_SUPABASE_ANON_KEY) || process.env.VITE_SUPABASE_ANON_KEY,
+    VITE_SUPABASE_URL: import.meta?.env?.VITE_SUPABASE_URL || process.env.VITE_SUPABASE_URL,
+    VITE_SUPABASE_ANON_KEY:
+      import.meta?.env?.VITE_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY,
   },
 });
 
@@ -55,7 +62,9 @@ if (!supabaseAnonKey) {
 // Create a safe Supabase client - use dummy values if environment is not configured
 const normalizedUrl = (supabaseUrl || '').trim();
 const normalizedKey = (supabaseAnonKey || '').trim();
-const safeSupabaseUrl = normalizedUrl.startsWith('http') ? normalizedUrl : 'https://placeholder.supabase.co';
+const safeSupabaseUrl = normalizedUrl.startsWith('http')
+  ? normalizedUrl
+  : 'https://placeholder.supabase.co';
 const safeSupabaseKey = normalizedKey ? normalizedKey : 'placeholder-key';
 
 // Supabase client instance oluştur
@@ -76,7 +85,7 @@ export const supabase = createClient(safeSupabaseUrl, safeSupabaseKey, {
 // Admin client (service role key ile) - RLS bypass için
 export const supabaseAdmin = createClient(
   safeSupabaseUrl,
-  ((environment.supabase.serviceRoleKey || '').trim()) || safeSupabaseKey,
+  (environment.supabase.serviceRoleKey || '').trim() || safeSupabaseKey,
   {
     auth: {
       autoRefreshToken: false,
@@ -88,7 +97,7 @@ export const supabaseAdmin = createClient(
 // Type definitions for TypeScript
 /**
  * Database Interface
- * 
+ *
  * @interface Database
  */
 export interface Database {
@@ -128,10 +137,12 @@ export type SupabaseClient = typeof supabase;
 
 // Helper function to check if Supabase is properly configured
 export const isSupabaseConfigured = (): boolean => {
-  return Boolean(supabaseUrl &&
-    supabaseUrl.startsWith('http') &&
-    supabaseAnonKey &&
-    supabaseAnonKey !== 'placeholder-key');
+  return Boolean(
+    supabaseUrl &&
+      supabaseUrl.startsWith('http') &&
+      supabaseAnonKey &&
+      supabaseAnonKey !== 'placeholder-key',
+  );
 };
 
 // Helper function to get Supabase configuration status

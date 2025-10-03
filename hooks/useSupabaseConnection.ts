@@ -1,6 +1,6 @@
 /**
  * @fileoverview useSupabaseConnection Module - Application module
- * 
+ *
  * @author Dernek Yönetim Sistemi Team
  * @version 1.0.0
  */
@@ -18,7 +18,7 @@ interface ConnectionStatus {
 
 /**
  * useSupabaseConnection function
- * 
+ *
  * @param {Object} params - Function parameters
  * @returns {void} Nothing
  */
@@ -87,7 +87,7 @@ export function useSupabaseConnection(): ConnectionStatus {
 // Utility function to check if Supabase is properly configured
 /**
  * isSupabaseConfigured function
- * 
+ *
  * @param {Object} params - Function parameters
  * @returns {void} Nothing
  */
@@ -95,10 +95,12 @@ export function isSupabaseConfigured(): boolean {
   const url = import.meta.env.VITE_SUPABASE_URL;
   const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-  return Boolean(url &&
-    key &&
-    !url.includes('your-project') &&
-    !key.includes('your-anon-key') &&
-    url.startsWith('https://') &&
-    url.includes('.supabase.co'));
+  return Boolean(
+    url &&
+      key &&
+      !url.includes('your-project') &&
+      !key.includes('your-anon-key') &&
+      url.startsWith('https://') &&
+      url.includes('.supabase.co'),
+  );
 }
