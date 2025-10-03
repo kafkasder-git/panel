@@ -66,7 +66,7 @@ export class KeyboardNavigationTester {
 
     for (let i = 0; i < focusableElements.length; i++) {
       await this.user.tab();
-      const {activeElement} = document;
+      const { activeElement } = document;
 
       if (activeElement) {
         focusOrder.push(activeElement);
@@ -118,7 +118,7 @@ export class KeyboardNavigationTester {
 
     for (let i = focusableElements.length - 1; i >= 0; i--) {
       await this.user.tab({ shift: true });
-      const {activeElement} = document;
+      const { activeElement } = document;
 
       if (activeElement) {
         focusOrder.push(activeElement);
@@ -287,11 +287,13 @@ export class KeyboardNavigationTester {
 
   private hasAccessibleName(element: Element): boolean {
     // Check various ways an element can have an accessible name
-    return Boolean(element.getAttribute('aria-label') ||
-      element.getAttribute('aria-labelledby') ||
-      element.getAttribute('title') ||
-      (element as HTMLElement).innerText?.trim() ||
-      element.querySelector('img')?.getAttribute('alt'));
+    return Boolean(
+      element.getAttribute('aria-label') ||
+        element.getAttribute('aria-labelledby') ||
+        element.getAttribute('title') ||
+        (element as HTMLElement).innerText?.trim() ||
+        element.querySelector('img')?.getAttribute('alt'),
+    );
   }
 
   private getElementDescription(element: Element): string {

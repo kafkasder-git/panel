@@ -7,7 +7,7 @@ import { logger } from '../lib/logging/logger';
 
 /**
  * CameraOptions Interface
- * 
+ *
  * @interface CameraOptions
  */
 export interface CameraOptions {
@@ -19,7 +19,7 @@ export interface CameraOptions {
 
 /**
  * GeolocationOptions Interface
- * 
+ *
  * @interface GeolocationOptions
  */
 export interface GeolocationOptions {
@@ -30,7 +30,7 @@ export interface GeolocationOptions {
 
 /**
  * ContactInfo Interface
- * 
+ *
  * @interface ContactInfo
  */
 export interface ContactInfo {
@@ -41,7 +41,7 @@ export interface ContactInfo {
 
 /**
  * DeviceCapabilities Interface
- * 
+ *
  * @interface DeviceCapabilities
  */
 export interface DeviceCapabilities {
@@ -261,21 +261,20 @@ class NativeFeaturesService {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(text);
         return true;
-      } 
-        // Fallback for older browsers
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-999999px';
-        textArea.style.top = '-999999px';
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
+      }
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
 
-        const result = document.execCommand('copy');
-        document.body.removeChild(textArea);
-        return result;
-      
+      const result = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      return result;
     } catch (error) {
       logger.error('Clipboard access failed:', error);
       return false;
@@ -289,9 +288,8 @@ class NativeFeaturesService {
     try {
       if (navigator.clipboard && navigator.clipboard.readText) {
         return await navigator.clipboard.readText();
-      } 
-        throw new Error('Clipboard read not supported');
-      
+      }
+      throw new Error('Clipboard read not supported');
     } catch (error) {
       logger.error('Clipboard read failed:', error);
       throw new Error(
@@ -386,20 +384,19 @@ class NativeFeaturesService {
         await writable.close();
 
         return true;
-      } 
-        // Fallback to download
-        const blob = new Blob([content], { type: mimeType });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+      }
+      // Fallback to download
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
 
-        return true;
-      
+      return true;
     } catch (error) {
       logger.error('File save failed:', error);
       return false;
@@ -455,8 +452,9 @@ class NativeFeaturesService {
    */
   isStandalone(): boolean {
     return (
-      window.matchMedia('(display-mode: standalone)').matches ||
-      (window.navigator as any).standalone ?? document.referrer.includes('android-app://')
+      (window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as any).standalone) ??
+      document.referrer.includes('android-app://')
     );
   }
 
@@ -539,9 +537,11 @@ class NativeFeaturesService {
    * Check if in fullscreen mode
    */
   isFullscreen(): boolean {
-    return Boolean(document.fullscreenElement ||
-      (document as any).webkitFullscreenElement ||
-      (document as any).msFullscreenElement);
+    return Boolean(
+      document.fullscreenElement ||
+        (document as any).webkitFullscreenElement ||
+        (document as any).msFullscreenElement,
+    );
   }
 
   /**
@@ -552,10 +552,9 @@ class NativeFeaturesService {
       if ('wakeLock' in navigator) {
         const wakeLock = await navigator.wakeLock.request('screen');
         return wakeLock;
-      } 
-        logger.warn('Wake Lock API not supported');
-        return null;
-      
+      }
+      logger.warn('Wake Lock API not supported');
+      return null;
     } catch (error) {
       logger.error('Wake lock request failed:', error);
       return null;
@@ -575,9 +574,8 @@ class NativeFeaturesService {
           dischargingTime: battery.dischargingTime,
           level: Math.round(battery.level * 100),
         };
-      } 
-        throw new Error('Battery Status API not supported');
-      
+      }
+      throw new Error('Battery Status API not supported');
     } catch (error) {
       logger.error('Battery status failed:', error);
       return null;

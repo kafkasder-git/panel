@@ -287,7 +287,9 @@ export class ScreenReaderTester {
           hasLabel = Boolean(field.closest('label'));
         }
         if (!hasLabel) {
-          hasLabel = Boolean(field.getAttribute('aria-label') || field.getAttribute('aria-labelledby'));
+          hasLabel = Boolean(
+            field.getAttribute('aria-label') || field.getAttribute('aria-labelledby'),
+          );
         }
 
         // Check for required indicator
@@ -295,22 +297,28 @@ export class ScreenReaderTester {
         if (isRequired) {
           if (fieldId) {
             const label = form.querySelector(`label[for="${fieldId}"]`);
-            hasRequiredIndicator = Boolean(label?.textContent?.includes('*') ||
-              label?.querySelector('.required') ||
-              field.getAttribute('aria-required') === 'true');
+            hasRequiredIndicator = Boolean(
+              label?.textContent?.includes('*') ||
+                label?.querySelector('.required') ||
+                field.getAttribute('aria-required') === 'true',
+            );
           }
         }
 
         // Check for error messages
         const hasErrorMessage =
-          Boolean(field.getAttribute('aria-describedby') &&
-            document
-              .getElementById(field.getAttribute('aria-describedby')!)
-              ?.textContent?.includes('error')) || field.getAttribute('aria-invalid') === 'true';
+          Boolean(
+            field.getAttribute('aria-describedby') &&
+              document
+                .getElementById(field.getAttribute('aria-describedby')!)
+                ?.textContent?.includes('error'),
+          ) || field.getAttribute('aria-invalid') === 'true';
 
         // Check for help text
-        const hasHelpText = Boolean(field.getAttribute('aria-describedby') &&
-          document.getElementById(field.getAttribute('aria-describedby')!));
+        const hasHelpText = Boolean(
+          field.getAttribute('aria-describedby') &&
+            document.getElementById(field.getAttribute('aria-describedby')!),
+        );
 
         formData.fields.push({
           field,
