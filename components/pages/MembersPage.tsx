@@ -35,6 +35,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
+import { ExportModal } from '../data/ExportModal';
 
 import { logger } from '../../lib/logging/logger';
 // Status and membership type mappings for Turkish display
@@ -68,6 +69,7 @@ export function MembersPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
+  const [showExportModal, setShowExportModal] = useState(false);
   const [stats, setStats] = useState({
     total: 0,
     active: 0,
@@ -90,8 +92,8 @@ export function MembersPage() {
     notes: '',
   });
 
-  // TC020 FIX: Export functionality
-  const { exportData, isExporting } = useDataExport();
+  // TC020 FIX: Export functionality - removed direct export, now using ExportModal
+  const { isExporting } = useDataExport();
 
   // Load members data
   const loadMembers = useCallback(async () => {
@@ -176,10 +178,12 @@ export function MembersPage() {
 
       if (result.error) {
         // TC008 FIX: Handle 409 conflict errors with user-friendly messages
-        if (result.error.includes('duplicate') || 
-            result.error.includes('unique') || 
-            result.error.includes('already exists') ||
-            result.error.includes('23505')) {
+        if (
+          result.error.includes('duplicate') ||
+          result.error.includes('unique') ||
+          result.error.includes('already exists') ||
+          result.error.includes('23505')
+        ) {
           toast.error('Bu email veya telefon numarası zaten kayıtlı!', {
             description: 'Lütfen farklı bir email veya telefon numarası kullanın.',
             duration: 5000,
@@ -218,40 +222,9 @@ export function MembersPage() {
   };
 
   // TC020 FIX: Export members handler
-  const handleExportMembers = async () => {
-    // Prevent multiple exports
-    if (isExporting) return;
-    
-    try {
-      toast.info('Export işlemi başlatılıyor...');
-      
-      const filters = {
-        searchTerm: searchTerm.trim() || undefined,
-        membershipStatus: statusFilter !== 'all' ? statusFilter : undefined,
-        membershipType: typeFilter !== 'all' ? typeFilter : undefined,
-      };
-
-      const result = await membersService.exportMembers(filters);
-
-      if (result.error) {
-        toast.error(result.error);
-        return;
-      }
-
-      if (result.data && result.data.length > 0) {
-        // Cast to any to satisfy ExportableData type requirement
-        await exportData(result.data as any, {
-          format: 'excel',
-          filename: `uyeler-${new Date().toISOString().split('T')[0]}`,
-        });
-        toast.success(`${result.data.length} üye başarıyla dışa aktarıldı!`);
-      } else {
-        toast.warning('Dışa aktarılacak üye bulunamadı');
-      }
-    } catch (error) {
-      logger.error('Export error:', error);
-      toast.error('Export işlemi başarısız oldu');
-    }
+  // TC011 FIX: Export members handler - now opens modal instead of direct export
+  const handleExportMembers = () => {
+    setShowExportModal(true);
   };
 
   // Load cities for filter
@@ -466,7 +439,9 @@ export function MembersPage() {
                               </AvatarFallback>
                             </Avatar>
                             <div className="min-w-0 flex-1">
-                              <h3 className="truncate font-medium text-gray-900">{member.name} {member.surname}</h3>
+                              <h3 className="truncate font-medium text-gray-900">
+                                {member.name} {member.surname}
+                              </h3>
                               <p className="truncate text-sm text-gray-600">{member.email}</p>
                               <p className="text-xs text-gray-500">
                                 {member.phone ?? 'Telefon yok'}
@@ -489,7 +464,11 @@ export function MembersPage() {
                             variant="ghost"
                             size="sm"
                             className="min-h-[44px] min-w-[44px] p-2 text-blue-600 hover:text-blue-700"
-                            onClick={() => toast.info(`${member.name} ${member.surname} detayları görüntüleniyor`)}
+                            onClick={() =>
+                              toast.info(
+                                `${member.name} ${member.surname} detayları görüntüleniyor`,
+                              )
+                            }
                             aria-label="Görüntüle"
                           >
                             <Eye className="h-4 w-4" />
@@ -874,6 +853,17 @@ export function MembersPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Export Modal */}
+      <ExportModal
+        isOpen={showExportModal}
+        onClose={() => {
+          setShowExportModal(false);
+        }}
+        data={members}
+        dataType="members"
+        title="Üye Listesi Dışa Aktarma"
+      />
     </PageLayout>
   );
 }

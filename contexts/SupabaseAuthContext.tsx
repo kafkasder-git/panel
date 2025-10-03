@@ -57,6 +57,7 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
   const isAuthenticated = !!user && !!session;
 
   // Initialize auth state - with proper cleanup to avoid multiple instances
+  // Using a ref to prevent double subscription in React StrictMode
   useEffect(() => {
     let mounted = true;
     let authSubscription: { unsubscribe: () => void } | null = null;
@@ -78,40 +79,40 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
         }
 
         // Setup auth state listener only after initial session check
-        // This ensures we don't set up multiple listeners in StrictMode
+        // Guard against double subscription in React StrictMode (dev only)
         if (mounted && !authSubscription) {
           const {
             data: { subscription },
           } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (!mounted) return; // Early return if unmounted
+
             logger.info('Auth state change:', event, session?.user?.email);
 
-            if (mounted) {
-              setSession(session);
-              setUser(session ? session.user : null);
-              setIsLoading(false);
+            setSession(session);
+            setUser(session ? session.user : null);
+            setIsLoading(false);
 
-        // Handle auth events
-        switch (event) {
-          case 'SIGNED_IN':
-            // Removed welcome toast notification
-            logger.info('User signed in:', session?.user?.email);
-            break;
-          case 'SIGNED_OUT':
-            toast.success('Başarıyla çıkış yaptınız');
-            break;
-          case 'TOKEN_REFRESHED':
-            logger.info('Token refreshed');
-            break;
-          case 'USER_UPDATED':
-            logger.info('User updated');
-            break;
-          case 'INITIAL_SESSION':
-          case 'PASSWORD_RECOVERY':
-          case 'MFA_CHALLENGE_VERIFIED':
-            // Handle other auth events
-            logger.info('Auth event:', event);
-            break;
-        }
+            // Handle auth events
+            switch (event) {
+              case 'SIGNED_IN':
+                // Removed welcome toast notification
+                logger.info('User signed in:', session?.user?.email);
+                break;
+              case 'SIGNED_OUT':
+                toast.success('Başarıyla çıkış yaptınız');
+                break;
+              case 'TOKEN_REFRESHED':
+                logger.info('Token refreshed');
+                break;
+              case 'USER_UPDATED':
+                logger.info('User updated');
+                break;
+              case 'INITIAL_SESSION':
+              case 'PASSWORD_RECOVERY':
+              case 'MFA_CHALLENGE_VERIFIED':
+                // Handle other auth events
+                logger.info('Auth event:', event);
+                break;
             }
           });
           authSubscription = subscription;
@@ -196,10 +197,13 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
         toast.success('Demo modunda giriş yapıldı');
         return;
       }
-      setError(`Demo için: ${demoEmail} / ${demoPassword} kullanın`);
+      // CRITICAL FIX: Properly reject invalid credentials in demo mode
+      const errorMessage = `Geçersiz email veya şifre. Demo için: ${demoEmail} / ${demoPassword} kullanın`;
+      setError(errorMessage);
       setIsLoading(false);
-      toast.error(`Demo için: ${demoEmail} / ${demoPassword} kullanın`);
-      return;
+      toast.error(errorMessage, { duration: 4000 });
+      // Throw error to prevent silent failure
+      throw new Error(errorMessage);
     }
 
     try {
@@ -389,5 +393,3 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
     <SupabaseAuthContext.Provider value={contextValue}>{children}</SupabaseAuthContext.Provider>
   );
 }
-
-
