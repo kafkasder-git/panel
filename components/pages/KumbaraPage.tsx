@@ -28,6 +28,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { sanitizeText } from '../../lib/security/sanitization';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Textarea } from '../ui/textarea';
 
@@ -57,7 +58,7 @@ interface Kumbara {
  * @returns {void} Nothing
  */
 export function KumbaraPage() {
-  const [loading, setLoading] = useState(false);
+  const [loading, _setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [kumbaralar] = useState<Kumbara[]>([]);
@@ -97,10 +98,17 @@ export function KumbaraPage() {
 
   const printQRCode = (kumbara: Kumbara) => {
     const printWindow = window.open('', '_blank');
+    
+    // SECURITY FIX: Sanitize all user input before using in document.write to prevent XSS
+    // deepcode ignore DOMXSS: All user inputs (code, name, location) are sanitized with sanitizeText()
+    const sanitizedCode = sanitizeText(kumbara.code);
+    const sanitizedName = sanitizeText(kumbara.name);
+    const sanitizedLocation = sanitizeText(kumbara.location);
+
     const qrContent = `
       <html>
         <head>
-          <title>Kumbara QR Kod - ${kumbara.code}</title>
+          <title>Kumbara QR Kod - ${sanitizedCode}</title>
           <style>
             @page { size: 40mm 30mm; margin: 2mm; }
             body { 
@@ -145,9 +153,9 @@ export function KumbaraPage() {
         <body>
           <div class="qr-container">
             <div class="qr-placeholder">QR KOD</div>
-            <div class="qr-info qr-code">${kumbara.code}</div>
-            <div class="qr-info">${kumbara.name}</div>
-            <div class="qr-info">${kumbara.location}</div>
+            <div class="qr-info qr-code">${sanitizedCode}</div>
+            <div class="qr-info">${sanitizedName}</div>
+            <div class="qr-info">${sanitizedLocation}</div>
           </div>
         </body>
       </html>

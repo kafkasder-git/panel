@@ -23,6 +23,7 @@ import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Input } from '../ui/input';
+import { sanitizeUrl } from '../../lib/security/sanitization';
 
 interface BeneficiaryDocumentsProps {
   beneficiaryId: string;
@@ -38,7 +39,7 @@ interface BeneficiaryDocumentsProps {
  * @returns {void} Nothing
  */
 export function BeneficiaryDocuments({
-  beneficiaryId,
+  beneficiaryId: _beneficiaryId,
   documents = [],
   onDocumentUpload,
   onDocumentDelete,
@@ -342,7 +343,12 @@ export function BeneficiaryDocuments({
 
             <div className="flex-1 overflow-auto">
               {previewFile.type.startsWith('image/') ? (
-                <img src={previewFile.url} alt={previewFile.name} className="max-w-full h-auto" />
+                // deepcode ignore DOMXSS: URL is sanitized with sanitizeUrl() to prevent XSS attacks
+                <img 
+                  src={sanitizeUrl(previewFile.url)} 
+                  alt={previewFile.name} 
+                  className="max-w-full h-auto" 
+                />
               ) : (
                 <div className="text-center py-8">
                   <FileText className="w-16 h-16 mx-auto mb-4 text-gray-400" />

@@ -48,6 +48,7 @@ import { Label } from '../ui/label';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Textarea } from '../ui/textarea';
+import { sanitizeUrl } from '../../lib/security/sanitization';
 
 import { logger } from '../../lib/logging/logger';
 // Health conditions data
@@ -328,8 +329,8 @@ export function BeneficiaryDetailPageComprehensive({
   ]);
 
   // Help Provided Modal States
-  const [isHelpProvidedModalOpen, setIsHelpProvidedModalOpen] = useState(false);
-  const [helpProvided] = useState([
+  const [_isHelpProvidedModalOpen, _setIsHelpProvidedModalOpen] = useState(false);
+  const [_helpProvided] = useState([
     {
       id: 1,
       type: 'Gıda Paketi',
@@ -349,8 +350,8 @@ export function BeneficiaryDetailPageComprehensive({
   ]);
 
   // Consent Modal States
-  const [isConsentModalOpen, setIsConsentModalOpen] = useState(false);
-  const [consents] = useState([
+  const [_isConsentModalOpen, _setIsConsentModalOpen] = useState(false);
+  const [_consents] = useState([
     {
       id: 1,
       type: 'KVKK Aydınlatma Metni',
@@ -628,22 +629,22 @@ export function BeneficiaryDetailPageComprehensive({
 
   // Help Provided Modal Handlers
   const handleOpenHelpProvidedModal = () => {
-    setIsHelpProvidedModalOpen(true);
+    _setIsHelpProvidedModalOpen(true);
   };
-  const handleCloseHelpProvidedModal = () => {
-    setIsHelpProvidedModalOpen(false);
+  const _handleCloseHelpProvidedModal = () => {
+    _setIsHelpProvidedModalOpen(false);
   };
 
   // Consent Modal Handlers
   const handleOpenConsentModal = () => {
-    setIsConsentModalOpen(true);
+    _setIsConsentModalOpen(true);
   };
-  const handleCloseConsentModal = () => {
-    setIsConsentModalOpen(false);
+  const _handleCloseConsentModal = () => {
+    _setIsConsentModalOpen(false);
   };
 
   // Completed Aids Modal Handlers
-  const handleOpenCompletedAidsModal = () => {
+  const _handleOpenCompletedAidsModal = () => {
     setIsCompletedAidsModalOpen(true);
   };
   const handleCloseCompletedAidsModal = () => {
@@ -651,7 +652,7 @@ export function BeneficiaryDetailPageComprehensive({
   };
 
   // Consent Declarations Modal Handlers
-  const handleOpenConsentDeclarationsModal = () => {
+  const _handleOpenConsentDeclarationsModal = () => {
     setIsConsentDeclarationsModalOpen(true);
   };
   const handleCloseConsentDeclarationsModal = () => {
@@ -819,7 +820,7 @@ export function BeneficiaryDetailPageComprehensive({
         try {
           await supabaseAdmin.rpc('exec_sql', { sql: policy.sql });
           logger.info('✅ Policy created:', policy.name);
-        } catch (error: any) {
+        } catch (_error: any) {
           // Policy zaten varsa hata verebilir, bu normal
           logger.info('ℹ️ Policy might already exist:', policy.name);
         }
@@ -2839,8 +2840,9 @@ export function BeneficiaryDetailPageComprehensive({
           <div className="py-4">
             {previewFile?.type.startsWith('image/') ? (
               <div className="text-center">
+                {/* deepcode ignore DOMXSS: URL is sanitized with sanitizeUrl() to prevent XSS attacks */}
                 <img
-                  src={previewFile.url}
+                  src={sanitizeUrl(previewFile.url)}
                   alt={previewFile.name}
                   className="max-w-full max-h-96 mx-auto rounded-lg"
                 />

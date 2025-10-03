@@ -6,6 +6,7 @@ import './styles/globals.css';
 
 import * as Sentry from '@sentry/react';
 import { environment, isSentryEnabled } from './lib/environment';
+import { sanitizeText } from './lib/security/sanitization';
 
 // Initialize Sentry early so it can capture errors during bootstrap
 if (isSentryEnabled()) {
@@ -99,7 +100,7 @@ if (typeof window !== 'undefined') {
         } else {
           try {
             err = new Error(JSON.stringify(event.reason));
-          } catch (jsonErr) {
+          } catch (_jsonErr) {
             err = new Error(String(event.reason));
           }
         }
@@ -136,7 +137,8 @@ if (typeof window !== 'undefined') {
         z-index: 9999;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       `;
-      div.innerHTML = '⚠️ Bir bağlantı hatası oluştu. Sayfa yenileniyor...';
+      // SECURITY FIX: Use textContent instead of innerHTML to prevent XSS
+      div.textContent = '⚠️ Bir bağlantı hatası oluştu. Sayfa yenileniyor...';
       document.body.appendChild(div);
       
       // Auto refresh after 3 seconds
@@ -268,7 +270,7 @@ try {
               overflow: auto;
               margin-top: 8px;
               font-size: 12px;
-            ">${error instanceof Error ? error.message : String(error)}</pre>
+            ">${/* deepcode ignore DOMXSS: Error message is sanitized with sanitizeText() */sanitizeText(error instanceof Error ? error.message : String(error))}</pre>
           </details>
         </div>
       </div>

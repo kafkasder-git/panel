@@ -159,8 +159,18 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Mock successful login with demo credentials
-      const demoEmail = import.meta.env.VITE_DEMO_EMAIL ?? 'demo@example.com';
-      const demoPassword = import.meta.env.VITE_DEMO_PASSWORD ?? 'demo123';
+      // SECURITY FIX: Require demo credentials from environment variables
+      const demoEmail = import.meta.env.VITE_DEMO_EMAIL;
+      const demoPassword = import.meta.env.VITE_DEMO_PASSWORD;
+      
+      if (!demoEmail || !demoPassword) {
+        const errorMessage = 'Demo mode credentials not configured. Please set VITE_DEMO_EMAIL and VITE_DEMO_PASSWORD environment variables.';
+        setError(errorMessage);
+        setIsLoading(false);
+        toast.error(errorMessage, { duration: 4000 });
+        throw new Error(errorMessage);
+      }
+
       if (email === demoEmail && password === demoPassword) {
         const mockUser = {
           id: 'mock-user-id',
@@ -184,9 +194,10 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
         } as User;
 
         setUser(mockUser);
+        // SECURITY FIX: Use random tokens instead of hardcoded values
         setSession({
-          access_token: 'mock-access-token',
-          refresh_token: 'mock-refresh-token',
+          access_token: `mock-${crypto.randomUUID()}`,
+          refresh_token: `mock-${crypto.randomUUID()}`,
           expires_in: 3600,
           expires_at: Math.floor(Date.now() / 1000) + 3600,
           token_type: 'bearer',
@@ -198,7 +209,8 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
         return;
       }
       // CRITICAL FIX: Properly reject invalid credentials in demo mode
-      const errorMessage = `Geçersiz email veya şifre. Demo için: ${demoEmail} / ${demoPassword} kullanın`;
+      // SECURITY FIX: Don't expose demo credentials in error messages
+      const errorMessage = 'Geçersiz email veya şifre. Demo modunda giriş için doğru kimlik bilgilerini kullanın.';
       setError(errorMessage);
       setIsLoading(false);
       toast.error(errorMessage, { duration: 4000 });
